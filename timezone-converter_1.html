@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timezone Converter</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:        #363675;
+    --paper:      #f4f1ec;
+    --pulse-1:    #c94f2a;
+    --pulse-2:    #2a6b9c;
+    --pulse-3:    #2d7d4f;
+    --muted:      #7a8a99;
+    --border:     #cdd4c0;
+    --accent:     #c94f2a;
+    --hb-bg:           #e6efed;
+    --hb-grid:         rgba(42, 98, 110, 0.13);
+    --hb-grid-strong:  rgba(42, 98, 110, 0.28);
+    --hb-border:       #adc4bf;
+    --hb-card:         rgba(240, 248, 246, 0.75);
+    --main-grid:        rgba(54, 54, 117, 0.055);
+    --main-grid-strong: rgba(54, 54, 117, 0.11);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+  /* HEARTBEAT */
+  .heartbeat {
+    background-color: var(--hb-bg);
+    background-image:
+      linear-gradient(var(--hb-grid-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hb-grid-strong) 1px, transparent 1px),
+      linear-gradient(var(--hb-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hb-grid) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    padding: 26px 40px 30px;
+    position: relative; overflow: hidden;
+    border-bottom: 1.5px solid var(--hb-border);
+  }
+  .heartbeat::before {
+    content: ''; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 90% at 5% 50%,  rgba(201,79,42,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 45% 80% at 95% 50%, rgba(45,125,79,0.06) 0%, transparent 60%);
+    pointer-events: none; z-index: 0;
+  }
+  .heartbeat-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; position: relative; z-index: 1; }
+  .heartbeat-label { font-family: 'Share Tech Mono', monospace; font-size: 10px; letter-spacing: 0.22em; color: var(--accent); text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .pulse-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; animation: blink 2s ease-in-out infinite; }
+  @keyframes blink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.25; transform: scale(0.6); } }
+  .heartbeat-title { font-size: 12px; font-style: italic; font-weight: 300; color: #4a7a75; letter-spacing: 0.02em; }
+  .heartbeat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; position: relative; z-index: 1; }
+
+  .hb-card { background: var(--hb-card); border: 1px solid var(--hb-border); border-radius: 3px; padding: 16px 18px 15px; position: relative; transition: box-shadow 0.25s, border-color 0.25s; }
+  .hb-card:hover { border-color: #7aada8; box-shadow: 0 3px 18px rgba(42,98,110,0.13); }
+  .hb-card.is-night { background: rgba(20,38,50,0.82); }
+  .hb-card.is-night .hb-city, .hb-card.is-night .hb-time { color: #d4e8e4; }
+  .hb-card.is-night .hb-country, .hb-card.is-night .hb-date { color: #7aada8; }
+  .hb-card.is-night .hb-why { color: #8ab8b4; border-top-color: rgba(42,98,110,0.35); }
+  .hb-card.is-night .hb-why strong { color: #c8e0dc; }
+  .hb-card.is-dawn, .hb-card.is-dusk { background: rgba(210,160,80,0.13); }
+  .hb-card-accent { position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 3px 0 0 3px; }
+  .hb-card:nth-child(1) .hb-card-accent { background: var(--pulse-1); }
+  .hb-card:nth-child(2) .hb-card-accent { background: var(--pulse-2); }
+  .hb-card:nth-child(3) .hb-card-accent { background: var(--pulse-3); }
+  .hb-city { font-size: 15px; font-weight: 500; color: var(--ink); margin-bottom: 1px; }
+  .hb-country { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 0.14em; color: #4a8a85; text-transform: uppercase; margin-bottom: 9px; }
+  .hb-time { font-family: 'Share Tech Mono', monospace; font-size: 26px; letter-spacing: 0.04em; color: var(--ink); line-height: 1; margin-bottom: 3px; }
+  .hb-date { font-size: 11px; font-weight: 300; color: #4a8a85; margin-bottom: 12px; }
+  .hb-why { font-size: 11.5px; line-height: 1.65; font-weight: 300; color: #3d6a67; border-top: 1px solid rgba(42,98,110,0.18); padding-top: 10px; }
+  .hb-why strong { font-weight: 500; color: var(--ink); }
+
+  /* MAIN TOOL */
+  .tool-outer {
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--main-grid-strong) 1px, transparent 1px),
+      linear-gradient(90deg, var(--main-grid-strong) 1px, transparent 1px),
+      linear-gradient(var(--main-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--main-grid) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+  }
+  .tool-wrap { max-width: 1100px; margin: 0 auto; padding: 34px 40px 80px; }
+  .tool-header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .tool-title { font-size: 21px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+  .tool-subtitle { font-size: 13px; color: var(--muted); font-weight: 300; }
+
+  /* YOUR LOCATION BAR */
+  .your-location-bar {
+    background: rgba(54,54,117,0.04);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 18px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .your-location-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .your-location-time { font-family: 'Share Tech Mono', monospace; font-size: 20px; color: var(--ink); letter-spacing: 0.04em; }
+  .your-location-tz { font-size: 12px; color: var(--muted); font-weight: 300; }
+
+  /* TIME SELECTOR */
+  .selector-section { background: rgba(255,255,255,0.65); border: 1px solid var(--border); border-radius: 4px; padding: 20px 24px; margin-bottom: 14px; }
+  .selector-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .selector-label::before { content: '⊙'; font-size: 11px; }
+  .time-display { font-family: 'Share Tech Mono', monospace; font-size: 38px; letter-spacing: 0.04em; margin-bottom: 12px; line-height: 1; color: var(--ink); }
+  input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 2px; background: var(--border); outline: none; border-radius: 2px; cursor: pointer; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: var(--ink); cursor: pointer; border: 3px solid var(--paper); box-shadow: 0 0 0 1.5px var(--ink); transition: transform 0.15s; }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  .slider-marks { display: flex; justify-content: space-between; margin-top: 8px; }
+  .slider-marks span { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 0.08em; color: var(--muted); }
+
+  /* CONVERTER */
+  .converter-section { background: rgba(255,255,255,0.55); border: 1px solid var(--border); border-radius: 4px; padding: 16px 20px; margin-bottom: 14px; }
+  .converter-label { font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .converter-label::before { content: '⇄'; font-size: 11px; }
+  .converter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .conv-time-input { font-family: 'Share Tech Mono', monospace; font-size: 15px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 3px; background: white; color: var(--ink); width: 120px; outline: none; }
+  .conv-time-input:focus { border-color: var(--ink); }
+  .conv-select { padding: 8px 30px 8px 10px; border: 1px solid var(--border); border-radius: 3px; background: white; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a8a99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; outline: none; min-width: 140px; }
+  .conv-select:focus { border-color: var(--ink); }
+  .conv-arrow { font-family: 'Share Tech Mono', monospace; font-size: 14px; color: var(--muted); flex-shrink: 0; }
+  .conv-result { font-family: 'Share Tech Mono', monospace; font-size: 22px; color: var(--ink); letter-spacing: 0.04em; }
+  .conv-result-city { font-size: 11px; color: var(--muted); font-weight: 300; margin-top: 1px; }
+
+  /* ADD TIMEZONE */
+  .add-section { margin-bottom: 20px; }
+  .add-select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 4px; background: rgba(255,255,255,0.72); font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a8a99' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; transition: border-color 0.2s; }
+  .add-select:focus { outline: none; border-color: var(--ink); }
+
+  /* TIMEZONE GRID */
+  .tz-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 11px; }
+  .tz-card { border: 1px solid var(--border); border-radius: 4px; padding: 16px 18px 22px; position: relative; transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s; overflow: hidden; }
+  .tz-card.is-day   { background: rgba(255,255,255,0.6); }
+  .tz-card.is-dawn  { background: rgba(255,200,100,0.12); }
+  .tz-card.is-dusk  { background: rgba(255,130,60,0.12); }
+  .tz-card.is-night { background: rgba(18,26,48,0.76); border-color: rgba(54,54,117,0.22); }
+  .tz-card.is-night .tz-name, .tz-card.is-night .tz-time { color: #c8d8f0; }
+  .tz-card.is-night .tz-offset { background: rgba(200,216,240,0.08); color: #8899bb; }
+  .tz-card.is-night .tz-date { color: #8899bb; }
+  .tz-card.is-night .tz-remove { color: #8899bb; }
+  .tz-card.is-night::before { content: '·  ·    ·  ·   ·'; position: absolute; top: 7px; right: 32px; font-size: 8px; color: rgba(200,216,240,0.25); letter-spacing: 3px; pointer-events: none; }
+  .tz-card:hover { border-color: #a8b8a8; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(54,54,117,0.06); }
+  .tz-card.is-night:hover { border-color: rgba(100,130,200,0.4); }
+  .tz-daynight { position: absolute; bottom: 7px; right: 10px; font-size: 13px; opacity: 0.6; pointer-events: none; }
+  .tz-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 7px; }
+  .tz-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+  .tz-offset { font-family: 'Share Tech Mono', monospace; font-size: 9px; color: var(--muted); background: rgba(54,54,117,0.07); padding: 2px 5px; border-radius: 2px; letter-spacing: 0.04em; }
+  .tz-time { font-family: 'Share Tech Mono', monospace; font-size: 26px; letter-spacing: 0.04em; line-height: 1; margin-bottom: 4px; color: var(--ink); }
+  .tz-date { font-size: 11px; color: var(--muted); font-weight: 300; }
+  .dst-badge { display: inline-block; font-family: 'Share Tech Mono', monospace; font-size: 8px; letter-spacing: 0.08em; padding: 1px 4px; border-radius: 2px; background: rgba(201,79,42,0.1); color: var(--accent); vertical-align: middle; margin-left: 4px; border: 1px solid rgba(201,79,42,0.18); }
+  .tz-card.is-night .dst-badge { background: rgba(201,79,42,0.2); color: #e8805a; border-color: rgba(201,79,42,0.3); }
+  .tz-remove { position: absolute; top: 7px; right: 7px; width: 20px; height: 20px; border: none; background: rgba(0,0,0,0.07); color: var(--muted); cursor: pointer; font-size: 15px; display: flex; align-items: center; justify-content: center; border-radius: 3px; line-height: 1; transition: background 0.15s, color 0.15s; opacity: 0; }
+  .tz-card:hover .tz-remove { opacity: 1; }
+  .tz-remove:hover { background: rgba(201,79,42,0.15); color: var(--accent); }
+
+  /* FOOTER */
+  .footer { text-align: center; padding: 18px; font-family: 'Share Tech Mono', monospace; font-size: 9px; letter-spacing: 0.14em; color: var(--muted); border-top: 1px solid var(--border); background: rgba(255,255,255,0.3); }
+
+  /* RESPONSIVE */
+  @media (max-width: 820px) {
+    .heartbeat-grid { grid-template-columns: 1fr; }
+    .tz-grid { grid-template-columns: repeat(2, 1fr); }
+    .heartbeat { padding: 20px 20px 24px; }
+    .tool-wrap { padding: 22px 20px 60px; }
+  }
+  @media (max-width: 500px) {
+    .tz-grid { grid-template-columns: 1fr; }
+    .conv-time-input, .conv-select { width: 100%; min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<section class="heartbeat">
+  <div class="heartbeat-header">
+    <div class="heartbeat-label"><span class="pulse-dot"></span>Live</div>
+    <div class="heartbeat-title">places that could use our good energy right now</div>
+  </div>
+  <div class="heartbeat-grid">
+    <div class="hb-card" id="hb-card-tehran">
+      <div class="hb-card-accent"></div>
+      <div class="hb-city">Tehran</div>
+      <div class="hb-country">Iran · Asia/Tehran</div>
+      <div class="hb-time" id="hb-time-tehran">—</div>
+      <div class="hb-date" id="hb-date-tehran">—</div>
+      <div class="hb-why"><strong>Under fire.</strong> Iranian civilians face ongoing Israeli and US strikes alongside internal repression — civil society, women, and journalists caught between external bombardment and state control.</div>
+    </div>
+    <div class="hb-card" id="hb-card-minneapolis">
+      <div class="hb-card-accent"></div>
+      <div class="hb-city">Minneapolis</div>
+      <div class="hb-country">USA · America/Chicago</div>
+      <div class="hb-time" id="hb-time-minneapolis">—</div>
+      <div class="hb-date" id="hb-date-minneapolis">—</div>
+      <div class="hb-why"><strong>Communities resisting.</strong> Immigration enforcement operations and civil liberties tensions make this city a node in the broader struggle for democratic dignity in the US.</div>
+    </div>
+    <div class="hb-card" id="hb-card-boavista">
+      <div class="hb-card-accent"></div>
+      <div class="hb-city">Boa Vista</div>
+      <div class="hb-country">Brazil · America/Boa_Vista</div>
+      <div class="hb-time" id="hb-time-boavista">—</div>
+      <div class="hb-date" id="hb-date-boavista">—</div>
+      <div class="hb-why"><strong>Amazon & Indigenous land rights.</strong> Gateway to Yanomami territory — at the center of Brazil's constitutional battle over Indigenous demarcation and the future of the Amazon itself.</div>
+    </div>
+  </div>
+</section>
+
+<div class="tool-outer">
+  <div class="tool-wrap">
+
+    <div class="tool-header">
+      <div class="tool-title">Timezone Converter</div>
+      <div class="tool-subtitle">Compare times across the world</div>
+    </div>
+
+    <div class="your-location-bar">
+      <span class="your-location-label">You ·</span>
+      <span class="your-location-time" id="your-time">—</span>
+      <span class="your-location-tz" id="your-tz">—</span>
+    </div>
+
+    <div class="selector-section">
+      <div class="selector-label">Time Selector</div>
+      <div class="time-display" id="selected-time">12:00 PM</div>
+      <input type="range" id="time-slider" min="0" max="95" value="48">
+      <div class="slider-marks">
+        <span>12:00 AM</span>
+        <span>12:00 PM</span>
+        <span>11:45 PM</span>
+      </div>
+    </div>
+
+    <div class="converter-section">
+      <div class="converter-label">Quick Convert</div>
+      <div class="converter-row">
+        <input type="time" class="conv-time-input" id="conv-time" value="13:00">
+        <select class="conv-select" id="conv-from"><option value="">From city…</option></select>
+        <span class="conv-arrow">→</span>
+        <select class="conv-select" id="conv-to"><option value="">To city…</option></select>
+        <div>
+          <div class="conv-result" id="conv-result">—</div>
+          <div class="conv-result-city" id="conv-result-city"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="add-section">
+      <select class="add-select" id="tz-select">
+        <option value="">Add a timezone…</option>
+        <optgroup label="Americas">
+          <option value="Pacific/Honolulu|Honolulu">Honolulu</option>
+          <option value="America/Anchorage|Anchorage">Anchorage</option>
+          <option value="America/Los_Angeles|Los Angeles">Los Angeles</option>
+          <option value="America/Denver|Denver">Denver</option>
+          <option value="America/Chicago|Chicago">Chicago</option>
+          <option value="America/New_York|New York">New York</option>
+          <option value="America/Toronto|Toronto">Toronto</option>
+          <option value="America/Vancouver|Vancouver">Vancouver</option>
+          <option value="America/Sao_Paulo|São Paulo">São Paulo</option>
+          <option value="America/Argentina/Buenos_Aires|Buenos Aires">Buenos Aires</option>
+          <option value="America/Bogota|Bogotá">Bogotá</option>
+          <option value="America/Mexico_City|Mexico City">Mexico City</option>
+          <option value="America/Lima|Lima">Lima</option>
+          <option value="America/Santiago|Santiago">Santiago</option>
+          <option value="America/Boa_Vista|Boa Vista">Boa Vista</option>
+        </optgroup>
+        <optgroup label="Europe">
+          <option value="Europe/London|London">London</option>
+          <option value="Europe/Paris|Paris">Paris</option>
+          <option value="Europe/Berlin|Berlin">Berlin</option>
+          <option value="Europe/Rome|Rome">Rome</option>
+          <option value="Europe/Madrid|Madrid">Madrid</option>
+          <option value="Europe/Amsterdam|Amsterdam">Amsterdam</option>
+          <option value="Europe/Copenhagen|Copenhagen">Copenhagen</option>
+          <option value="Europe/Stockholm|Stockholm">Stockholm</option>
+          <option value="Europe/Warsaw|Warsaw">Warsaw</option>
+          <option value="Europe/Kyiv|Kyiv">Kyiv</option>
+          <option value="Europe/Moscow|Moscow">Moscow</option>
+          <option value="Europe/Istanbul|Istanbul">Istanbul</option>
+          <option value="Europe/Athens|Athens">Athens</option>
+          <option value="Europe/Helsinki|Helsinki">Helsinki</option>
+          <option value="Europe/Zurich|Zurich">Zurich</option>
+        </optgroup>
+        <optgroup label="Africa & Middle East">
+          <option value="Asia/Tehran|Tehran">Tehran</option>
+          <option value="Asia/Dubai|Dubai">Dubai</option>
+          <option value="Asia/Jerusalem|Jerusalem">Jerusalem</option>
+          <option value="Africa/Nairobi|Nairobi">Nairobi</option>
+          <option value="Africa/Lagos|Lagos">Lagos</option>
+          <option value="Africa/Cairo|Cairo">Cairo</option>
+          <option value="Africa/Johannesburg|Johannesburg">Johannesburg</option>
+          <option value="Africa/Casablanca|Casablanca">Casablanca</option>
+          <option value="Africa/Addis_Ababa|Addis Ababa">Addis Ababa</option>
+        </optgroup>
+        <optgroup label="Asia & Pacific">
+          <option value="Asia/Kolkata|Kolkata">Kolkata</option>
+          <option value="Asia/Dhaka|Dhaka">Dhaka</option>
+          <option value="Asia/Bangkok|Bangkok">Bangkok</option>
+          <option value="Asia/Singapore|Singapore">Singapore</option>
+          <option value="Asia/Hong_Kong|Hong Kong">Hong Kong</option>
+          <option value="Asia/Shanghai|Shanghai">Shanghai</option>
+          <option value="Asia/Tokyo|Tokyo">Tokyo</option>
+          <option value="Asia/Seoul|Seoul">Seoul</option>
+          <option value="Asia/Taipei|Taipei">Taipei</option>
+          <option value="Asia/Jakarta|Jakarta">Jakarta</option>
+          <option value="Asia/Karachi|Karachi">Karachi</option>
+          <option value="Asia/Riyadh|Riyadh">Riyadh</option>
+          <option value="Australia/Sydney|Sydney">Sydney</option>
+          <option value="Australia/Melbourne|Melbourne">Melbourne</option>
+          <option value="Pacific/Auckland|Auckland">Auckland</option>
+          <option value="Pacific/Fiji|Fiji">Fiji</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="tz-grid" id="tz-grid"></div>
+
+  </div>
+</div>
+
+<div class="footer">Updated March 2026 &nbsp;·&nbsp; Heartbeat rotates as the world changes</div>
+
+<script>
+const defaultZones = [
+  { tz: 'Pacific/Honolulu',    name: 'Honolulu'   },
+  { tz: 'America/Los_Angeles', name: 'Los Angeles' },
+  { tz: 'America/Denver',      name: 'Denver'      },
+  { tz: 'America/Chicago',     name: 'Chicago'     },
+  { tz: 'America/New_York',    name: 'New York'    },
+  { tz: 'Europe/London',       name: 'London'      },
+  { tz: 'Europe/Copenhagen',   name: 'Copenhagen'  },
+  { tz: 'Europe/Rome',         name: 'Rome'        },
+  { tz: 'Europe/Istanbul',     name: 'Istanbul'    },
+  { tz: 'Asia/Kolkata',        name: 'Kolkata'     },
+  { tz: 'Asia/Bangkok',        name: 'Bangkok'     },
+  { tz: 'Asia/Hong_Kong',      name: 'Hong Kong'   },
+  { tz: 'Asia/Seoul',          name: 'Seoul'       },
+  { tz: 'Asia/Tokyo',          name: 'Tokyo'       },
+  { tz: 'Australia/Sydney',    name: 'Sydney'      },
+];
+
+const heartbeatZones = [
+  { tz: 'Asia/Tehran',       timeId: 'hb-time-tehran',      dateId: 'hb-date-tehran',      cardId: 'hb-card-tehran'      },
+  { tz: 'America/Chicago',   timeId: 'hb-time-minneapolis', dateId: 'hb-date-minneapolis', cardId: 'hb-card-minneapolis' },
+  { tz: 'America/Boa_Vista', timeId: 'hb-time-boavista',    dateId: 'hb-date-boavista',    cardId: 'hb-card-boavista'    },
+];
+
+const allCities = [
+  { tz: 'Pacific/Honolulu',              name: 'Honolulu'      },
+  { tz: 'America/Anchorage',             name: 'Anchorage'     },
+  { tz: 'America/Los_Angeles',           name: 'Los Angeles'   },
+  { tz: 'America/Denver',                name: 'Denver'        },
+  { tz: 'America/Chicago',               name: 'Chicago'       },
+  { tz: 'America/New_York',              name: 'New York'      },
+  { tz: 'America/Toronto',               name: 'Toronto'       },
+  { tz: 'America/Vancouver',             name: 'Vancouver'     },
+  { tz: 'America/Sao_Paulo',             name: 'São Paulo'     },
+  { tz: 'America/Argentina/Buenos_Aires',name: 'Buenos Aires'  },
+  { tz: 'America/Bogota',                name: 'Bogotá'        },
+  { tz: 'America/Mexico_City',           name: 'Mexico City'   },
+  { tz: 'America/Lima',                  name: 'Lima'          },
+  { tz: 'America/Santiago',              name: 'Santiago'      },
+  { tz: 'America/Boa_Vista',             name: 'Boa Vista'     },
+  { tz: 'Europe/London',                 name: 'London'        },
+  { tz: 'Europe/Paris',                  name: 'Paris'         },
+  { tz: 'Europe/Berlin',                 name: 'Berlin'        },
+  { tz: 'Europe/Rome',                   name: 'Rome'          },
+  { tz: 'Europe/Madrid',                 name: 'Madrid'        },
+  { tz: 'Europe/Amsterdam',              name: 'Amsterdam'     },
+  { tz: 'Europe/Copenhagen',             name: 'Copenhagen'    },
+  { tz: 'Europe/Stockholm',              name: 'Stockholm'     },
+  { tz: 'Europe/Warsaw',                 name: 'Warsaw'        },
+  { tz: 'Europe/Kyiv',                   name: 'Kyiv'          },
+  { tz: 'Europe/Moscow',                 name: 'Moscow'        },
+  { tz: 'Europe/Istanbul',               name: 'Istanbul'      },
+  { tz: 'Europe/Athens',                 name: 'Athens'        },
+  { tz: 'Europe/Helsinki',               name: 'Helsinki'      },
+  { tz: 'Europe/Zurich',                 name: 'Zurich'        },
+  { tz: 'Asia/Tehran',                   name: 'Tehran'        },
+  { tz: 'Asia/Dubai',                    name: 'Dubai'         },
+  { tz: 'Asia/Jerusalem',                name: 'Jerusalem'     },
+  { tz: 'Africa/Nairobi',                name: 'Nairobi'       },
+  { tz: 'Africa/Lagos',                  name: 'Lagos'         },
+  { tz: 'Africa/Cairo',                  name: 'Cairo'         },
+  { tz: 'Africa/Johannesburg',           name: 'Johannesburg'  },
+  { tz: 'Africa/Casablanca',             name: 'Casablanca'    },
+  { tz: 'Africa/Addis_Ababa',            name: 'Addis Ababa'   },
+  { tz: 'Asia/Kolkata',                  name: 'Kolkata'       },
+  { tz: 'Asia/Dhaka',                    name: 'Dhaka'         },
+  { tz: 'Asia/Bangkok',                  name: 'Bangkok'       },
+  { tz: 'Asia/Singapore',                name: 'Singapore'     },
+  { tz: 'Asia/Hong_Kong',                name: 'Hong Kong'     },
+  { tz: 'Asia/Shanghai',                 name: 'Shanghai'      },
+  { tz: 'Asia/Tokyo',                    name: 'Tokyo'         },
+  { tz: 'Asia/Seoul',                    name: 'Seoul'         },
+  { tz: 'Asia/Taipei',                   name: 'Taipei'        },
+  { tz: 'Asia/Jakarta',                  name: 'Jakarta'       },
+  { tz: 'Asia/Karachi',                  name: 'Karachi'       },
+  { tz: 'Asia/Riyadh',                   name: 'Riyadh'        },
+  { tz: 'Australia/Sydney',              name: 'Sydney'        },
+  { tz: 'Australia/Melbourne',           name: 'Melbourne'     },
+  { tz: 'Pacific/Auckland',              name: 'Auckland'      },
+  { tz: 'Pacific/Fiji',                  name: 'Fiji'          },
+];
+
+let zones = [...defaultZones];
+let sliderStep = 48; // 48 × 15min = 720min = noon
+let useSlider = false;
+
+// ── UTILS ─────────────────────────────────────────────
+
+function stepToMinutes(s) { return s * 15; }
+
+function fmtTime(date, tz) {
+  return new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: true }).format(date);
+}
+
+function fmtDate(date, tz) {
+  return new Intl.DateTimeFormat('en-US', { timeZone: tz, weekday: 'short', month: 'short', day: 'numeric' }).format(date);
+}
+
+function fmtOffset(tz) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'shortOffset', hour: 'numeric' }).formatToParts(new Date());
+    return (parts.find(p => p.type === 'timeZoneName') || {}).value || '';
+  } catch { return ''; }
+}
+
+function getOffsetMinutes(tz) {
+  try {
+    const now = new Date();
+    const opts = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const parse = s => new Date(s.replace(/(\d+)\/(\d+)\/(\d+),\s/, '$3-$1-$2T') + 'Z');
+    return (parse(now.toLocaleString('en-US', { ...opts, timeZone: tz })) - parse(now.toLocaleString('en-US', { ...opts, timeZone: 'UTC' }))) / 60000;
+  } catch { return 0; }
+}
+
+function isDST(tz) {
+  try {
+    const yr = new Date().getFullYear();
+    const getOff = d => {
+      const opts = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      const parse = s => new Date(s.replace(/(\d+)\/(\d+)\/(\d+),\s/, '$3-$1-$2T') + 'Z');
+      return (parse(d.toLocaleString('en-US', { ...opts, timeZone: tz })) - d) / 60000;
+    };
+    const janOff = getOff(new Date(yr, 0, 15));
+    const junOff = getOff(new Date(yr, 5, 15));
+    if (janOff === junOff) return false;
+    return getOffsetMinutes(tz) === Math.max(janOff, junOff);
+  } catch { return false; }
+}
+
+function getLocalHour(date, tz) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour: 'numeric', hour12: false }).formatToParts(date);
+    const h = parseInt((parts.find(p => p.type === 'hour') || {}).value || '0');
+    return h === 24 ? 0 : h;
+  } catch { return 12; }
+}
+
+function getDayPeriod(date, tz) {
+  const h = getLocalHour(date, tz);
+  if (h >= 6 && h < 8)   return 'dawn';
+  if (h >= 8 && h < 19)  return 'day';
+  if (h >= 19 && h < 21) return 'dusk';
+  return 'night';
+}
+
+const periodIcon = { day: '☀️', dawn: '🌅', dusk: '🌇', night: '🌙' };
+
+function sliderDate() {
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+  return new Date(midnight.getTime() + stepToMinutes(sliderStep) * 60000);
+}
+
+function stepsToLabel(s) {
+  const m = stepToMinutes(s), h = Math.floor(m / 60), min = m % 60;
+  const ampm = h < 12 ? 'AM' : 'PM';
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${String(min).padStart(2,'0')} ${ampm}`;
+}
+
+function sortZones() {
+  zones.sort((a, b) => getOffsetMinutes(a.tz) - getOffsetMinutes(b.tz));
+}
+
+// ── YOUR LOCATION ─────────────────────────────────────
+
+function renderYourLocation() {
+  const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  document.getElementById('your-time').textContent = fmtTime(new Date(), userTz);
+  const dst = isDST(userTz) ? ' · DST' : '';
+  document.getElementById('your-tz').textContent = `${userTz.replace(/_/g,' ')}  ${fmtOffset(userTz)}${dst}`;
+}
+
+// ── SLIDER ────────────────────────────────────────────
+
+const slider = document.getElementById('time-slider');
+const timeDisplay = document.getElementById('selected-time');
+
+slider.addEventListener('input', () => {
+  sliderStep = parseInt(slider.value);
+  useSlider = true;
+  timeDisplay.textContent = stepsToLabel(sliderStep);
+  renderAll();
+});
+
+// ── HEARTBEAT ─────────────────────────────────────────
+
+function renderHeartbeat() {
+  const d = useSlider ? sliderDate() : new Date();
+  heartbeatZones.forEach(({ tz, timeId, dateId, cardId }) => {
+    document.getElementById(timeId).textContent = fmtTime(d, tz);
+    document.getElementById(dateId).textContent = fmtDate(d, tz);
+    const card = document.getElementById(cardId);
+    const period = getDayPeriod(d, tz);
+    card.classList.remove('is-day','is-night','is-dawn','is-dusk');
+    card.classList.add('is-' + period);
+  });
+}
+
+// ── GRID ──────────────────────────────────────────────
+
+function renderGrid() {
+  const d = useSlider ? sliderDate() : new Date();
+  const grid = document.getElementById('tz-grid');
+  grid.innerHTML = '';
+  zones.forEach(({ tz, name }, idx) => {
+    const period = getDayPeriod(d, tz);
+    const dst = isDST(tz);
+    const card = document.createElement('div');
+    card.className = `tz-card is-${period}`;
+    card.innerHTML = `
+      <button class="tz-remove" title="Remove" data-idx="${idx}">×</button>
+      <div class="tz-card-header">
+        <div class="tz-name">${name}${dst ? '<span class="dst-badge">DST</span>' : ''} <span class="tz-offset">${fmtOffset(tz)}</span></div>
+      </div>
+      <div class="tz-time">${fmtTime(d, tz)}</div>
+      <div class="tz-date">${fmtDate(d, tz)}</div>
+      <div class="tz-daynight">${periodIcon[period]}</div>
+    `;
+    grid.appendChild(card);
+  });
+
+  grid.querySelectorAll('.tz-remove').forEach(btn => {
+    btn.addEventListener('click', () => {
+      zones.splice(parseInt(btn.dataset.idx), 1);
+      renderGrid();
+    });
+  });
+}
+
+// ── CONVERTER ─────────────────────────────────────────
+
+function populateConverterSelects() {
+  ['conv-from','conv-to'].forEach(id => {
+    const sel = document.getElementById(id);
+    const prev = sel.value;
+    sel.innerHTML = `<option value="">${id === 'conv-from' ? 'From city…' : 'To city…'}</option>`;
+    allCities.forEach(({ tz, name }) => {
+      const opt = document.createElement('option');
+      opt.value = tz; opt.textContent = name;
+      sel.appendChild(opt);
+    });
+    if (prev) sel.value = prev;
+  });
+}
+
+function runConverter() {
+  const timeVal = document.getElementById('conv-time').value;
+  const fromTz  = document.getElementById('conv-from').value;
+  const toTz    = document.getElementById('conv-to').value;
+  const resultEl     = document.getElementById('conv-result');
+  const resultCityEl = document.getElementById('conv-result-city');
+  if (!timeVal || !fromTz || !toTz) { resultEl.textContent = '—'; resultCityEl.textContent = ''; return; }
+  const [hh, mm] = timeVal.split(':').map(Number);
+  const fromOff = getOffsetMinutes(fromTz);
+  const toOff   = getOffsetMinutes(toTz);
+  const fromMin = hh * 60 + mm;
+  const rawToMin = fromMin - fromOff + toOff;
+  const toMin = ((rawToMin % 1440) + 1440) % 1440;
+  const dayDiff = Math.round((rawToMin - toMin) / 1440);
+  const rh = Math.floor(toMin / 60), rm = toMin % 60;
+  const ampm = rh < 12 ? 'AM' : 'PM';
+  const h12 = rh === 0 ? 12 : rh > 12 ? rh - 12 : rh;
+  const dayLabel = dayDiff === 0 ? '' : dayDiff > 0 ? ` +${dayDiff}d` : ` ${dayDiff}d`;
+  resultEl.textContent = `${h12}:${String(rm).padStart(2,'0')} ${ampm}${dayLabel}`;
+  resultCityEl.textContent = allCities.find(c => c.tz === toTz)?.name || toTz;
+}
+
+document.getElementById('conv-time').addEventListener('input', runConverter);
+document.getElementById('conv-from').addEventListener('change', runConverter);
+document.getElementById('conv-to').addEventListener('change', runConverter);
+
+// ── ADD TZ ────────────────────────────────────────────
+
+document.getElementById('tz-select').addEventListener('change', function () {
+  if (!this.value) return;
+  const [tz, name] = this.value.split('|');
+  if (!zones.find(z => z.tz === tz)) { zones.push({ tz, name }); sortZones(); renderAll(); }
+  this.value = '';
+});
+
+// ── BOOT ──────────────────────────────────────────────
+
+function renderAll() { renderYourLocation(); renderHeartbeat(); renderGrid(); }
+populateConverterSelects();
+renderAll();
+setInterval(() => { if (!useSlider) renderAll(); }, 10000);
+</script>
+</body>
+</html>
