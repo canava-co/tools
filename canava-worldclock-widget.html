@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CANAVA Timezone Converter</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #f0ede6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'DM Sans', sans-serif;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .widget {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+    background: #f4f1ec;
+    background-image:
+      linear-gradient(rgba(54,54,117,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(54,54,117,0.055) 1px, transparent 1px),
+      linear-gradient(rgba(54,54,117,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(54,54,117,0.02) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    border: 1px solid #cdd4c0;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 32px rgba(54,54,117,0.08);
+  }
+
+  /* Header */
+  .widget-header {
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid #cdd4c0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .widget-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .widget-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: #363675;
+    letter-spacing: -0.01em;
+  }
+
+  .widget-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #7a8a99;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .pulse-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: #c94f2a;
+    animation: blink 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.25; transform: scale(0.6); }
+  }
+
+  /* Your time */
+  .widget-your-time {
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .your-time-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #7a8a99;
+    margin-bottom: 2px;
+  }
+
+  .your-time-value {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 16px;
+    color: #363675;
+    letter-spacing: 0.04em;
+    line-height: 1;
+  }
+
+  .your-time-tz {
+    font-size: 9px;
+    color: #7a8a99;
+    font-weight: 300;
+    margin-top: 2px;
+  }
+
+  /* City rows */
+  .widget-cities { padding: 2px 0; }
+
+  .city-row {
+    display: flex;
+    align-items: center;
+    padding: 8px 18px;
+    gap: 10px;
+    border-bottom: 1px solid rgba(205,212,192,0.5);
+    transition: background 0.15s;
+  }
+
+  .city-row:last-child { border-bottom: none; }
+
+  /* Day/night backgrounds matching the main tool */
+  .city-row.is-day   { background: rgba(255,255,255,0.0); }
+  .city-row.is-dawn  { background: rgba(255,200,100,0.10); }
+  .city-row.is-dusk  { background: rgba(255,130,60,0.10); }
+  .city-row.is-night { background: rgba(18,26,48,0.07); }
+
+  .city-row:hover { filter: brightness(0.97); }
+
+  .city-period {
+    font-size: 12px;
+    flex-shrink: 0;
+    width: 18px;
+    text-align: center;
+  }
+
+  .city-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .city-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: #363675;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .city-row.is-night .city-name { color: #6070a0; }
+
+  .city-date {
+    font-size: 9px;
+    color: #7a8a99;
+    font-weight: 300;
+    margin-top: 1px;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  .city-row.is-night .city-date { color: #8899bb; }
+
+  .city-dst {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    padding: 1px 3px;
+    border-radius: 2px;
+    background: rgba(201,79,42,0.1);
+    color: #c94f2a;
+    border: 1px solid rgba(201,79,42,0.18);
+    flex-shrink: 0;
+  }
+
+  .city-row.is-night .city-dst {
+    background: rgba(201,79,42,0.15);
+    color: #e0704a;
+  }
+
+  .city-time {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    color: #363675;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+    text-align: right;
+    min-width: 80px;
+  }
+
+  .city-row.is-night .city-time { color: #6070a0; }
+
+  /* CTA */
+  .widget-cta {
+    padding: 11px 18px;
+    border-top: 1px solid #cdd4c0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: rgba(255,255,255,0.3);
+  }
+
+  .widget-cta-label {
+    font-size: 10px;
+    font-weight: 300;
+    color: #7a8a99;
+    font-style: italic;
+  }
+
+  .widget-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #f4f1ec;
+    background: #363675;
+    padding: 8px 14px;
+    border-radius: 3px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .widget-btn:hover {
+    background: #c94f2a;
+    transform: translateY(-1px);
+  }
+
+  .widget-btn-arrow { transition: transform 0.2s; }
+  .widget-btn:hover .widget-btn-arrow { transform: translateX(2px); }
+</style>
+</head>
+<body>
+
+<div class="widget">
+
+  <div class="widget-header">
+    <div class="widget-title-group">
+      <div class="widget-title">Timezone Converter</div>
+      <div class="widget-eyebrow"><span class="pulse-dot"></span>Live</div>
+    </div>
+    <div class="widget-your-time">
+      <div class="your-time-label">Your Time</div>
+      <div class="your-time-value" id="your-time">—</div>
+      <div class="your-time-tz" id="your-tz">—</div>
+    </div>
+  </div>
+
+  <div class="widget-cities" id="widget-cities"></div>
+
+  <div class="widget-cta">
+    <div class="widget-cta-label">DST · convert · add cities & more</div>
+    <a class="widget-btn" href="https://tools.canava.co/timezone-converter.html" target="_blank">
+      Full Tool <span class="widget-btn-arrow">→</span>
+    </a>
+  </div>
+
+</div>
+
+<script>
+const cities = [
+  { name: 'Los Angeles',  tz: 'America/Los_Angeles' },
+  { name: 'Mexico City',  tz: 'America/Mexico_City'  },
+  { name: 'New York',     tz: 'America/New_York'     },
+  { name: 'London',       tz: 'Europe/London'        },
+  { name: 'Copenhagen',   tz: 'Europe/Copenhagen'    },
+  { name: 'Kolkata',      tz: 'Asia/Kolkata'         },
+  { name: 'Tokyo',        tz: 'Asia/Tokyo'           },
+  { name: 'Sydney',       tz: 'Australia/Sydney'     },
+];
+
+const periodIcon = { day: '☀️', dawn: '🌅', dusk: '🌇', night: '🌙' };
+
+function fmtTime(date, tz) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, hour: '2-digit', minute: '2-digit', hour12: true
+  }).format(date);
+}
+
+function fmtDate(date, tz) {
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: tz, weekday: 'short', month: 'short', day: 'numeric'
+  }).format(date);
+}
+
+function getLocalHour(date, tz) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: tz, hour: 'numeric', hour12: false
+    }).formatToParts(date);
+    const h = parseInt((parts.find(p => p.type === 'hour') || {}).value || '0');
+    return h === 24 ? 0 : h;
+  } catch { return 12; }
+}
+
+function getDayPeriod(date, tz) {
+  const h = getLocalHour(date, tz);
+  if (h >= 6 && h < 8)   return 'dawn';
+  if (h >= 8 && h < 19)  return 'day';
+  if (h >= 19 && h < 21) return 'dusk';
+  return 'night';
+}
+
+function isDST(tz) {
+  try {
+    const yr = new Date().getFullYear();
+    const opts = { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const parse = s => new Date(s.replace(/(\d+)\/(\d+)\/(\d+),\s/, '$3-$1-$2T') + 'Z');
+    const getOff = d => (parse(d.toLocaleString('en-US', { ...opts, timeZone: tz })) - d) / 60000;
+    const janOff = getOff(new Date(yr, 0, 15));
+    const junOff = getOff(new Date(yr, 5, 15));
+    if (janOff === junOff) return false;
+    const now = new Date();
+    const curOff = (parse(now.toLocaleString('en-US', { ...opts, timeZone: tz })) - parse(now.toLocaleString('en-US', { ...opts, timeZone: 'UTC' }))) / 60000;
+    return curOff === Math.max(janOff, junOff);
+  } catch { return false; }
+}
+
+// Check if two cities are on different calendar dates
+function getDateStr(date, tz) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: tz }).format(date); // YYYY-MM-DD
+}
+
+function render() {
+  const now = new Date();
+  const userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const userDate = getDateStr(now, userTz);
+
+  document.getElementById('your-time').textContent = fmtTime(now, userTz);
+  document.getElementById('your-tz').textContent = userTz.replace(/_/g,' ').split('/').pop();
+
+  const container = document.getElementById('widget-cities');
+  container.innerHTML = '';
+
+  cities.forEach(({ name, tz }) => {
+    const period = getDayPeriod(now, tz);
+    const dst = isDST(tz);
+    const cityDate = getDateStr(now, tz);
+    const showDate = cityDate !== userDate;
+
+    const row = document.createElement('div');
+    row.className = `city-row is-${period}`;
+    row.innerHTML = `
+      <span class="city-period">${periodIcon[period]}</span>
+      <div class="city-info">
+        <div class="city-name">
+          ${name}${dst ? ' <span class="city-dst">DST</span>' : ''}
+        </div>
+        ${showDate ? `<div class="city-date">${fmtDate(now, tz)}</div>` : ''}
+      </div>
+      <span class="city-time">${fmtTime(now, tz)}</span>
+    `;
+    container.appendChild(row);
+  });
+}
+
+render();
+setInterval(render, 10000);
+</script>
+</body>
+</html>
