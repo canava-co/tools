@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CANAVA — Inventory</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+      --navy:#363657;--navy-l:#4B4B72;--blue:#3885E3;--cream:#F4EEE0;
+      --cream-light:#F9F6F6;--red:#880808;--ink:#1A1A2E;--muted:#898B8F;
+      --br:rgba(54,54,87,0.12);--brs:rgba(54,54,87,0.22);
+    }
+    body{font-family:'DM Sans',Helvetica,sans-serif;background:var(--cream-light);color:var(--ink);font-size:13px;min-height:100vh;}
+    /* HEADER */
+    .hdr{background:var(--cream-light);border-bottom:0.5px solid var(--br);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:50;}
+    .hdr-logo{height:19px;width:auto;display:block;}
+    .hdr-r{display:flex;align-items:center;gap:6px;}
+    /* BUTTONS */
+    .btn{font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0.07em;padding:6px 12px;border-radius:1px;cursor:pointer;border:0.5px solid var(--brs);background:transparent;color:var(--navy);transition:all 0.15s;text-transform:uppercase;white-space:nowrap;}
+    .btn:hover{background:var(--cream);}
+    .btn-p{background:var(--navy);color:var(--cream-light);border-color:var(--navy);}
+    .btn-p:hover{background:var(--navy-l);}
+    .btn-d{color:var(--red);border-color:rgba(136,8,8,0.25);}
+    .btn-d:hover{background:rgba(136,8,8,0.04);}
+    /* PAGE */
+    .pg-title{padding:14px 28px 10px;border-bottom:0.5px solid var(--br);display:flex;align-items:center;justify-content:space-between;}
+    .pg-title h1{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:500;color:var(--navy);}
+    .status{display:flex;align-items:center;gap:6px;padding:4px 28px;font-size:10px;color:var(--muted);letter-spacing:0.06em;border-bottom:0.5px solid var(--br);}
+    .dot{width:5px;height:5px;border-radius:50%;background:#639922;flex-shrink:0;}
+    .dot.err{background:var(--red);}
+    .dot.load{background:var(--blue);animation:pulse 1s infinite;}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    /* SUMMARY */
+    .summary{display:flex;border-bottom:0.5px solid var(--br);}
+    .sc{flex:1;padding:12px 14px;border-right:0.5px solid var(--br);text-align:center;}
+    .sc:last-child{border-right:none;}
+    .sn{font-family:'EB Garamond',serif;font-size:27px;color:var(--navy);line-height:1;}
+    .sl{font-size:9px;letter-spacing:0.13em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
+    /* TABS + TOOLBAR */
+    .tabs{display:flex;padding:0 28px;border-bottom:0.5px solid var(--br);}
+    .tab{padding:9px 13px;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-bottom:1.5px solid transparent;color:var(--muted);background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;margin-bottom:-0.5px;}
+    .tab.on{border-bottom-color:var(--navy);color:var(--navy);}
+    .toolbar{display:flex;gap:8px;align-items:center;padding:10px 28px;border-bottom:0.5px solid var(--br);flex-wrap:wrap;}
+    .sw{position:relative;flex:1;min-width:150px;}
+    .sw input{width:100%;padding:7px 10px 7px 28px;border:0.5px solid var(--brs);border-radius:1px;background:white;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink);outline:none;}
+    .sw input:focus{border-color:var(--navy);}
+    .si{position:absolute;left:8px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;}
+    select{font-family:'DM Sans',sans-serif;font-size:11px;padding:7px 9px;border:0.5px solid var(--brs);border-radius:1px;background:white;color:var(--ink);cursor:pointer;outline:none;}
+    /* GRID */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1px;background:var(--br);}
+    .card{background:var(--cream-light);cursor:pointer;transition:background 0.15s;overflow:hidden;}
+    .card:hover{background:#F0EDE6;}
+    .cimg{width:100%;height:178px;background:var(--cream);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+    .cimg img{width:100%;height:100%;object-fit:cover;}
+    .np{font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);opacity:0.5;}
+    .cbody{padding:13px 15px;}
+    .cname{font-family:'EB Garamond',serif;font-size:18px;letter-spacing:0.06em;color:var(--navy);text-transform:uppercase;margin-bottom:1px;}
+    .cmeta{font-size:10px;letter-spacing:0.07em;color:var(--muted);text-transform:uppercase;margin-bottom:7px;}
+    .ctags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:7px;}
+    .tag{font-size:9px;letter-spacing:0.07em;text-transform:uppercase;padding:2px 6px;border:0.5px solid var(--brs);color:var(--navy);}
+    .tag.bio{border-color:rgba(63,109,17,0.4);color:#3B6D11;background:rgba(63,109,17,0.05);}
+    .tag.col{border-color:rgba(56,133,227,0.4);color:var(--blue);background:rgba(56,133,227,0.05);}
+    .tag.art{border-color:rgba(136,8,8,0.3);color:var(--red);background:rgba(136,8,8,0.04);}
+    .cinv{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--br);border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin:0 -15px;}
+    .ic{background:var(--cream-light);padding:7px 0;text-align:center;}
+    .il{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:2px;}
+    .in{font-family:'EB Garamond',serif;font-size:20px;color:var(--navy);}
+    .in.low{color:var(--red);}
+    .cftr{padding:7px 15px;display:flex;justify-content:space-between;align-items:center;border-top:0.5px solid var(--br);}
+    .cdots{display:flex;gap:3px;align-items:center;}
+    .cdot{width:11px;height:11px;border-radius:50%;border:0.5px solid rgba(0,0,0,0.1);flex-shrink:0;}
+    .empty{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--muted);}
+    .empty-t{font-family:'EB Garamond',serif;font-size:26px;font-style:italic;color:#75B6D7;margin-bottom:6px;}
+    /* MODAL */
+    .ov{position:fixed;inset:0;background:rgba(26,26,46,0.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
+    .modal{background:var(--cream-light);width:100%;max-width:600px;max-height:93vh;overflow-y:auto;border:0.5px solid var(--brs);}
+    .mhd{padding:15px 22px 12px;border-bottom:0.5px solid var(--br);display:flex;align-items:baseline;justify-content:space-between;position:sticky;top:0;background:var(--cream-light);z-index:10;}
+    .mtitle{font-family:'EB Garamond',serif;font-size:19px;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);}
+    .mclose{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);padding:0;line-height:1;}
+    .mbody{padding:17px 22px;}
+    .mft{padding:12px 22px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--cream-light);}
+    /* FORM */
+    .fg{margin-bottom:12px;}
+    .fg label{display:block;font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+    .fg input,.fg select,.fg textarea{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;padding:7px 9px;border:0.5px solid var(--brs);background:white;color:var(--ink);outline:none;border-radius:1px;}
+    .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--navy);}
+    .fg textarea{resize:vertical;min-height:52px;}
+    .r2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+    .slbl{font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:5px;border-bottom:0.5px solid var(--br);}
+    /* PILL BUTTONS (sizes/tags) */
+    .pill-grid{display:flex;gap:6px;flex-wrap:wrap;}
+    .pill{font-family:'DM Sans',sans-serif;font-size:11px;padding:5px 11px;border:0.5px solid var(--brs);background:white;color:var(--muted);cursor:pointer;border-radius:1px;transition:all 0.15s;}
+    .pill.on{background:var(--navy);color:var(--cream-light);border-color:var(--navy);}
+    /* TAG WRAP */
+    .twrap{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;border:0.5px solid var(--brs);background:white;min-height:34px;border-radius:1px;cursor:text;}
+    .tpill{display:flex;align-items:center;gap:2px;font-size:9px;letter-spacing:0.07em;text-transform:uppercase;padding:2px 6px;border:0.5px solid var(--br);color:var(--navy);}
+    .tpill button{background:none;border:none;cursor:pointer;color:var(--muted);font-size:13px;line-height:1;padding:0;}
+    .tinp{border:none!important;padding:2px 4px!important;font-size:11px!important;flex:1;min-width:80px;outline:none!important;background:transparent!important;}
+    /* DETAIL */
+    .back{display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:14px 28px 0;margin-bottom:-2px;}
+    .back:hover{color:var(--navy);}
+    .dhdr{padding:16px 28px;border-bottom:0.5px solid var(--br);display:flex;gap:18px;align-items:flex-start;}
+    .dimg{width:145px;min-width:145px;height:174px;background:var(--cream);border:0.5px solid var(--br);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;position:relative;}
+    .dimg img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+    .dov{position:absolute;inset:0;background:rgba(54,54,87,0.5);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;color:white;font-size:9px;letter-spacing:0.08em;text-transform:uppercase;}
+    .dimg:hover .dov{opacity:1;}
+    .dimg input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .dinfo{flex:1;min-width:0;}
+    .dname{font-family:'EB Garamond',serif;font-size:28px;letter-spacing:0.08em;text-transform:uppercase;color:var(--navy);margin-bottom:2px;}
+    .dsub{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;}
+    .dprice{display:flex;gap:18px;padding:9px 0;border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);margin-bottom:11px;}
+    .pi label{font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:2px;}
+    .pi span{font-family:'EB Garamond',serif;font-size:16px;color:var(--navy);}
+    /* COLORWAYS */
+    .cwsec{padding:14px 28px;}
+    .cwsh{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+    .cwsh h2{font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--navy);}
+    .cwcard{border:0.5px solid var(--br);background:white;margin-bottom:1px;}
+    .cwhdr{display:grid;grid-template-columns:16px 36px 38px 1fr auto auto;gap:9px;align-items:center;padding:10px 13px;cursor:pointer;transition:background 0.1s;}
+    .cwhdr:hover{background:#fafaf8;}
+    .cwchev{font-size:10px;color:var(--muted);user-select:none;}
+    .cwsw{width:33px;height:33px;border-radius:1px;border:0.5px solid rgba(0,0,0,0.1);flex-shrink:0;overflow:hidden;}
+    .cwsw img{width:100%;height:100%;object-fit:cover;}
+    .cwphoto{width:35px;height:35px;background:var(--cream);border:0.5px dashed var(--brs);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0;}
+    .cwphoto img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+    .cwphoto input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    .cwn{font-family:'EB Garamond',serif;font-size:16px;color:var(--navy);}
+    .cwtots{display:flex;gap:11px;}
+    .cwtot{text-align:center;font-size:9px;color:var(--muted);}
+    .cwtot b{display:block;font-family:'EB Garamond',serif;font-size:15px;color:var(--navy);font-weight:400;}
+    .cwact{display:flex;gap:4px;}
+    /* SKU TABLE */
+    .skuwrap{padding:0 13px 13px;background:white;}
+    .skutbl{width:100%;border-collapse:collapse;font-size:12px;}
+    .skutbl th{font-size:8px;letter-spacing:0.11em;text-transform:uppercase;color:var(--muted);text-align:center;padding:5px 5px;border-bottom:0.5px solid var(--br);font-weight:400;white-space:nowrap;}
+    .skutbl th:first-child{text-align:left;}
+    .skutbl td{padding:5px 5px;border-bottom:0.5px solid var(--br);text-align:center;color:var(--ink);}
+    .skutbl td:first-child{text-align:left;font-weight:500;color:var(--navy);font-size:12px;}
+    .skutbl tr:last-child td{border-bottom:none;}
+    .skutbl .tr td{border-top:0.5px solid var(--brs);font-family:'EB Garamond',serif;font-size:14px;color:var(--navy);background:var(--cream-light);}
+    .ni{width:48px;text-align:center;padding:3px 3px;border:0.5px solid var(--brs);border-radius:1px;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--ink);background:white;outline:none;}
+    .ni:focus{border-color:var(--navy);}
+    /* COLOR MGR */
+    .cabox{background:var(--cream);border:0.5px solid var(--br);padding:13px;margin-bottom:13px;}
+    .clist{border:0.5px solid var(--br);border-radius:1px;max-height:340px;overflow-y:auto;}
+    .crow{display:flex;align-items:center;gap:9px;padding:8px 11px;border-bottom:0.5px solid var(--br);transition:background 0.1s;}
+    .crow:last-child{border-bottom:none;}
+    .crow:hover{background:var(--cream);}
+    .csw{width:31px;height:31px;border-radius:1px;border:0.5px solid var(--brs);flex-shrink:0;overflow:hidden;}
+    .csw img{width:100%;height:100%;object-fit:cover;}
+    .cinfo{flex:1;}
+    .cn{font-size:12px;color:var(--navy);}
+    .ch{font-size:10px;color:var(--muted);}
+    .cprev{width:34px;height:34px;border-radius:1px;border:0.5px solid var(--brs);flex-shrink:0;}
+    /* IMPORT */
+    .iz{border:1.5px dashed var(--brs);padding:22px;text-align:center;cursor:pointer;border-radius:1px;transition:background 0.15s;}
+    .iz:hover{background:var(--cream);}
+    .iok{margin-top:9px;font-size:12px;padding:8px 11px;background:rgba(99,153,34,0.08);color:#3B6D11;border:0.5px solid rgba(99,153,34,0.25);}
+    .ierr{margin-top:9px;font-size:12px;padding:8px 11px;background:rgba(136,8,8,0.06);color:var(--red);border:0.5px solid rgba(136,8,8,0.2);}
+    /* SPINNER */
+    .ls{display:flex;align-items:center;justify-content:center;padding:80px;gap:10px;color:var(--muted);font-style:italic;}
+    .sp{width:14px;height:14px;border:1.5px solid var(--br);border-top-color:var(--navy);border-radius:50%;animation:spin 0.8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* ERROR BOX */
+    .errmsg{background:rgba(136,8,8,0.06);color:var(--red);border:0.5px solid rgba(136,8,8,0.2);padding:9px 12px;font-size:12px;margin-bottom:12px;border-radius:1px;display:none;}
+    @media(max-width:640px){
+      .hdr,.pg-title,.status,.toolbar,.tabs,.cwsec{padding-left:14px;padding-right:14px;}
+      .dhdr{flex-direction:column;}
+      .dimg{width:100%;min-width:unset;height:180px;}
+      .summary{flex-wrap:wrap;}
+      .sc{min-width:33%;}
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <img class="hdr-logo" src="CA_LOGO.png" alt="CANAVA"
+      onerror="this.style.display='none';document.getElementById('logoFallback').style.display='block'">
+    <span id="logoFallback" style="display:none;font-family:'EB Garamond',serif;font-size:19px;letter-spacing:0.22em;color:#363657;text-transform:uppercase">CANAVA</span>
+    <div class="hdr-r">
+      <button class="btn" onclick="showColors()">Colors</button>
+      <button class="btn" onclick="showImport()">Import</button>
+      <button class="btn" onclick="exportData()">Export</button>
+      <button class="btn btn-p" onclick="openAddStyle()">+ Add Style</button>
+    </div>
+  </div>
+  <div class="pg-title"><h1>Inventory</h1><span id="lastSync"></span></div>
+  <div class="status"><div class="dot load" id="sDot"></div><span id="sTxt">Connecting...</span></div>
+  <div id="main"><div class="ls"><div class="sp"></div>&nbsp;Loading...</div></div>
+</div>
+
+<script>
+const SURL='https://miokgyffvhhylsfmsmmb.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb2tneWZmdmhoeWxzZm1zbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNjUxOTMsImV4cCI6MjA4ODc0MTE5M30.D10ZE_U4sCoG3_G2XyvVUxa-2UNilLFMDkRrqw55C7s';
+const STOR=SURL+'/storage/v1/object/public/canava-images/';
+const SIZES=['XS','S','M','L','XL','O/S'];
+const CATS=['Lounge','T-Shirts','Undies','Home'];
+const STDTAGS=['Artisan','Biodegradable','Collaboration'];
+const SEEDCOLORS=[
+  {id:'beale',name:'Beale',hex:'#4A6FA5',image_url:null},
+  {id:'berkeley',name:'Berkeley',hex:'#5C4033',image_url:null},
+  {id:'bodie',name:'Bodie',hex:'#A8B5C7',image_url:null},
+  {id:'bolinas',name:'Bolinas',hex:'#B8A99A',image_url:null},
+  {id:'coldwater',name:'Coldwater',hex:'#7BAFD4',image_url:null},
+  {id:'denim',name:'Denim',hex:'#6B8CAE',image_url:null},
+  {id:'echo',name:'Echo',hex:'#C9B8A8',image_url:null},
+  {id:'good-trouble',name:'Good Trouble',hex:'#D94E4E',image_url:null},
+  {id:'hibiscus',name:'Hibiscus',hex:'#F4A5AE',image_url:null},
+  {id:'lupine',name:'Lupine',hex:'#9B7EBD',image_url:null},
+  {id:'obsidian',name:'Obsidian',hex:'#2B2B2B',image_url:null},
+  {id:'pilot',name:'Pilot',hex:'#2C3E50',image_url:null},
+  {id:'powelson',name:'Powelson',hex:'#6D5D4B',image_url:null},
+  {id:'quartz',name:'Quartz',hex:'#F5F5F5',image_url:null},
+  {id:'rest',name:'Rest',hex:'#A8B5C7',image_url:null},
+  {id:'shero',name:'Shero',hex:'#E67E73',image_url:null},
+  {id:'sparrow',name:'Sparrow',hex:'#8B7D6B',image_url:null},
+  {id:'tahoe',name:'Tahoe',hex:'#4A6FA5',image_url:null},
+  {id:'topanga',name:'Topanga',hex:'#E8D5C4',image_url:null}
+];
+
+let styles=[],colorways=[],skus=[],colors=[];
+let activeTab='all',search='',fCat='',fTag='';
+let selStyle=null,editStyleId=null,mTags=[],mSizes=[];
+let editCwId=null,cwStyleId=null,editColId=null,pendColImg=null,cwTags=[];
+let expanded=new Set();
+const skuTimers={};
+
+// ── STATUS ────────────────────────────────────────────────
+function setStatus(s,t){
+  const d=document.getElementById('sDot'),tx=document.getElementById('sTxt');
+  if(!d||!tx)return;
+  d.className='dot'+(s==='err'?' err':s==='load'?' load':'');
+  tx.textContent=t;
+}
+
+// ── API ───────────────────────────────────────────────────
+async function api(path,opts={}){
+  const hdrs={
+    'apikey':SKEY,
+    'Authorization':'Bearer '+SKEY,
+    'Content-Type':'application/json',
+    ...(opts.headers||{})
+  };
+  // Always request representation for POST so we get the created row back
+  if(opts.method==='POST')hdrs['Prefer']='return=representation';
+  else if(!hdrs['Prefer'])hdrs['Prefer']='return=minimal';
+  const r=await fetch(SURL+'/rest/v1/'+path,{...opts,headers:hdrs});
+  if(!r.ok){
+    const txt=await r.text();
+    let msg=txt;
+    try{const j=JSON.parse(txt);msg=j.message||j.hint||txt;}catch(e){}
+    throw new Error(msg);
+  }
+  const t=await r.text();
+  return t?JSON.parse(t):null;
+}
+
+async function uploadImg(file,path){
+  const r=await fetch(SURL+'/storage/v1/object/canava-images/'+path,{
+    method:'POST',
+    headers:{'apikey':SKEY,'Authorization':'Bearer '+SKEY,'Content-Type':file.type,'x-upsert':'true'},
+    body:file
+  });
+  if(!r.ok)throw new Error('Upload failed: '+(await r.text()));
+  return STOR+path;
+}
+
+// ── LOAD ──────────────────────────────────────────────────
+async function load(){
+  setStatus('load','Loading...');
+  try{
+    const [st,cw,sk,cl]=await Promise.all([
+      api('canava_styles?select=*&order=name.asc'),
+      api('canava_colorways?select=*&order=color_name.asc'),
+      api('canava_skus?select=*'),
+      api('canava_colors?select=*&order=name.asc')
+    ]);
+    styles=st||[];colorways=cw||[];skus=sk||[];
+    if(cl&&cl.length){colors=cl;}
+    else{
+      colors=SEEDCOLORS.map(c=>({...c}));
+      // seed colors silently
+      try{await api('canava_colors',{method:'POST',body:JSON.stringify(colors)});}catch(e){}
+    }
+    setStatus('ok','Connected · '+styles.length+' styles');
+    document.getElementById('lastSync').textContent='Updated '+new Date().toLocaleTimeString();
+    render();
+  }catch(e){
+    setStatus('err','Connection failed: '+e.message);
+    document.getElementById('main').innerHTML=`<div class="ls" style="flex-direction:column;gap:8px"><div style="color:var(--red)">Connection failed</div><div style="font-size:11px;color:var(--muted)">${e.message}</div><button class="btn" onclick="load()">Retry</button></div>`;
+  }
+}
+
+// ── COMPUTED ─────────────────────────────────────────────
+function cwOf(sid){return colorways.filter(c=>c.style_id===sid);}
+function skuOf(cwid){return skus.filter(s=>s.colorway_id===cwid);}
+function styleTot(sid){
+  let la=0,ny=0,sla=0,sny=0;
+  cwOf(sid).forEach(cw=>skuOf(cw.id).forEach(s=>{
+    la+=s.inv_la||0;ny+=s.inv_ny||0;sla+=s.samples_la||0;sny+=s.samples_ny||0;
+  }));
+  return{la,ny,sla,sny,tot:la+ny};
+}
+function cwTot(cwid){
+  let la=0,ny=0,sla=0,sny=0;
+  skuOf(cwid).forEach(s=>{la+=s.inv_la||0;ny+=s.inv_ny||0;sla+=s.samples_la||0;sny+=s.samples_ny||0;});
+  return{la,ny,sla,sny};
+}
+function filtered(){
+  return styles.filter(s=>{
+    if(search&&!s.name.toLowerCase().includes(search.toLowerCase()))return false;
+    if(fCat&&s.category!==fCat)return false;
+    if(fTag&&!(s.tags||[]).includes(fTag))return false;
+    const t=styleTot(s.id);
+    if(activeTab==='low'&&t.tot>=5)return false;
+    if(activeTab==='samples'&&t.sla+t.sny===0)return false;
+    return true;
+  });
+}
+function tclass(t){const l=t.toLowerCase();return l==='biodegradable'?'bio':l==='collaboration'?'col':l==='artisan'?'art':'';}
+
+// ── RENDER GRID ───────────────────────────────────────────
+function render(){
+  const m=document.getElementById('main');
+  if(selStyle){renderDetail(m);return;}
+  const fs=filtered();
+  const tLA=styles.reduce((a,s)=>a+styleTot(s.id).la,0);
+  const tNY=styles.reduce((a,s)=>a+styleTot(s.id).ny,0);
+  const tS=styles.reduce((a,s)=>a+styleTot(s.id).sla+styleTot(s.id).sny,0);
+  const low=styles.filter(s=>styleTot(s.id).tot<5).length;
+  m.innerHTML=`
+    <div class="summary">
+      <div class="sc"><div class="sn">${styles.length}</div><div class="sl">Styles</div></div>
+      <div class="sc"><div class="sn">${tLA}</div><div class="sl">LA Units</div></div>
+      <div class="sc"><div class="sn">${tNY}</div><div class="sl">NY Units</div></div>
+      <div class="sc"><div class="sn">${tS}</div><div class="sl">Samples</div></div>
+      <div class="sc"><div class="sn" style="${low>0?'color:var(--red)':''}">${low}</div><div class="sl">Low Stock</div></div>
+    </div>
+    <div class="tabs">
+      <button class="tab ${activeTab==='all'?'on':''}" onclick="setTab('all')">All</button>
+      <button class="tab ${activeTab==='low'?'on':''}" onclick="setTab('low')">Low Stock</button>
+      <button class="tab ${activeTab==='samples'?'on':''}" onclick="setTab('samples')">Has Samples</button>
+    </div>
+    <div class="toolbar">
+      <div class="sw"><span class="si">&#9906;</span>
+        <input type="text" placeholder="Search styles..." value="${search}" oninput="search=this.value;render()">
+      </div>
+      <select onchange="fCat=this.value;render()">
+        <option value="">All Categories</option>
+        ${CATS.map(c=>`<option value="${c}"${fCat===c?' selected':''}>${c}</option>`).join('')}
+      </select>
+      <select onchange="fTag=this.value;render()">
+        <option value="">All Tags</option>
+        ${STDTAGS.map(t=>`<option value="${t}"${fTag===t?' selected':''}>${t}</option>`).join('')}
+      </select>
+    </div>
+    <div class="grid">
+      ${!fs.length?`<div class="empty"><div class="empty-t">No styles found.</div></div>`:fs.map(styleCard).join('')}
+    </div>`;
+}
+
+function styleCard(s){
+  const t=styleTot(s.id);
+  const cws=cwOf(s.id);
+  const tags=s.tags||[];
+  const img=s.image_url?`<img src="${s.image_url}" onerror="this.style.display='none'">`:`<span class="np">No photo</span>`;
+  const dots=cws.slice(0,8).map(cw=>cw.image_url
+    ?`<div class="cdot" style="background:center/cover url(${cw.image_url})"></div>`
+    :`<div class="cdot" style="background:${cw.color_hex||'#ccc'}"></div>`
+  ).join('');
+  return`<div class="card" onclick="openDetail('${s.id}')">
+    <div class="cimg">${img}</div>
+    <div class="cbody">
+      <div class="cname">${s.name}</div>
+      <div class="cmeta">${s.sku||'—'}${s.category?' · '+s.category:''} · ${cws.length} color${cws.length!==1?'s':''}</div>
+      <div class="cinv">
+        <div class="ic"><div class="il">LA</div><div class="in ${t.la<3?'low':''}">${t.la}</div></div>
+        <div class="ic"><div class="il">NY</div><div class="in ${t.ny<3?'low':''}">${t.ny}</div></div>
+        <div class="ic"><div class="il">Samples</div><div class="in">${t.sla+t.sny}</div></div>
+      </div>
+    </div>
+    <div class="cftr" onclick="event.stopPropagation()">
+      <div class="cdots">${dots}${cws.length>8?`<span style="font-size:9px;color:var(--muted);margin-left:2px">+${cws.length-8}</span>`:''}</div>
+      <div style="display:flex;gap:4px">
+        <button class="btn" style="font-size:9px;padding:3px 7px" onclick="openEditStyle('${s.id}')">Edit</button>
+        <button class="btn btn-d" style="font-size:9px;padding:3px 7px" onclick="confirmDelStyle('${s.id}')">Del</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── DETAIL ────────────────────────────────────────────────
+function openDetail(id){selStyle=id;expanded.clear();render();}
+
+function renderDetail(m){
+  const s=styles.find(x=>x.id===selStyle);
+  if(!s){selStyle=null;render();return;}
+  const cws=cwOf(s.id);
+  const tags=s.tags||[];
+  m.innerHTML=`
+    <button class="back" onclick="selStyle=null;render()">&#8592; All styles</button>
+    <div class="dhdr">
+      <div class="dimg">
+        ${s.image_url?`<img src="${s.image_url}">`:`<span class="np" style="font-size:9px">Upload photo</span>`}
+        <div class="dov">Change</div>
+        <input type="file" accept="image/*" onchange="handleStyleImg(event,'${s.id}')">
+      </div>
+      <div class="dinfo">
+        <div class="dname">${s.name}</div>
+        <div class="dsub">${s.sku||'—'}${s.category?' · '+s.category:''} · ${cws.length} colorway${cws.length!==1?'s':''}</div>
+        <div class="dprice">
+          <div class="pi"><label>Cost</label><span>${s.cost?'$'+s.cost:'—'}</span></div>
+          <div class="pi"><label>Wholesale</label><span>${s.wholesale_price?'$'+s.wholesale_price:'—'}</span></div>
+          <div class="pi"><label>Retail</label><span>${s.retail_price?'$'+s.retail_price:'—'}</span></div>
+        </div>
+        <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-bottom:11px">
+          <span style="font-size:9px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase">Sizes:</span>
+          ${(s.sizes||[]).map(sz=>`<span style="font-size:10px;padding:2px 6px;border:0.5px solid var(--brs);color:var(--navy)">${sz}</span>`).join('')}
+          ${!(s.sizes||[]).length?`<span style="font-size:11px;color:var(--muted)">None set</span>`:''}
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn" style="font-size:10px" onclick="openEditStyle('${s.id}')">Edit Style</button>
+          <button class="btn btn-d" style="font-size:10px" onclick="confirmDelStyle('${s.id}')">Delete</button>
+        </div>
+      </div>
+    </div>
+    <div class="cwsec">
+      <div class="cwsh">
+        <h2>Colorways &nbsp;<span style="color:var(--muted);font-weight:400">${cws.length}</span></h2>
+        <button class="btn btn-p" style="font-size:10px" onclick="openAddCw('${s.id}')">+ Add Colorway</button>
+      </div>
+      <div id="cwlist">${renderCwList(cws,s)}</div>
+    </div>`;
+}
+
+function renderCwList(cws,s){
+  if(!cws.length)return`<div style="padding:18px;text-align:center;color:var(--muted);font-size:12px;border:0.5px solid var(--br)">No colorways yet — add one above.</div>`;
+  return cws.map(cw=>cwCard(cw,s)).join('');
+}
+
+function cwCard(cw,s){
+  const tot=cwTot(cw.id);
+  const cwSkus=skuOf(cw.id);
+  const open=expanded.has(cw.id);
+  const swHtml=cw.image_url
+    ?`<div class="cwsw"><img src="${cw.image_url}"></div>`
+    :`<div class="cwsw" style="background:${cw.color_hex||'#ddd'}"></div>`;
+  // Per-colorway pricing
+  const cPrice=cw.retail_price?`$${cw.retail_price}`:(s.retail_price?`$${s.retail_price}`:'—');
+
+  const skuRows=cwSkus.map(sk=>`<tr>
+    <td>${sk.size}</td>
+    <td style="font-size:9px;color:var(--muted);font-family:monospace">${sk.sku_code||'—'}</td>
+    <td><input class="ni" type="number" min="0" value="${sk.inv_la||0}" onchange="saveSku('${sk.id}','inv_la',this.value)"></td>
+    <td><input class="ni" type="number" min="0" value="${sk.inv_ny||0}" onchange="saveSku('${sk.id}','inv_ny',this.value)"></td>
+    <td><input class="ni" type="number" min="0" value="${sk.samples_la||0}" onchange="saveSku('${sk.id}','samples_la',this.value)"></td>
+    <td><input class="ni" type="number" min="0" value="${sk.samples_ny||0}" onchange="saveSku('${sk.id}','samples_ny',this.value)"></td>
+    <td style="font-family:'EB Garamond',serif;font-size:14px">${(sk.inv_la||0)+(sk.inv_ny||0)}</td>
+  </tr>`).join('');
+
+  const totRow=cwSkus.length?`<tr class="tr">
+    <td colspan="2">Total</td>
+    <td>${tot.la}</td><td>${tot.ny}</td><td>${tot.sla}</td><td>${tot.sny}</td>
+    <td>${tot.la+tot.ny}</td>
+  </tr>`:'';
+
+  return`<div class="cwcard" id="cw-${cw.id}">
+    <div class="cwhdr" onclick="toggleCw('${cw.id}')">
+      <span class="cwchev">${open?'▾':'▸'}</span>
+      ${swHtml}
+      <div class="cwphoto" onclick="event.stopPropagation()" title="Upload colorway photo">
+        ${cw.image_url?`<img src="${cw.image_url}">`:`<span style="font-size:16px;color:var(--muted)">+</span>`}
+        <input type="file" accept="image/*" onchange="handleCwImg(event,'${cw.id}')">
+      </div>
+      <div>
+        <div class="cwn">${cw.color_name}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:1px">Retail ${cPrice}</div>
+      </div>
+      <div class="cwtots">
+        <div class="cwtot"><b>${tot.la}</b>LA</div>
+        <div class="cwtot"><b>${tot.ny}</b>NY</div>
+        <div class="cwtot"><b>${tot.sla+tot.sny}</b>Samp</div>
+      </div>
+      <div class="cwact" onclick="event.stopPropagation()">
+        <button class="btn" style="font-size:9px;padding:3px 7px" onclick="openEditCw('${cw.id}')">Edit</button>
+        <button class="btn btn-d" style="font-size:9px;padding:3px 7px" onclick="confirmDelCw('${cw.id}')">&#215;</button>
+      </div>
+    </div>
+    ${open?`<div class="skuwrap">
+      ${!cwSkus.length?`<div style="padding:12px;text-align:center;color:var(--muted);font-size:11px">No sizes — edit this style to add sizes first, then re-add the colorway.</div>`:`
+      <table class="skutbl">
+        <thead><tr><th>Size</th><th>SKU</th><th>LA Inv</th><th>NY Inv</th><th>LA Samp</th><th>NY Samp</th><th>Total</th></tr></thead>
+        <tbody>${skuRows}${totRow}</tbody>
+      </table>`}
+    </div>`:''}
+  </div>`;
+}
+
+function toggleCw(cwId){
+  if(expanded.has(cwId))expanded.delete(cwId);else expanded.add(cwId);
+  refreshCwList();
+}
+
+function refreshCwList(){
+  const s=styles.find(x=>x.id===selStyle);
+  const el=document.getElementById('cwlist');
+  if(el&&s)el.innerHTML=renderCwList(cwOf(selStyle),s);
+}
+
+// ── SKU INLINE SAVE ───────────────────────────────────────
+async function saveSku(id,field,val){
+  const v=parseInt(val)||0;
+  const idx=skus.findIndex(s=>s.id===id);
+  if(idx>=0)skus[idx][field]=v;
+  clearTimeout(skuTimers[id+field]);
+  skuTimers[id+field]=setTimeout(async()=>{
+    try{
+      await api('canava_skus?id=eq.'+id,{method:'PATCH',body:JSON.stringify({[field]:v})});
+    }catch(e){setStatus('err','SKU save failed: '+e.message);}
+  },700);
+}
+
+// ── IMAGE UPLOADS ─────────────────────────────────────────
+async function handleStyleImg(e,sid){
+  const f=e.target.files[0];if(!f)return;
+  setStatus('load','Uploading photo...');
+  try{
+    const url=await uploadImg(f,'styles/'+sid+'-'+Date.now()+'.'+f.name.split('.').pop());
+    await api('canava_styles?id=eq.'+sid,{method:'PATCH',body:JSON.stringify({image_url:url})});
+    await load();
+  }catch(e){setStatus('err','Upload failed: '+e.message);}
+}
+
+async function handleCwImg(e,cwId){
+  const f=e.target.files[0];if(!f)return;
+  setStatus('load','Uploading photo...');
+  try{
+    const url=await uploadImg(f,'colorways/'+cwId+'-'+Date.now()+'.'+f.name.split('.').pop());
+    await api('canava_colorways?id=eq.'+cwId,{method:'PATCH',body:JSON.stringify({image_url:url})});
+    await load();
+  }catch(e){setStatus('err','Upload failed: '+e.message);}
+}
+
+// ── STYLE MODAL ───────────────────────────────────────────
+function openAddStyle(){editStyleId=null;mTags=[];mSizes=[];showStyleModal(null);}
+function openEditStyle(id){
+  editStyleId=id;
+  const s=styles.find(x=>x.id===id);
+  mTags=[...(s.tags||[])];mSizes=[...(s.sizes||[])];
+  showStyleModal(s);
+}
+
+function showStyleModal(s){
+  closeModal();
+  const div=document.createElement('div');div.id='mOv';div.className='ov';
+  div.innerHTML=`<div class="modal">
+    <div class="mhd">
+      <div class="mtitle">${s?'Edit':'New'} Style</div>
+      <button class="mclose" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div id="styleErr" class="errmsg"></div>
+      <div class="r2">
+        <div class="fg"><label>Style Name *</label><input id="mN" value="${s?s.name:''}" placeholder="e.g. Asawa"></div>
+        <div class="fg"><label>SKU Prefix</label><input id="mSk" value="${s?s.sku||'':''}" placeholder="e.g. ASW"></div>
+      </div>
+      <div class="fg"><label>Category</label>
+        <select id="mCa">
+          <option value="">Select category...</option>
+          ${CATS.map(c=>`<option value="${c}"${s&&s.category===c?' selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label>Style Tags <span style="font-size:9px;letter-spacing:0;text-transform:none;font-weight:400">(e.g. Collaboration — applies to whole style)</span></label>
+        <div class="twrap" id="tWrap" onclick="document.getElementById('tInp').focus()">
+          ${mTags.map(t=>`<span class="tpill">${t}<button onclick="rmTag('${t}')">&#215;</button></span>`).join('')}
+          <input class="tinp" id="tInp" placeholder="e.g. Collaboration..." onkeydown="tagKey(event)">
+        </div>
+      </div>
+      <div class="fg"><label>Available Sizes</label>
+        <div class="pill-grid" id="sizePills">
+          ${SIZES.map(sz=>`<button type="button" class="pill ${mSizes.includes(sz)?'on':''}" data-sz="${sz}" onclick="toggleSize('${sz}')">${sz}</button>`).join('')}
+        </div>
+      </div>
+      <div class="slbl" style="margin-bottom:10px">Default Pricing (can override per colorway)</div>
+      <div class="r3">
+        <div class="fg"><label>Cost ($)</label><input id="mCo" type="number" step="0.01" value="${s?s.cost||'':''}" placeholder="0.00"></div>
+        <div class="fg"><label>Wholesale ($)</label><input id="mWh" type="number" step="0.01" value="${s?s.wholesale_price||'':''}" placeholder="0.00"></div>
+        <div class="fg"><label>Retail ($)</label><input id="mRe" type="number" step="0.01" value="${s?s.retail_price||'':''}" placeholder="0.00"></div>
+      </div>
+      <div class="fg"><label>Notes</label><textarea id="mNo">${s?s.notes||'':''}</textarea></div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-p" onclick="submitStyle()">Save Style</button>
+    </div>
+  </div>`;
+  document.getElementById('app').appendChild(div);
+}
+
+function toggleSize(sz){
+  if(mSizes.includes(sz))mSizes=mSizes.filter(x=>x!==sz);else mSizes.push(sz);
+  document.querySelectorAll('[data-sz]').forEach(b=>{
+    b.className='pill'+(mSizes.includes(b.dataset.sz)?' on':'');
+  });
+}
+
+function toggleStdTag(t){
+  if(mTags.includes(t))mTags=mTags.filter(x=>x!==t);else mTags.push(t);
+  document.querySelectorAll('[data-tag]').forEach(b=>{
+    b.className='pill'+(mTags.includes(b.dataset.tag)?' on':'');
+  });
+}
+
+async function submitStyle(){
+  const nameEl=document.getElementById('mN');
+  const name=nameEl?nameEl.value.trim():'';
+  const errEl=document.getElementById('styleErr');
+  if(!name){
+    if(errEl){errEl.textContent='Please enter a style name.';errEl.style.display='block';}
+    return;
+  }
+  if(errEl)errEl.style.display='none';
+  const data={
+    name,
+    sku:document.getElementById('mSk').value.trim()||null,
+    category:document.getElementById('mCa').value||null,
+    tags:mTags,
+    sizes:mSizes,
+    cost:parseFloat(document.getElementById('mCo').value)||null,
+    wholesale_price:parseFloat(document.getElementById('mWh').value)||null,
+    retail_price:parseFloat(document.getElementById('mRe').value)||null,
+    notes:document.getElementById('mNo').value.trim()||null
+  };
+  closeModal();
+  setStatus('load','Saving...');
+  try{
+    if(editStyleId){
+      const{id,...patchData}=data;
+      await api('canava_styles?id=eq.'+editStyleId,{method:'PATCH',body:JSON.stringify(patchData)});
+    }else{
+      const{id,...postData}=data;
+      await api('canava_styles',{method:'POST',body:JSON.stringify(postData)});
+    }
+    await load();
+  }catch(e){
+    setStatus('err','Save failed: '+e.message);
+    alert('Save failed: '+e.message);
+  }
+}
+
+async function confirmDelStyle(id){
+  const s=styles.find(x=>x.id===id);
+  if(!confirm(`Delete "${s?.name}" and all its colorways? This cannot be undone.`))return;
+  selStyle=null;
+  try{await api('canava_styles?id=eq.'+id,{method:'DELETE'});await load();}
+  catch(e){setStatus('err','Delete failed: '+e.message);}
+}
+
+// ── COLORWAY MODAL ────────────────────────────────────────
+function openAddCw(sid){editCwId=null;cwStyleId=sid;cwTags=[];showCwModal(null);}
+function openEditCw(cwId){
+  editCwId=cwId;
+  const _cw=colorways.find(x=>x.id===cwId);
+  cwStyleId=_cw?.style_id;
+  cwTags=[...(_cw?.cw_tags||[])];
+  showCwModal(_cw);
+}
+
+function showCwModal(cw){
+  closeModal();
+  const s=styles.find(x=>x.id===cwStyleId);
+  const sorted=[...colors].sort((a,b)=>a.name.localeCompare(b.name));
+  const div=document.createElement('div');div.id='mOv';div.className='ov';
+  div.innerHTML=`<div class="modal" style="max-width:480px">
+    <div class="mhd">
+      <div class="mtitle">${cw?'Edit':'Add'} Colorway</div>
+      <button class="mclose" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div style="font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px">Style: ${s?.name||''}</div>
+      <div id="cwErr" class="errmsg"></div>
+      <div class="fg"><label>Color *</label>
+        <select id="cwSel" onchange="cwPreview()">
+          <option value="">Select a color...</option>
+          ${sorted.map(c=>`<option value="${c.id}"${cw&&cw.color_id===c.id?' selected':''}>${c.name}${c.hex?' — '+c.hex:' (print)'}</option>`).join('')}
+        </select>
+      </div>
+      <div id="cwPrev" style="margin-bottom:14px;min-height:10px"></div>
+      <div class="fg"><label>Type</label>
+        <div class="pill-grid">
+          ${['Solid','Print','Graphic'].map(t=>`<button type="button" class="pill ${cwTags.includes(t)?'on':''}" onclick="toggleCwTag('${t}')">${t}</button>`).join('')}
+        </div>
+      </div>
+      <div class="fg"><label>Attributes</label>
+        <div class="pill-grid">
+          ${['Biodegradable','Artisan','Collaboration'].map(t=>`<button type="button" class="pill ${cwTags.includes(t)?'on':''}" onclick="toggleCwTag('${t}')">${t}</button>`).join('')}
+        </div>
+      </div>
+      <div class="slbl" style="margin-bottom:10px">Pricing <span style="font-size:9px;letter-spacing:0;text-transform:none;font-weight:400">(overrides style default for this colorway)</span></div>
+      <div class="r3">
+        <div class="fg"><label>Cost ($)</label><input id="cwCo" type="number" step="0.01" value="${cw?cw.cost||'':''}" placeholder="${s?.cost||'0.00'}"></div>
+        <div class="fg"><label>Wholesale ($)</label><input id="cwWh" type="number" step="0.01" value="${cw?cw.wholesale_price||'':''}" placeholder="${s?.wholesale_price||'0.00'}"></div>
+        <div class="fg"><label>Retail ($)</label><input id="cwRe" type="number" step="0.01" value="${cw?cw.retail_price||'':''}" placeholder="${s?.retail_price||'0.00'}"></div>
+      </div>
+      <div class="fg"><label>Notes</label><textarea id="cwNo">${cw?cw.notes||'':''}</textarea></div>
+    </div>
+    <div class="mft">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-p" onclick="submitCw()">Save Colorway</button>
+    </div>
+  </div>`;
+  document.getElementById('app').appendChild(div);
+  if(cw)cwPreview();
+}
+
+function cwPreview(){
+  const sel=document.getElementById('cwSel');
+  const prev=document.getElementById('cwPrev');
+  if(!sel||!prev)return;
+  const c=colors.find(x=>x.id===sel.value);
+  if(!c){prev.innerHTML='';return;}
+  prev.innerHTML=c.image_url
+    ?`<div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:1px;border:0.5px solid var(--brs);overflow:hidden"><img src="${c.image_url}" style="width:100%;height:100%;object-fit:cover"></div><span style="font-size:12px;color:var(--navy)">${c.name} <span style="color:var(--muted)">(print)</span></span></div>`
+    :`<div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:1px;background:${c.hex||'#eee'};border:0.5px solid var(--brs)"></div><span style="font-size:12px;color:var(--navy)">${c.name} <span style="color:var(--muted)">${c.hex||''}</span></span></div>`;
+}
+
+function toggleCwTag(t){
+  if(cwTags.includes(t))cwTags=cwTags.filter(x=>x!==t);else cwTags.push(t);
+  document.querySelectorAll('.pill').forEach(b=>{
+    if(b.textContent===t)b.className='pill'+(cwTags.includes(t)?' on':'');
+  });
+}
+
+async function submitCw(){
+  const sel=document.getElementById('cwSel');
+  const errEl=document.getElementById('cwErr');
+  if(!sel||!sel.value){
+    if(errEl){errEl.textContent='Please select a color.';errEl.style.display='block';}
+    return;
+  }
+  const c=colors.find(x=>x.id===sel.value);
+  if(!c){
+    if(errEl){errEl.textContent='Color not found. Please refresh and try again.';errEl.style.display='block';}
+    return;
+  }
+  const payload={
+    style_id:cwStyleId,
+    color_id:c.id,
+    color_name:c.name,
+    color_hex:c.hex||null,
+    image_url:c.image_url||null,
+    cost:parseFloat(document.getElementById('cwCo').value)||null,
+    wholesale_price:parseFloat(document.getElementById('cwWh').value)||null,
+    retail_price:parseFloat(document.getElementById('cwRe').value)||null,
+    notes:document.getElementById('cwNo').value.trim()||null,
+    cw_tags:cwTags
+  };
+  closeModal();
+  setStatus('load','Saving colorway...');
+  try{
+    if(editCwId){
+      await api('canava_colorways?id=eq.'+editCwId,{method:'PATCH',body:JSON.stringify(payload)});
+      expanded.add(editCwId);
+      await load();
+    }else{
+      // POST returns array with created row
+      const res=await api('canava_colorways',{method:'POST',body:JSON.stringify(payload)});
+      const rows=Array.isArray(res)?res:[res];
+      const newCw=rows[0];
+      if(!newCw||!newCw.id)throw new Error('Did not get colorway ID back from server');
+      expanded.add(newCw.id);
+      // Create SKUs for each size on the style
+      const s=styles.find(x=>x.id===cwStyleId);
+      const sizes=s?.sizes||[];
+      for(const sz of sizes){
+        await api('canava_skus',{method:'POST',body:JSON.stringify({
+          colorway_id:newCw.id,
+          style_id:cwStyleId,
+          size:sz,
+          inv_la:0,inv_ny:0,samples_la:0,samples_ny:0
+        })});
+      }
+      await load();
+    }
+  }catch(e){
+    setStatus('err','Colorway save failed: '+e.message);
+    alert('Save failed: '+e.message);
+  }
+}
+
+async function confirmDelCw(cwId){
+  const cw=colorways.find(x=>x.id===cwId);
+  if(!confirm(`Delete "${cw?.color_name}" and all its SKUs?`))return;
+  try{await api('canava_colorways?id=eq.'+cwId,{method:'DELETE'});await load();}
+  catch(e){setStatus('err','Delete failed: '+e.message);}
+}
+
+// ── COLOR MANAGER ─────────────────────────────────────────
+function showColors(){
+  closeModal();
+  const div=document.createElement('div');div.id='mOv';div.className='ov';
+  div.innerHTML=`<div class="modal" style="max-width:520px">
+    <div class="mhd">
+      <div class="mtitle">Manage Colors</div>
+      <button class="mclose" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="mbody">
+      <div class="cabox">
+        <div class="slbl" style="margin-bottom:10px" id="cFormLbl">Add New Color</div>
+        <div id="cSaveErr" class="errmsg"></div>
+        <div class="r2" style="margin-bottom:10px">
+          <div class="fg" style="margin:0"><label>Color Name *</label><input id="cName" placeholder="e.g. Beale"></div>
+          <div class="fg" style="margin:0"><label>Hex Code</label>
+            <div style="display:flex;gap:7px;align-items:center">
+              <div class="cprev" id="cPrev" style="background:#eee"></div>
+              <input id="cHex" placeholder="#4A6FA5" oninput="updCP()" style="flex:1;font-family:monospace;font-size:12px">
+            </div>
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:10px"><label>Print Photo (for patterned colors — replaces hex swatch)</label>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="cImgBox" style="width:50px;height:50px;border:1px dashed var(--brs);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;flex-shrink:0">
+              <span style="font-size:18px;color:var(--muted)">+</span>
+              <input type="file" accept="image/*" onchange="pickColImg(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+            </div>
+            <span id="cImgLbl" style="font-size:11px;color:var(--muted)">No photo</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-p" style="font-size:10px" onclick="saveColor()">Save Color</button>
+          <button class="btn" style="font-size:10px;display:none" id="cCancelBtn" onclick="cancelCEdit()">Cancel</button>
+        </div>
+      </div>
+      <div class="clist" id="cList">${buildCList()}</div>
+    </div>
+    <div class="mft">
+      <span style="font-size:11px;color:var(--muted)">${colors.length} colors</span>
+      <button class="btn btn-p" style="font-size:10px" onclick="closeModal()">Done</button>
+    </div>
+  </div>`;
+  document.getElementById('app').appendChild(div);
+}
+
+function buildCList(){
+  if(!colors.length)return`<div style="padding:18px;text-align:center;color:var(--muted);font-size:12px">No colors yet.</div>`;
+  return[...colors].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>`
+    <div class="crow">
+      <div class="csw" style="background:${c.image_url?'transparent':c.hex||'#eee'}">
+        ${c.image_url?`<img src="${c.image_url}">`:''}
+      </div>
+      <div class="cinfo">
+        <div class="cn">${c.name}</div>
+        <div class="ch">${c.image_url?'Print / Photo':c.hex||'—'}</div>
+      </div>
+      <div style="display:flex;gap:4px">
+        <button class="btn" style="font-size:9px;padding:3px 7px" onclick="editColItem('${c.id}')">Edit</button>
+        <button class="btn btn-d" style="font-size:9px;padding:3px 7px" onclick="delColItem('${c.id}')">&#215;</button>
+      </div>
+    </div>`).join('');
+}
+
+function updCP(){
+  const h=document.getElementById('cHex')?.value||'';
+  const p=document.getElementById('cPrev');
+  if(p)p.style.background=h.startsWith('#')?h:h?'#'+h:'#eee';
+}
+
+function pickColImg(e){
+  pendColImg=e.target.files[0];
+  if(!pendColImg)return;
+  const box=document.getElementById('cImgBox');
+  const lbl=document.getElementById('cImgLbl');
+  if(lbl)lbl.textContent=pendColImg.name;
+  if(box){
+    const url=URL.createObjectURL(pendColImg);
+    box.innerHTML=`<img src="${url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><input type="file" accept="image/*" onchange="pickColImg(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer">`;
+  }
+}
+
+function editColItem(id){
+  const c=colors.find(x=>x.id===id);if(!c)return;
+  editColId=id;pendColImg=null;
+  const n=document.getElementById('cName'),h=document.getElementById('cHex');
+  if(n)n.value=c.name;if(h)h.value=c.hex||'';
+  updCP();
+  const lbl=document.getElementById('cFormLbl');if(lbl)lbl.textContent='Edit — '+c.name;
+  const cb=document.getElementById('cCancelBtn');if(cb)cb.style.display='';
+  const il=document.getElementById('cImgLbl');if(il)il.textContent=c.image_url?'Photo saved':'No photo';
+}
+
+function cancelCEdit(){
+  editColId=null;pendColImg=null;
+  ['cName','cHex'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  updCP();
+  const lbl=document.getElementById('cFormLbl');if(lbl)lbl.textContent='Add New Color';
+  const cb=document.getElementById('cCancelBtn');if(cb)cb.style.display='none';
+  const il=document.getElementById('cImgLbl');if(il)il.textContent='No photo';
+  const box=document.getElementById('cImgBox');
+  if(box)box.innerHTML=`<span style="font-size:18px;color:var(--muted)">+</span><input type="file" accept="image/*" onchange="pickColImg(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer">`;
+  const errEl=document.getElementById('cSaveErr');if(errEl)errEl.style.display='none';
+}
+
+async function saveColor(){
+  const nameEl=document.getElementById('cName');
+  const name=nameEl?nameEl.value.trim():'';
+  const errEl=document.getElementById('cSaveErr');
+  if(!name){
+    if(errEl){errEl.textContent='Please enter a color name.';errEl.style.display='block';}
+    return;
+  }
+  if(errEl)errEl.style.display='none';
+  let hex=document.getElementById('cHex').value.trim();
+  if(hex&&!hex.startsWith('#'))hex='#'+hex;
+
+  // Upload photo if selected
+  let imageUrl=editColId?colors.find(x=>x.id===editColId)?.image_url||null:null;
+  if(pendColImg){
+    try{
+      const path='colors/'+name.toLowerCase().replace(/\s+/g,'-')+'-'+Date.now()+'.'+pendColImg.name.split('.').pop();
+      imageUrl=await uploadImg(pendColImg,path);
+    }catch(e){
+      if(errEl){errEl.textContent='Photo upload failed: '+e.message;errEl.style.display='block';}
+      return;
+    }
+  }
+
+  const cd={name,hex:hex||null,image_url:imageUrl||null};
+  try{
+    if(editColId){
+      await api('canava_colors?id=eq.'+editColId,{method:'PATCH',body:JSON.stringify(cd)});
+      const idx=colors.findIndex(x=>x.id===editColId);
+      if(idx>=0)colors[idx]={...colors[idx],...cd};
+      editColId=null;
+    }else{
+      const id=name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'')+'-'+Date.now();
+      const nc={id,...cd};
+      const res=await api('canava_colors',{method:'POST',body:JSON.stringify(nc)});
+      colors.push(Array.isArray(res)?res[0]:nc);
+    }
+    const cl=document.getElementById('cList');if(cl)cl.innerHTML=buildCList();
+    cancelCEdit();
+  }catch(e){
+    if(errEl){errEl.textContent='Save failed: '+e.message;errEl.style.display='block';}
+  }
+}
+
+async function delColItem(id){
+  if(!confirm('Delete this color?'))return;
+  try{
+    await api('canava_colors?id=eq.'+id,{method:'DELETE'});
+    colors=colors.filter(x=>x.id!==id);
+    const cl=document.getElementById('cList');if(cl)cl.innerHTML=buildCList();
+  }catch(e){alert('Delete failed: '+e.message);}
+}
+
+// ── EXPORT ────────────────────────────────────────────────
+function exportData(){
+  const h=['Style','Category','Tags','Cost','Wholesale','Retail','Colorway','CW Cost','CW Retail','Color Hex','Size','SKU Code','LA Inv','NY Inv','LA Samples','NY Samples','Total'];
+  const rows=[h];
+  styles.forEach(s=>{
+    const cws=cwOf(s.id);
+    if(!cws.length){rows.push([s.name,s.category||'',(s.tags||[]).join('|'),s.cost||'',s.wholesale_price||'',s.retail_price||'','','','','','','','','','','','']);return;}
+    cws.forEach(cw=>{
+      const cwSk=skuOf(cw.id);
+      if(!cwSk.length){rows.push([s.name,s.category||'',(s.tags||[]).join('|'),s.cost||'',s.wholesale_price||'',s.retail_price||'',cw.color_name,cw.cost||'',cw.retail_price||'',cw.color_hex||'','','','','','','','']);return;}
+      cwSk.forEach(sk=>{
+        rows.push([s.name,s.category||'',(s.tags||[]).join('|'),s.cost||'',s.wholesale_price||'',s.retail_price||'',cw.color_name,cw.cost||'',cw.retail_price||'',cw.color_hex||'',sk.size,sk.sku_code||'',sk.inv_la||0,sk.inv_ny||0,sk.samples_la||0,sk.samples_ny||0,(sk.inv_la||0)+(sk.inv_ny||0)]);
+      });
+    });
+  });
+  const csv=rows.map(r=>r.map(v=>{const s=String(v);return s.includes(',')||s.includes('"')?'"'+s.replace(/"/g,'""')+'"':s;}).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='canava-inventory-'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+
+// ── IMPORT ────────────────────────────────────────────────
+function showImport(){
+  closeModal();
+  const div=document.createElement('div');div.id='mOv';div.className='ov';
+  div.innerHTML=`<div class="modal" style="max-width:480px">
+    <div class="mhd"><div class="mtitle">Import CSV</div><button class="mclose" onclick="closeModal()">&#215;</button></div>
+    <div class="mbody">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.65">Required column: <b>name</b>. Optional: sku, category, tags, sizes, cost, wholesale_price, retail_price, notes.</p>
+      <div class="iz" onclick="document.getElementById('csvF').click()">
+        <div style="font-size:20px;color:var(--muted)">&#8679;</div>
+        <div style="font-size:13px;color:var(--navy);font-weight:500;margin-top:4px">Choose CSV file</div>
+        <p style="font-size:11px;color:var(--muted);margin-top:4px">or drag and drop</p>
+        <input type="file" id="csvF" accept=".csv" style="display:none" onchange="handleCSV(this)">
+      </div>
+      <div id="impRes"></div>
+      <button class="btn" style="font-size:10px;margin-top:11px" onclick="dlTpl()">Download Template</button>
+    </div>
+    <div class="mft"><button class="btn" onclick="closeModal()">Close</button></div>
+  </div>`;
+  document.getElementById('app').appendChild(div);
+  const zone=div.querySelector('.iz');
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.style.background='var(--cream)';});
+  zone.addEventListener('dragleave',()=>{zone.style.background='';});
+  zone.addEventListener('drop',e=>{e.preventDefault();zone.style.background='';if(e.dataTransfer.files[0])processCSV(e.dataTransfer.files[0]);});
+}
+
+function handleCSV(inp){if(inp.files[0])processCSV(inp.files[0]);}
+
+function processCSV(file){
+  const res=document.getElementById('impRes');if(!res)return;
+  res.innerHTML=`<div style="margin-top:9px;font-size:12px;color:var(--muted)">Reading...</div>`;
+  const reader=new FileReader();
+  reader.onload=async e=>{
+    try{
+      const lines=e.target.result.split('\n').filter(l=>l.trim());
+      if(lines.length<2){res.innerHTML=`<div class="ierr">File is empty.</div>`;return;}
+      const hdrs=lines[0].split(',').map(h=>h.trim().toLowerCase().replace(/"/g,''));
+      if(!hdrs.includes('name')){res.innerHTML=`<div class="ierr">Missing "name" column.</div>`;return;}
+      let imp=0,upd=0,errs=[];
+      for(let i=1;i<lines.length;i++){
+        const vals=parseCSV(lines[i]);
+        const row={};hdrs.forEach((h,idx)=>row[h]=(vals[idx]||'').trim());
+        if(!row.name)continue;
+        const data={name:row.name,sku:row.sku||null,category:row.category||null,
+          tags:row.tags?row.tags.split('|').map(t=>t.trim()).filter(Boolean):[],
+          sizes:row.sizes?row.sizes.split(',').map(s=>s.trim()).filter(Boolean):[],
+          cost:parseFloat(row.cost)||null,wholesale_price:parseFloat(row.wholesale_price)||null,
+          retail_price:parseFloat(row.retail_price)||null,notes:row.notes||null};
+        try{
+          const ex=styles.find(s=>s.name.toLowerCase()===data.name.toLowerCase());
+          if(ex){await api('canava_styles?id=eq.'+ex.id,{method:'PATCH',body:JSON.stringify(data)});upd++;}
+          else{await api('canava_styles',{method:'POST',body:JSON.stringify(data)});imp++;}
+        }catch(e){errs.push(row.name+': '+e.message);}
+      }
+      await load();
+      res.innerHTML=`<div class="${errs.length&&!imp&&!upd?'ierr':'iok'}">Imported ${imp} new, updated ${upd}.${errs.length?' Errors: '+errs.slice(0,3).join('; '):''}</div>`;
+    }catch(e){res.innerHTML=`<div class="ierr">Error: ${e.message}</div>`;}
+  };
+  reader.readAsText(file);
+}
+
+function parseCSV(line){
+  const out=[];let cur='';let inQ=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){if(inQ&&line[i+1]==='"'){cur+='"';i++;}else inQ=!inQ;}
+    else if(ch===','&&!inQ){out.push(cur);cur='';}else cur+=ch;
+  }
+  out.push(cur);return out;
+}
+
+function dlTpl(){
+  const csv='name,sku,category,sizes,cost,wholesale_price,retail_price,tags,notes\nAsawa,ASW,Lounge,"S,M,L",45,90,180,Biodegradable,\n';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='canava-template.csv';a.click();
+}
+
+// ── HELPERS ───────────────────────────────────────────────
+function tagKey(e){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=e.target.value.trim().replace(',','');
+    if(v&&!mTags.includes(v)&&!STDTAGS.includes(v)){mTags.push(v);e.target.value='';refreshTWrap();}
+  }
+}
+function rmTag(t){mTags=mTags.filter(x=>x!==t);refreshTWrap();}
+function refreshTWrap(){
+  const w=document.getElementById('tWrap');if(!w)return;
+  const cur=document.getElementById('tInp')?.value||'';
+  w.innerHTML=mTags.filter(t=>!STDTAGS.includes(t)).map(t=>`<span class="tpill">${t}<button onclick="rmTag('${t}')">&#215;</button></span>`).join('')+
+    `<input class="tinp" id="tInp" placeholder="custom tag..." value="${cur}" onkeydown="tagKey(event)">`;
+}
+function closeModal(){const e=document.getElementById('mOv');if(e)e.remove();}
+function setTab(t){activeTab=t;render();}
+
+load();
+setInterval(load,30000);
+</script>
+</body>
+</html>
