@@ -641,6 +641,21 @@ async function submitStyle(){
     if(editStyleId){
       const{id,...patchData}=data;
       await api('canava_styles?id=eq.'+editStyleId,{method:'PATCH',body:JSON.stringify(patchData)});
+      // Auto-create missing SKUs for existing colorways when sizes are added
+      if(data.sizes&&data.sizes.length){
+        const existingCws=colorways.filter(cw=>cw.style_id===editStyleId);
+        for(const cw of existingCws){
+          const existingSkus=skus.filter(s=>s.colorway_id===cw.id);
+          const existingSizes=existingSkus.map(s=>s.size);
+          const missingSizes=data.sizes.filter(sz=>!existingSizes.includes(sz));
+          for(const sz of missingSizes){
+            await api('canava_skus',{method:'POST',body:JSON.stringify({
+              colorway_id:cw.id,style_id:editStyleId,size:sz,
+              inv_la:0,inv_ny:0,samples_la:0,samples_ny:0
+            })});
+          }
+        }
+      }
     }else{
       const{id,...postData}=data;
       await api('canava_styles',{method:'POST',body:JSON.stringify(postData)});
