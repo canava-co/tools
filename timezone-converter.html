@@ -513,7 +513,7 @@ slider.addEventListener('input', () => {
 // ── HEARTBEAT ─────────────────────────────────────────
 
 function renderHeartbeat() {
-  const d = useSlider ? sliderDate() : new Date();
+  const d = new Date(); // Always real time — Heartbeat is about now, not the slider
   heartbeatZones.forEach(({ tz, timeId, dateId, cardId }) => {
     document.getElementById(timeId).textContent = fmtTime(d, tz);
     document.getElementById(dateId).textContent = fmtDate(d, tz);
