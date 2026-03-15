@@ -597,15 +597,17 @@ async function doCapture() {
   btn.disabled=true; btn.innerHTML='<span class="spin"></span>';
   st('Sending...','');
   try {
-    // Build body — always send all manual selections
-    const body = { raw_input: raw };
-    if(url)      body.url           = url;
-    if(dueDate)  body.due_date      = dueDate;
-    if(nextDate) body.next_step_date = nextDate;
-    if(cat)      body.category      = cat;
-    if(pri)      body.priority      = pri;
-    // Only add to calendar if at least one toggle is on
-    body.skip_calendar = !(dueCal || nextCal);
+    // Build body — user owns all data, Claude only gets title/notes
+    const body = {
+      raw_input: raw,
+      url:            url      || undefined,
+      due_date:       dueDate  || undefined,
+      next_step_date: nextDate || undefined,
+      priority:       pri      || undefined,
+      category:       cat      || undefined,
+      notes:          notes    || undefined,
+      add_to_calendar: (dueCal || nextCal),
+    };
 
     const r = await fetch(EDGE, {
       method:'POST',
@@ -615,25 +617,7 @@ async function doCapture() {
     const data = await r.json();
 
     if(data.success && data.task) {
-      // Apply local overrides to ensure display is correct immediately
       const task = data.task;
-      if(dueDate)  task.due_date       = dueDate;
-      if(nextDate) task.next_step_date  = nextDate;
-      if(cat)      task.category        = cat;
-      if(pri)      task.priority        = pri;
-      if(notes)    task.notes           = notes;
-      if(!dueCal && !nextCal) task.calendar_event_id = null;
-
-      // Update Supabase with any local overrides
-      const patch = {};
-      if(dueDate)  patch.due_date       = dueDate;
-      if(nextDate) patch.next_step_date  = nextDate;
-      if(cat)      patch.category        = cat;
-      if(pri)      patch.priority        = pri;
-      if(notes)    patch.notes           = notes;
-      if(Object.keys(patch).length) {
-        await api('/rest/v1/tasks?id=eq.'+task.id, {method:'PATCH', body:JSON.stringify(patch)});
-      }
 
       // Upload photo if attached
       if(attachedFile) {
@@ -725,28 +709,26 @@ async function saveEdit() {
 
   const u = { title, notes, url, category, priority, due_date, next_step_date: next_date };
 
-  // Handle calendar — update existing event or create new one
+  // Handle calendar — update or create event if toggled on
   if((dueCal || nextCal) && (due_date || next_date)) {
     try {
-      const calDate = (nextCal && next_date) ? next_date : due_date;
-      const body = {
-        raw_input:     title,
-        due_date:      calDate,
+      const calBody = {
+        raw_input:       title,
+        due_date:        due_date   || undefined,
+        next_step_date:  next_date  || undefined,
         priority,
         category,
-        skip_calendar: false,
+        add_to_calendar: true,
+        update_event_id: calEventId || undefined,
       };
-      // If updating existing event, pass the event ID so edge function can UPDATE it
-      if(calEventId) body.update_event_id = calEventId;
-
       const r = await fetch(EDGE, {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+AK},
-        body: JSON.stringify(body)
+        body: JSON.stringify(calBody)
       });
       const d = await r.json();
-      if(d.success && d.task && d.task.calendar_event_id) {
-        u.calendar_event_id = d.task.calendar_event_id;
+      if(d.success && d.task) {
+        if(d.task.calendar_event_id) u.calendar_event_id = d.task.calendar_event_id;
         // Remove the extra task the edge function created
         await api('/rest/v1/tasks?id=eq.'+d.task.id, {method:'DELETE'});
       }
