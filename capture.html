@@ -441,6 +441,7 @@ input#photo-file { display:none; }
 const SB   = 'https://rylapwjambqfppjktjra.supabase.co';
 const AK   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ5bGFwd2phbWJxZnBwamt0anJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNjgxMjEsImV4cCI6MjA4ODc0NDEyMX0.SyTXZI2zv5EL9l7ie5uOSXvGj10G03E0yjXL0m0BgMY';
 const EDGE = SB + '/functions/v1/swift-responder';
+const EDGE_CAL = SB + '/functions/v1/add-calendar-event';
 const SB_STORAGE = SB + '/storage/v1/object/public/attachments/';
 const SB_UPLOAD  = SB + '/storage/v1/object/attachments/';
 
@@ -659,8 +660,8 @@ async function doCapture() {
       if(nextDate)data.task.next_step_date=nextDate;
       if(document.getElementById('f-pri').value)data.task.priority=document.getElementById('f-pri').value;
       if(document.getElementById('f-cat').value)data.task.category=document.getElementById('f-cat').value;
-      if(notes)data.task.notes=notes;
-      if(!dueCal&&!nextCal)data.task.calendar_event_id=null;
+      if(notes) data.task.notes = notes;
+      if(!dueCal && !nextCal) data.task.calendar_event_id = null;
       // Upload photo to Supabase Storage if attached
       if(attachedFile){
         st('Uploading photo...','');
@@ -725,47 +726,36 @@ async function saveEdit(){
   const due_date  = document.getElementById('edit-due').value  || null;
   const next_date = document.getElementById('edit-next').value || null;
   const priority  = document.getElementById('edit-pri').value;
+  const title     = document.getElementById('edit-title').value;
+  const notes     = document.getElementById('edit-notes').value;
+  const url       = document.getElementById('edit-url').value;
+  const category  = document.getElementById('edit-cat').value;
   const dueCal    = editCal.due;
   const nextCal   = editCal.next;
 
-  const u = {
-    title:          document.getElementById('edit-title').value,
-    notes:          document.getElementById('edit-notes').value,
-    url:            document.getElementById('edit-url').value,
-    category:       document.getElementById('edit-cat').value,
-    priority,
-    due_date,
-    next_step_date: next_date,
-  };
+  const u = { title, notes, url, category, priority, due_date, next_step_date: next_date };
 
-  // If calendar toggle is on, create/update calendar event via edge function
+  // Save to Supabase first
+  try { await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(u)}); } catch(e){}
+  const i = tasks.findIndex(t=>t.id===id);
+  if(i>-1) Object.assign(tasks[i], u);
+
+  // Then fire calendar if toggled on
   if ((dueCal || nextCal) && (due_date || next_date)) {
     try {
-      const body = {
-        raw_input: document.getElementById('edit-title').value,
-        due_date:       due_date  || undefined,
-        next_step_date: next_date || undefined,
-        priority,
-        category:  document.getElementById('edit-cat').value,
-        skip_calendar: false,
-      };
-      const r = await fetch(EDGE, {
+      const calDate = (nextCal && next_date) ? next_date : due_date;
+      const r = await fetch(EDGE_CAL, {
         method: 'POST',
         headers: {'Content-Type':'application/json','Authorization':'Bearer '+AK},
-        body: JSON.stringify(body)
+        body: JSON.stringify({ task_id:id, title, date:calDate, priority, notes, url })
       });
       const data = await r.json();
-      if (data.success && data.task && data.task.calendar_event_id) {
-        u.calendar_event_id = data.task.calendar_event_id;
-        // Remove the duplicate task the edge function inserted
-        await api('/rest/v1/tasks?id=eq.'+data.task.id, {method:'DELETE'});
+      if (data.success && data.calendar_event_id) {
+        if(i>-1) tasks[i].calendar_event_id = data.calendar_event_id;
       }
     } catch(e) { console.error('Calendar update failed:', e); }
   }
 
-  try { await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(u)}); } catch(e){}
-  const i = tasks.findIndex(t=>t.id===id);
-  if(i>-1) Object.assign(tasks[i], u);
   closeEdit(); render();
 }
 
@@ -865,9 +855,10 @@ function st(msg,cls){
 load();
 </script>
 <script>
+// Unregister any existing service workers to prevent caching issues
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
   });
 }
 </script>
