@@ -601,6 +601,8 @@ async function saveEdit() {
   var pri    = document.getElementById('edit-pri').value;
   var due    = document.getElementById('edit-due').value  || null;
   var nxt    = document.getElementById('edit-next').value || null;
+  // Debug: log what we read
+  console.log('Edit dates - due:', due, 'nxt:', nxt, 'dueCal:', editCal.due, 'nextCal:', editCal.next);
   var dueCal = editCal.due;
   var nextCal= editCal.next;
 
@@ -609,17 +611,20 @@ async function saveEdit() {
 
   var patch = { title:title, notes:notes, url:url, category:cat, priority:pri, due_date:due, next_step_date:nxt };
 
-  if((dueCal||nextCal) && (due||nxt)) {
+  // Only call calendar if toggle is on AND we have a date value
+  var hasDueCal  = dueCal  && !!due;
+  var hasNextCal = nextCal && !!nxt;
+  if(hasDueCal || hasNextCal) {
     try {
       // calendar_only mode: just create/update calendar event, no task insert
       var calBody = {
         raw_input:     title,
         calendar_only: true,
-        due_date:      due || undefined,
-        next_step_date: nxt || undefined,
         priority:      pri,
         notes:         notes || undefined,
       };
+      if(hasDueCal)  calBody.due_date       = due;
+      if(hasNextCal) calBody.next_step_date = nxt;
       if(calId) calBody.update_event_id = calId;
       var calR = await fetch(EDGE, {
         method:'POST',
