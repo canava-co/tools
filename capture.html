@@ -139,59 +139,113 @@ input#photo-file { display:none; }
   .hdr-logo { height: 32px; }
   .hdr-date { font-size: 8px; }
 
+  /* Cap card scrollable, not full screen */
   .cap-outer { padding: 10px 16px; }
-  .cap { padding: 14px 14px 12px; }
+  .cap { 
+    padding: 14px 14px 12px;
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   textarea#raw { font-size: 13px; }
 
   .field-row {
     flex-direction: column;
-    gap: 12px;
+    gap: 0;
   }
   .fi { 
     flex: none !important; 
     width: 100% !important;
-    padding: 0 0 12px 0 !important;
+    padding: 10px 0 !important;
     border-left: none !important;
     border-bottom: 1px solid var(--line);
   }
-  .fi:last-child { border-bottom: none; padding-bottom: 0; }
+  .fi:last-child { border-bottom: none; }
   .fi.act-fi {
     flex-direction: row !important;
     justify-content: flex-end;
     align-items: center;
+    gap: 8px;
     border-bottom: none;
-    padding-top: 4px;
+    padding-top: 10px !important;
   }
+
+  /* Date inputs — force visible on iOS Safari */
+  .fi input[type="date"] {
+    display: block;
+    width: 100%;
+    font-size: 13px;
+    color: var(--navy);
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 4px 0;
+    margin-bottom: 6px;
+  }
+  .fi input[type="date"]::-webkit-date-and-time-value {
+    text-align: left;
+  }
+
+  /* Toggle visible below date */
+  .tog { margin-top: 4px; }
+  .tog-label { font-size: 8px; }
 
   .ctrl-outer { top: 56px; }
   .ctrl-tabs { overflow-x: auto; }
   .c-tab:first-child { padding-left: 16px; }
-  .c-tab { padding: 0 14px; }
+  .c-tab { padding: 0 14px; font-size: 8px; }
   .ctrl-filters { 
-    flex-wrap: wrap; 
-    justify-content: flex-start;
-    padding: 6px 16px;
-    gap: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--line);
   }
   .c-select { 
-    border-right: none;
+    border: none;
     border-bottom: 1px solid var(--line);
-    padding: 8px 12px;
+    border-right: 1px solid var(--line);
+    padding: 9px 12px;
     height: auto;
-    width: 50%;
+    width: 100%;
+    font-size: 8px;
   }
+  .c-select:nth-child(even) { border-right: none; }
   .c-search { 
+    grid-column: 1 / -1;
     width: 100%; 
-    border-left: none;
+    border: none;
     border-top: 1px solid var(--line);
-    padding: 8px 12px;
+    padding: 9px 12px;
     height: auto;
+    background: rgba(244,241,236,0.55);
   }
 
   .list { padding: 0 16px 60px; }
-  .row { grid-template-columns: 3px 1fr auto; gap: 0 12px; }
+  .row { grid-template-columns: 3px 1fr auto; gap: 0 10px; padding: 14px 0; }
   .rtitle { font-size: 13px; }
-  .racts { gap: 4px; }
+  .rmeta { gap: 8px; }
+  .racts { gap: 4px; min-width: 72px; }
+  .btn.xs { font-size: 7px; padding: 4px 7px; }
+
+  /* Modal full screen on mobile */
+  .modal { width: 92vw; padding: 18px 16px; }
+
+  /* Task rows — stack body and actions vertically on mobile */
+  .row {
+    grid-template-columns: 3px 1fr;
+    grid-template-rows: auto auto;
+  }
+  .pip { grid-row: 1 / 3; }
+  .rbody { grid-column: 2; }
+  .racts {
+    grid-column: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding-top: 8px;
+    gap: 5px;
+  }
   .btn.xs { font-size: 7px; padding: 4px 8px; }
 }
 </style>
