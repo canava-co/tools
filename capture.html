@@ -614,6 +614,7 @@ async function saveEdit() {
   // Only call calendar if toggle is on AND we have a date value
   var hasDueCal  = dueCal  && !!due;
   var hasNextCal = nextCal && !!nxt;
+  st('due:'+due+' nxt:'+nxt+' dueCal:'+dueCal+' nextCal:'+nextCal,'');
   if(hasDueCal || hasNextCal) {
     try {
       // calendar_only mode: just create/update calendar event, no task insert
@@ -634,8 +635,9 @@ async function saveEdit() {
       var calD = await calR.json();
       if(calD.success && calD.calendar_event_id) {
         patch.calendar_event_id = calD.calendar_event_id;
+        st('Calendar updated','ok');
       } else {
-        console.error('Edit calendar failed:', JSON.stringify(calD));
+        st('Calendar failed: '+(calD.error||JSON.stringify(calD)),'err');
       }
     } catch(e) { console.error('Calendar error:',e); }
   }
