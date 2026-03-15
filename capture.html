@@ -644,8 +644,14 @@ async function doCapture() {
   st('Sending...','');
   try {
     const body={raw_input:raw};
-    if(url)body.url=url;
-    if(!dueCal&&!nextCal)body.skip_calendar=true;
+    if(url) body.url = url;
+    if(dueDate)  body.due_date       = dueDate;
+    if(nextDate) body.next_step_date = nextDate;
+    const mc = document.getElementById('f-cat').value;
+    const mp = document.getElementById('f-pri').value;
+    if(mc) body.category = mc;
+    if(mp) body.priority = mp;
+    body.skip_calendar = (!dueCal && !nextCal);
     const r=await fetch(EDGE,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+AK},body:JSON.stringify(body)});
     const data=await r.json();
     if(data.success&&data.task){
