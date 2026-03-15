@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canava Tools</title>
+<link rel="apple-touch-icon" href="NO_BORDER.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Canava Tools">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:    #363675;
+    --paper:  #f4f1ec;
+    --white:  #faf8f3;
+    --muted:  rgba(54,54,117,0.45);
+    --border: rgba(54,54,117,0.18);
+    --borderl:rgba(54,54,117,0.30);
+    --gt:     rgba(42,107,120,0.10);
+    --gtm:    rgba(42,107,120,0.18);
+    --mono:   'Share Tech Mono', monospace;
+    --sans:   'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--gtm) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gtm) 1px, transparent 1px),
+      linear-gradient(var(--gt) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gt) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    pointer-events: none; z-index: 0;
+  }
+
+  .page {
+    position: relative; z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 52px 28px 80px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .logo-mark {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    opacity: 0.9;
+  }
+
+  .title-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: clamp(32px, 5vw, 48px);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  h1 em {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 36px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* ── TOOL GRID ── */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 48px;
+  }
+
+  /* ── TOOL CARD ── */
+  .tool-card {
+    background: rgba(250,248,243,0.75);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 20px 16px;
+    text-decoration: none;
+    color: var(--ink);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+    animation: cardIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+    backdrop-filter: blur(4px);
+  }
+
+  .tool-card:nth-child(1) { animation-delay: 0.05s; }
+  .tool-card:nth-child(2) { animation-delay: 0.10s; }
+  .tool-card:nth-child(3) { animation-delay: 0.15s; }
+  .tool-card:nth-child(4) { animation-delay: 0.20s; }
+  .tool-card:nth-child(5) { animation-delay: 0.25s; }
+
+  @keyframes cardIn {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-color, var(--ink));
+    opacity: 0.5;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .tool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(54,54,117,0.10);
+    border-color: var(--borderl);
+  }
+
+  .tool-tag {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .tool-name {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .tool-desc {
+    font-size: 12px;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .tool-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .tool-url {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+
+  .tool-date {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .tool-arrow {
+    font-size: 14px;
+    color: var(--muted);
+    transition: transform 0.15s, color 0.15s;
+  }
+
+  .tool-card:hover .tool-arrow {
+    transform: translateX(3px);
+    color: var(--ink);
+  }
+
+  /* ── SQUARESPACE EMBEDS SECTION ── */
+  .embed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 48px;
+  }
+
+  .embed-row {
+    background: rgba(250,248,243,0.75);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    backdrop-filter: blur(4px);
+    animation: cardIn 0.4s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  .embed-row:nth-child(1) { animation-delay: 0.30s; }
+  .embed-row:nth-child(2) { animation-delay: 0.35s; }
+
+  .embed-info { flex: 1; }
+
+  .embed-name {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .embed-desc {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .embed-badge {
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 3px 7px;
+    flex-shrink: 0;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer-note {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  @media (max-width: 500px) {
+    .page { padding: 32px 18px 60px; }
+    .header { flex-direction: column; align-items: flex-start; }
+    .tool-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <img src="NO_BORDER.png" class="logo-mark" alt="Canava">
+      <div class="title-label">Canava</div>
+      <h1>The <em>Tools</em></h1>
+    </div>
+    <div class="header-meta">
+      tools.canava.co<br>
+      <span id="last-updated"></span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- WEB TOOLS -->
+  <div class="section-label">Web Tools</div>
+  <div class="tool-grid">
+
+    <a class="tool-card" href="https://tools.canava.co/weather-widget.html" style="--card-color:#2a6b9c;">
+      <div class="tool-tag">Weather</div>
+      <div class="tool-name">Weather</div>
+      <div class="tool-desc">Multi-city weather sorted west to east from your location. 5-day forecast, °F/°C toggle, geolocation.</div>
+      <div class="tool-footer">
+        <span class="tool-url">weather-widget.html</span>
+        <span class="tool-date">Mar 2026</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="https://tools.canava.co/timezone-converter.html" style="--card-color:#363675;">
+      <div class="tool-tag">Time</div>
+      <div class="tool-name">World Clock</div>
+      <div class="tool-desc">Timezone converter with heartbeat cities. Add any city, scrub time with a slider.</div>
+      <div class="tool-footer">
+        <span class="tool-url">timezone-converter.html</span>
+        <span class="tool-date">Mar 2026</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="https://tools.canava.co/canava-worldclock-widget.html" style="--card-color:#2d7d4f;">
+      <div class="tool-tag">Time</div>
+      <div class="tool-name">World Clock Widget</div>
+      <div class="tool-desc">Compact world clock widget version for embedding.</div>
+      <div class="tool-footer">
+        <span class="tool-url">canava-worldclock-widget.html</span>
+        <span class="tool-date">Mar 2026</span>
+      </div>
+    </a>
+
+    <a class="tool-card" href="https://tools.canava.co/inventory.html" style="--card-color:#c94f2a;">
+      <div class="tool-tag">Inventory</div>
+      <div class="tool-name">Inventory</div>
+      <div class="tool-desc">Full inventory management — styles, colorways, SKUs by size and location (LA / NY). Add colors, upload photos, import/export CSV.</div>
+      <div class="tool-footer">
+        <span class="tool-url">inventory.html</span>
+        <span class="tool-date">Mar 2026</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- SQUARESPACE EMBEDS -->
+  <div class="section-label">Squarespace Embeds</div>
+  <div class="embed-list">
+
+    <div class="embed-row">
+      <div class="embed-info">
+        <div class="embed-name">Weather Widget — Kingston</div>
+        <div class="embed-desc">First Capital Region Guide · weather-squarespace.html</div>
+      </div>
+      <div class="embed-badge">Code Block</div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-note">Update this index when adding new tools — upload index.html to replace this file in GitHub.</div>
+    <div class="footer-note" id="footer-date"></div>
+  </div>
+
+</div>
+
+<script>
+  var now = new Date();
+  var opts = { month: 'long', day: 'numeric', year: 'numeric' };
+  document.getElementById('last-updated').textContent = now.toLocaleDateString([], opts);
+  document.getElementById('footer-date').textContent = now.toLocaleDateString([], opts);
+</script>
+</body>
+</html>
