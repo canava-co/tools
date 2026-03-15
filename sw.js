@@ -1,4 +1,4 @@
-const CACHE = 'capture-v1';
+const CACHE = 'capture-v3';
 const OFFLINE = ['/capture.html'];
 
 self.addEventListener('install', e => {
