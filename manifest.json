@@ -1,0 +1,22 @@
+{
+  "name": "Capture — Geren Lockhart",
+  "short_name": "Capture",
+  "description": "Personal capture and task tool",
+  "start_url": "/capture.html",
+  "display": "standalone",
+  "background_color": "#E1D4C9",
+  "theme_color": "#E1D4C9",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

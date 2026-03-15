@@ -2,7 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Capture">
+<meta name="theme-color" content="#E1D4C9">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Capture — Geren Lockhart</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -107,6 +113,8 @@ input#photo-file { display:none; }
 .rcal   { font-size:7px; letter-spacing:.1em; text-transform:uppercase; color:var(--low); margin-top:3px; }
 .rthumb { margin-top:6px; }
 .rthumb img { height:52px; border:1px solid var(--line); }
+.rdownload { display:inline-block; margin-top:4px; font-size:8px; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); text-decoration:none; opacity:.75; }
+.rdownload:hover { opacity:1; }
 .racts  { display:flex; flex-direction:column; gap:5px; align-items:flex-end; padding-top:2px; }
 
 /* delete confirm inline under actions */
@@ -588,7 +596,7 @@ function render() {
       +(t.notes?'<div class="rnotes">'+t.notes+'</div>':'')
       +(t.url?'<a class="rurl" href="'+t.url+'" target="_blank">'+t.url.replace(/^https?:\/\//,'')+'</a>':'')
       +(t.calendar_event_id?'<div class="rcal">On calendar</div>':'')
-      +(t.photo_url?'<div class="rthumb"><img src="'+t.photo_url+'" alt=""/></div>':'')
+      +(t.photo_url?'<div class="rthumb"><img src="'+t.photo_url+'" alt=""/><br><a class="rdownload" href="'+t.photo_url+'" download target="_blank">Download</a></div>':'')
       +'</div>'
       +'<div class="racts">'+acts+'</div>'
       +'</div>';
@@ -816,6 +824,13 @@ function st(msg,cls){
   if(cls==='ok')stT=setTimeout(()=>{el.textContent='';el.className='cap-status';},5000);
 }
 load();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
