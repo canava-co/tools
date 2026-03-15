@@ -721,19 +721,52 @@ function openEdit(id){
 function maybeClose(e){if(e.target===document.getElementById('edit-modal'))closeEdit();}
 function closeEdit(){document.getElementById('edit-modal').style.display='none';}
 async function saveEdit(){
-  const id=document.getElementById('edit-id').value;
-  const u={
-    title:document.getElementById('edit-title').value,
-    notes:document.getElementById('edit-notes').value,
-    url:document.getElementById('edit-url').value,
-    category:document.getElementById('edit-cat').value,
-    priority:document.getElementById('edit-pri').value,
-    due_date:document.getElementById('edit-due').value||null,
-    next_step_date:document.getElementById('edit-next').value||null,
+  const id        = document.getElementById('edit-id').value;
+  const due_date  = document.getElementById('edit-due').value  || null;
+  const next_date = document.getElementById('edit-next').value || null;
+  const priority  = document.getElementById('edit-pri').value;
+  const dueCal    = editCal.due;
+  const nextCal   = editCal.next;
+
+  const u = {
+    title:          document.getElementById('edit-title').value,
+    notes:          document.getElementById('edit-notes').value,
+    url:            document.getElementById('edit-url').value,
+    category:       document.getElementById('edit-cat').value,
+    priority,
+    due_date,
+    next_step_date: next_date,
   };
-  try{await api('/rest/v1/tasks?id=eq.'+id,{method:'PATCH',body:JSON.stringify(u)});}catch(e){}
-  const i=tasks.findIndex(t=>t.id===id);if(i>-1)Object.assign(tasks[i],u);
-  closeEdit();render();
+
+  // If calendar toggle is on, create/update calendar event via edge function
+  if ((dueCal || nextCal) && (due_date || next_date)) {
+    try {
+      const body = {
+        raw_input: document.getElementById('edit-title').value,
+        due_date:       due_date  || undefined,
+        next_step_date: next_date || undefined,
+        priority,
+        category:  document.getElementById('edit-cat').value,
+        skip_calendar: false,
+      };
+      const r = await fetch(EDGE, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json','Authorization':'Bearer '+AK},
+        body: JSON.stringify(body)
+      });
+      const data = await r.json();
+      if (data.success && data.task && data.task.calendar_event_id) {
+        u.calendar_event_id = data.task.calendar_event_id;
+        // Remove the duplicate task the edge function inserted
+        await api('/rest/v1/tasks?id=eq.'+data.task.id, {method:'DELETE'});
+      }
+    } catch(e) { console.error('Calendar update failed:', e); }
+  }
+
+  try { await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(u)}); } catch(e){}
+  const i = tasks.findIndex(t=>t.id===id);
+  if(i>-1) Object.assign(tasks[i], u);
+  closeEdit(); render();
 }
 
 // Delete from edit modal
