@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather</title>
+<link rel="apple-touch-icon" href="NO_BORDER.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Weather">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:             #363675;
+    --paper:           #f4f1ec;
+    --warm-white:      #faf8f3;
+    --grid-teal:       rgba(42,107,120,0.13);
+    --grid-teal-major: rgba(42,107,120,0.22);
+    --muted:           rgba(54,54,117,0.45);
+    --border:          rgba(54,54,117,0.18);
+    --accent-hot:      #c94f2a;
+    --accent-cool:     #2a6b9c;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    min-height: 100vh;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-teal-major) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-teal-major) 1px, transparent 1px),
+      linear-gradient(var(--grid-teal) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-teal) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    background-position: -1px -1px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .label-line {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: var(--sans);
+    font-weight: 300;
+    font-size: clamp(28px, 5vw, 42px);
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  h1 em {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* ── UNIT TOGGLE ── */
+  .unit-toggle {
+    display: flex;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .unit-btn {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    padding: 9px 14px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .unit-btn.active {
+    background: var(--ink);
+    color: var(--warm-white);
+  }
+
+  /* ── SEARCH ── */
+  .search-wrap { position: relative; }
+
+  .search-input {
+    font-family: var(--sans);
+    font-size: 14px;
+    color: var(--ink);
+    background: rgba(250,248,243,0.85);
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 14px 9px 36px;
+    width: 220px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    backdrop-filter: blur(4px);
+  }
+
+  .search-input::placeholder { color: var(--muted); }
+  .search-input:focus { border-color: var(--ink); background: var(--warm-white); }
+
+  .search-icon {
+    position: absolute;
+    left: 11px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+  }
+
+  .btn-add {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-add:hover { background: rgba(54,54,117,0.07); border-color: var(--ink); }
+
+  /* ── SUGGESTIONS ── */
+  .suggestions {
+    position: absolute;
+    top: calc(100% + 4px); left: 0; right: 0;
+    background: var(--warm-white);
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgba(54,54,117,0.12);
+    z-index: 100;
+    display: none;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .suggestions.open { display: block; }
+
+  .suggestion-item {
+    padding: 9px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--ink);
+    transition: background 0.1s;
+  }
+
+  .suggestion-item:hover,
+  .suggestion-item.active { background: rgba(54,54,117,0.07); }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 28px;
+  }
+
+  /* ── GRID ── */
+  .city-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(265px, 1fr));
+    gap: 16px;
+  }
+
+  /* ── CARD ── */
+  .city-card {
+    background: rgba(250,248,243,0.75);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 22px 22px 18px;
+    position: relative;
+    backdrop-filter: blur(6px);
+    transition: transform 0.15s, box-shadow 0.15s;
+    overflow: hidden;
+    animation: cardIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+  }
+
+  @keyframes cardIn {
+    from { opacity:0; transform:translateY(10px) scale(0.97); }
+    to   { opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .city-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(54,54,117,0.1);
+  }
+
+  /* temperature-keyed top accent bar */
+  .city-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent, var(--accent-cool));
+    border-radius: 6px 6px 0 0;
+  }
+
+  /* You Are Here card — slightly more present border */
+  .card-here {
+    background: rgba(250,248,243,0.92);
+    border-color: rgba(54,54,117,0.3);
+  }
+
+  /* ── HERE MARKER ── */
+  .here-marker {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ── REMOVE ── */
+  .card-remove {
+    position: absolute;
+    top: 12px; right: 12px;
+    font-size: 16px; line-height: 1;
+    color: var(--muted);
+    background: none; border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+    font-family: var(--mono);
+  }
+
+  .city-card:hover .card-remove { opacity: 1; }
+  .card-remove:hover { color: var(--accent-hot); }
+
+  /* ── CARD CONTENT ── */
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .city-name {
+    font-size: 15px; font-weight: 500;
+    letter-spacing: -0.01em; line-height: 1.2;
+    padding-right: 20px;
+  }
+
+  .city-country {
+    font-size: 11px; color: var(--muted);
+    margin-top: 2px; font-weight: 400;
+  }
+
+  .weather-icon { font-size: 32px; line-height: 1; flex-shrink: 0; }
+
+  .temp-row {
+    display: flex; align-items: baseline;
+    gap: 8px; margin-bottom: 6px;
+  }
+
+  .temp-main {
+    font-family: var(--mono);
+    font-size: 46px; line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .temp-unit-display {
+    font-family: var(--mono);
+    font-size: 18px; color: var(--muted);
+  }
+
+  .feels-like {
+    font-size: 12px; color: var(--muted);
+    margin-left: auto; text-align: right;
+    line-height: 1.4; font-weight: 300;
+  }
+
+  .condition-text {
+    font-size: 13px; font-style: italic;
+    opacity: 0.75; margin-bottom: 14px;
+  }
+
+  .stat-row {
+    display: flex;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+
+  .stat {
+    flex: 1;
+    display: flex; flex-direction: column; gap: 3px;
+    padding: 0 8px;
+  }
+
+  .stat:first-child { padding-left: 0; }
+  .stat:last-child  { padding-right: 0; }
+  .stat + .stat { border-left: 1px solid var(--border); }
+
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 9px; letter-spacing: 0.13em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  .stat-val {
+    font-family: var(--mono);
+    font-size: 13px; letter-spacing: -0.01em;
+  }
+
+  .forecast-strip {
+    display: flex;
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+
+  .fc-day {
+    flex: 1; display: flex;
+    flex-direction: column; align-items: center; gap: 4px;
+  }
+
+  .fc-day + .fc-day { border-left: 1px solid var(--border); }
+
+  .fc-label {
+    font-family: var(--mono);
+    font-size: 9px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+
+  .fc-icon { font-size: 16px; }
+
+  .fc-temps { font-family: var(--mono); font-size: 11px; }
+  .fc-lo { color: var(--muted); }
+
+  /* ── LOADING / ERROR ── */
+  .card-loading {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 10px; min-height: 160px; color: var(--muted);
+  }
+
+  .spinner {
+    width: 22px; height: 22px;
+    border: 2px solid var(--border);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .card-error {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; min-height: 100px;
+    color: var(--accent-hot); font-size: 12px; text-align: center;
+  }
+
+  .card-error .err-icon { font-size: 22px; }
+
+  .last-updated {
+    font-family: var(--mono);
+    font-size: 10px; letter-spacing: 0.1em;
+    color: var(--muted); text-align: right; margin-top: 28px;
+  }
+
+  @media (max-width: 520px) {
+    .header { flex-direction: column; align-items: flex-start; }
+    .search-input { width: 180px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <div class="label-line">Surface Conditions</div>
+      <h1>The <em>Weather</em></h1>
+    </div>
+    <div class="controls">
+      <div class="unit-toggle">
+        <button class="unit-btn active" id="btn-f" onclick="setUnit('F')">°F</button>
+        <button class="unit-btn"        id="btn-c" onclick="setUnit('C')">°C</button>
+      </div>
+      <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="9.5" y1="9.5" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input class="search-input" id="city-input" type="text"
+          placeholder="Add a city…" autocomplete="off"
+          oninput="onInput()" onkeydown="onKey(event)"/>
+        <div class="suggestions" id="suggestions"></div>
+      </div>
+      <button class="btn-add" onclick="addCurrent()">Add</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <div class="city-grid" id="city-grid"></div>
+  <div class="last-updated" id="last-updated"></div>
+</div>
+
+<script>
+const API_KEY = '4090290a58ca43639b240613261103';
+const BASE    = 'https://api.weatherapi.com/v1';
+
+// ── CURATED CITIES — the fixed world set, west to east ───────────────────────
+const CURATED = [
+  { name: 'Los Angeles', country: 'US', q: '34.05,-118.24',  lon: -118.24 },
+  { name: 'Mexico City', country: 'MX', q: '19.43,-99.13',   lon:  -99.13 },
+  { name: 'London',      country: 'GB', q: '51.51,-0.13',    lon:   -0.13 },
+  { name: 'Copenhagen',  country: 'DK', q: '55.68,12.57',    lon:   12.57 },
+  { name: 'Istanbul',    country: 'TR', q: '41.01,28.95',    lon:   28.95 },
+  { name: 'Beijing',     country: 'CN', q: '39.91,116.39',   lon:  116.39 },
+  { name: 'Tokyo',       country: 'JP', q: '35.68,139.69',   lon:  139.69 },
+  { name: 'Sydney',      country: 'AU', q: '-33.87,151.21',  lon:  151.21 },
+];
+
+// ── LONGITUDE MATH ────────────────────────────────────────────────────────────
+// How many degrees east of `anchor` is `lon`? (always 0–360, never 0)
+function degreesEast(lon, anchor) {
+  let d = lon - anchor;
+  if (d <= 0) d += 360;
+  return d;
+}
+
+function sortEastFrom(arr, anchorLon) {
+  return [...arr].sort((a, b) => degreesEast(a.lon, anchorLon) - degreesEast(b.lon, anchorLon));
+}
+
+// Return all curated cities — sort happens via sortEastFrom at render time
+function selectDefaults() {
+  return CURATED.map(c => ({ ...c }));
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let unit        = 'F';
+let userCity    = null;   // pinned "you are here" card — never in cities[]
+let cities      = [];     // sorted east from user on every render
+let weatherData = {};
+let suggestions = [], selectedSuggestion = -1;
+
+// ── UNIT ──────────────────────────────────────────────────────────────────────
+function setUnit(u) {
+  unit = u;
+  document.getElementById('btn-f').classList.toggle('active', u === 'F');
+  document.getElementById('btn-c').classList.toggle('active', u === 'C');
+  renderGrid();
+}
+
+// ── CONDITION EMOJI ───────────────────────────────────────────────────────────
+function condEmoji(code, isDay) {
+  if (code === 1000) return isDay ? '☀️' : '🌙';
+  if (code === 1003) return '⛅';
+  if ([1006,1009].includes(code)) return '☁️';
+  if ([1030,1135,1147].includes(code)) return '🌫';
+  if ([1063,1180,1183,1186,1189,1192,1195,1198,1201,1240,1243,1246].includes(code)) return '🌧';
+  if ([1066,1114,1117,1210,1213,1216,1219,1222,1225,1255,1258].includes(code)) return '❄️';
+  if ([1069,1072,1168,1171,1204,1207,1249,1252].includes(code)) return '🌨';
+  if ([1087,1273,1276,1279,1282].includes(code)) return '⛈';
+  if ([1150,1153,1168,1171].includes(code)) return '🌦';
+  return '🌡';
+}
+
+function tempAccent(c) {
+  if (c >= 32) return '#c94f2a';
+  if (c >= 22) return '#c4872a';
+  if (c >= 10) return '#2d7d4f';
+  if (c >= 0)  return '#2a6b9c';
+  return '#6ac0d8';
+}
+
+const DAY_SHORT = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+
+// ── FETCH ─────────────────────────────────────────────────────────────────────
+async function fetchWeather(q) {
+  const r    = await fetch(`${BASE}/forecast.json?key=${API_KEY}&q=${encodeURIComponent(q)}&days=6&aqi=no&alerts=no`);
+  const data = await r.json();
+  if (data.error) throw new Error(data.error.message);
+  weatherData[q] = data;
+  return data;
+}
+
+// ── BUILD CARD HTML ───────────────────────────────────────────────────────────
+function buildCard(city, d, isHere) {
+  const cur    = d.current;
+  const loc    = d.location;
+  const fcDays = d.forecast?.forecastday || [];
+  const isDay  = cur.is_day === 1;
+
+  const temp  = unit === 'F' ? Math.round(cur.temp_f)      : Math.round(cur.temp_c);
+  const feels = unit === 'F' ? Math.round(cur.feelslike_f) : Math.round(cur.feelslike_c);
+  const wind  = unit === 'F' ? `${Math.round(cur.wind_mph)} mph` : `${Math.round(cur.wind_kph)} km/h`;
+  const today = fcDays[0]?.day;
+  const hi    = today ? (unit==='F' ? Math.round(today.maxtemp_f) : Math.round(today.maxtemp_c)) : '—';
+  const lo    = today ? (unit==='F' ? Math.round(today.mintemp_f) : Math.round(today.mintemp_c)) : '—';
+  const localTime = loc.localtime
+    ? new Date(loc.localtime).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+
+  const fcHTML = fcDays.length > 1
+    ? `<div class="forecast-strip">${fcDays.slice(1,6).map(fd => {
+        const dow = DAY_SHORT[new Date(fd.date+'T12:00:00').getDay()];
+        const fhi = unit==='F' ? Math.round(fd.day.maxtemp_f) : Math.round(fd.day.maxtemp_c);
+        const flo = unit==='F' ? Math.round(fd.day.mintemp_f) : Math.round(fd.day.mintemp_c);
+        return `<div class="fc-day">
+          <div class="fc-label">${dow}</div>
+          <div class="fc-icon">${condEmoji(fd.day.condition.code, true)}</div>
+          <div class="fc-temps"><span>${fhi}°</span><span class="fc-lo"> ${flo}°</span></div>
+        </div>`;
+      }).join('')}</div>` : '';
+
+  // Escape the q string for use in onclick attribute
+  const qAttr = city.q.replace(/'/g, "\\'");
+
+  return {
+    accent: tempAccent(cur.temp_c),
+    html: `
+      ${isHere ? '' : `<button class="card-remove" onclick="removeCity('${qAttr}')" title="Remove">×</button>`}
+      <div class="card-top">
+        <div>
+          <div class="city-name">${city.name}</div>
+          <div class="city-country">${loc.country || city.country}${localTime ? ' · '+localTime : ''}</div>
+          ${isHere ? '<span class="here-marker">◉ you are here</span>' : ''}
+        </div>
+        <div class="weather-icon">${condEmoji(cur.condition.code, isDay)}</div>
+      </div>
+      <div class="temp-row">
+        <div class="temp-main">${temp}</div>
+        <div class="temp-unit-display">°${unit}</div>
+        <div class="feels-like">Feels like<br>${feels}°${unit}</div>
+      </div>
+      <div class="condition-text">${cur.condition.text}</div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-label">Hi / Lo</div><div class="stat-val">${hi}° / ${lo}°</div></div>
+        <div class="stat"><div class="stat-label">Humidity</div><div class="stat-val">${cur.humidity}%</div></div>
+        <div class="stat"><div class="stat-label">Wind</div><div class="stat-val">${wind}</div></div>
+        <div class="stat"><div class="stat-label">UV Index</div><div class="stat-val">${cur.uv ?? '—'}</div></div>
+      </div>
+      ${fcHTML}`
+  };
+}
+
+// Safe DOM id from a q string
+function cardId(q) { return 'c_' + q.replace(/[^a-z0-9]/gi,'_'); }
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function renderGrid() {
+  if (userCity) cities = sortEastFrom(cities, userCity.lon);
+
+  const all  = userCity ? [{...userCity, isHere:true}, ...cities] : [...cities];
+  const grid = document.getElementById('city-grid');
+  grid.innerHTML = '';
+
+  all.forEach(city => {
+    const isHere = !!city.isHere;
+    const id     = cardId(city.q);
+    const el     = document.createElement('div');
+    el.id        = id;
+    el.className = 'city-card' + (isHere ? ' card-here' : '');
+
+    if (!weatherData[city.q]) {
+      el.innerHTML = `
+        <div class="card-top"><div>
+          <div class="city-name">${city.name}</div>
+          <div class="city-country">${city.country}</div>
+          ${isHere ? '<span class="here-marker">◉ you are here</span>' : ''}
+        </div></div>
+        <div class="card-loading">
+          <div class="spinner"></div>
+          <span style="font-size:11px;font-family:var(--mono)">Fetching…</span>
+        </div>`;
+      grid.appendChild(el);
+      fetchWeather(city.q)
+        .then(() => {
+          const card = document.getElementById(id);
+          if (!card) return;
+          const {accent, html} = buildCard(city, weatherData[city.q], isHere);
+          card.style.setProperty('--card-accent', accent);
+          card.innerHTML = html;
+        })
+        .catch(e => {
+          const card = document.getElementById(id);
+          if (card) card.innerHTML =
+            `<div class="card-error"><div class="err-icon">⚠</div><span>${e.message}</span></div>`;
+        });
+    } else {
+      const {accent, html} = buildCard(city, weatherData[city.q], isHere);
+      el.style.setProperty('--card-accent', accent);
+      el.innerHTML = html;
+      grid.appendChild(el);
+    }
+  });
+
+  document.getElementById('last-updated').textContent =
+    `Updated ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+}
+
+function removeCity(q) {
+  cities = cities.filter(c => c.q !== q);
+  renderGrid();
+}
+
+// ── ADD ───────────────────────────────────────────────────────────────────────
+function addCity(city) {
+  if (cities.find(c => c.q === city.q)) return;
+  if (userCity && city.q === userCity.q) return;
+  cities.push(city);
+  renderGrid();
+}
+
+// ── SEARCH ────────────────────────────────────────────────────────────────────
+async function searchAPI(q) {
+  const r = await fetch(`${BASE}/search.json?key=${API_KEY}&q=${encodeURIComponent(q)}`);
+  return r.json();
+}
+
+let searchTimeout;
+function onInput() {
+  const q = document.getElementById('city-input').value.trim();
+  clearTimeout(searchTimeout);
+  selectedSuggestion = -1;
+  if (q.length < 2) { closeSuggestions(); return; }
+  searchTimeout = setTimeout(async () => {
+    suggestions = await searchAPI(q);
+    showSuggestions();
+  }, 300);
+}
+
+function showSuggestions() {
+  const box = document.getElementById('suggestions');
+  if (!suggestions.length) { closeSuggestions(); return; }
+  box.innerHTML = suggestions.map((s,i) =>
+    `<div class="suggestion-item" data-idx="${i}">${s.name}${s.region?', '+s.region:''}, ${s.country}</div>`
+  ).join('');
+  box.classList.add('open');
+  box.querySelectorAll('.suggestion-item').forEach(el =>
+    el.addEventListener('mousedown', () => selectSuggestion(+el.dataset.idx))
+  );
+}
+
+function closeSuggestions() {
+  document.getElementById('suggestions').classList.remove('open');
+}
+
+function selectSuggestion(i) {
+  const s = suggestions[i];
+  addCity({ name:s.name, country:s.country, q:`${s.lat},${s.lon}`, lon:+s.lon });
+  document.getElementById('city-input').value = '';
+  closeSuggestions();
+}
+
+function onKey(e) {
+  const items = document.getElementById('suggestions').querySelectorAll('.suggestion-item');
+  if (e.key === 'ArrowDown') {
+    selectedSuggestion = Math.min(selectedSuggestion+1, items.length-1);
+    items.forEach((el,i) => el.classList.toggle('active', i===selectedSuggestion));
+  } else if (e.key === 'ArrowUp') {
+    selectedSuggestion = Math.max(selectedSuggestion-1, 0);
+    items.forEach((el,i) => el.classList.toggle('active', i===selectedSuggestion));
+  } else if (e.key === 'Enter') {
+    if (selectedSuggestion >= 0) selectSuggestion(selectedSuggestion);
+    else addCurrent();
+  } else if (e.key === 'Escape') {
+    closeSuggestions();
+  }
+}
+
+function addCurrent() {
+  const q = document.getElementById('city-input').value.trim();
+  if (!q) return;
+  searchAPI(q).then(results => {
+    if (results.length) {
+      const s = results[0];
+      addCity({ name:s.name, country:s.country, q:`${s.lat},${s.lon}`, lon:+s.lon });
+      document.getElementById('city-input').value = '';
+      closeSuggestions();
+    }
+  });
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) closeSuggestions();
+});
+
+// ── AUTO REFRESH ──────────────────────────────────────────────────────────────
+setInterval(() => { weatherData = {}; renderGrid(); }, 10 * 60 * 1000);
+
+// ── INIT WITH GEOLOCATION ─────────────────────────────────────────────────────
+async function initWithCoords(lat, lon) {
+  // Fetch weather for user's position — also reverse-geocodes for us
+  const data = await fetchWeather(`${lat},${lon}`);
+  const loc  = data.location;
+  userCity = {
+    name:    loc.name,
+    country: loc.country,
+    q:       `${lat},${lon}`,
+    lon:     parseFloat(loc.lon ?? lon),
+    isHere:  true,
+  };
+  // All curated defaults, skipping any within 10° of user's position
+  cities = selectDefaults().filter(c => {
+    const d = Math.abs(c.lon - userCity.lon);
+    return Math.min(d, 360 - d) > 10;
+  });
+  renderGrid();
+}
+
+function initFallback() {
+  userCity = { name:'Saugerties', country:'US', q:'42.08,-73.95', lon:-73.95, isHere:true };
+  cities   = selectDefaults();
+  renderGrid();
+}
+
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    pos => initWithCoords(pos.coords.latitude, pos.coords.longitude).catch(initFallback),
+    ()  => initFallback(),
+    { timeout: 6000 }
+  );
+} else {
+  initFallback();
+}
+</script>
+</body>
+</html>
