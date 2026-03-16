@@ -592,7 +592,6 @@ function maybeClose(e){ if(e.target===document.getElementById('edit-modal')) clo
 function closeEdit(){ document.getElementById('edit-modal').style.display='none'; }
 
 async function saveEdit() {
-  st('Saving...','');
   var id     = document.getElementById('edit-id').value;
   var calId  = document.getElementById('edit-cal-id').value;
   var title  = document.getElementById('edit-title').value;
@@ -600,84 +599,60 @@ async function saveEdit() {
   var url    = document.getElementById('edit-url').value;
   var cat    = document.getElementById('edit-cat').value;
   var pri    = document.getElementById('edit-pri').value;
-  var due    = document.getElementById('edit-due').value  || null;
+  var due    = document.getElementById('edit-due').value || null;
   var nxt    = document.getElementById('edit-next').value || null;
-  // Debug: log what we read
-  console.log('Edit dates - due:', due, 'nxt:', nxt, 'dueCal:', editCal.due, 'nextCal:', editCal.next);
-  var dueCal = editCal.due;
-  var nextCal= editCal.next;
+  var dueCal  = editCal.due;
+  var nextCal = editCal.next;
 
   var saveBtn = document.getElementById('save-btn');
-  saveBtn.disabled=true; saveBtn.innerHTML='<span class="spin"></span>';
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<span class="spin"></span>';
 
-  var patch = { title:title, notes:notes, url:url, category:cat, priority:pri, due_date:due, next_step_date:nxt };
+  var patch = {
+    title: title, notes: notes, url: url,
+    category: cat, priority: pri,
+    due_date: due, next_step_date: nxt
+  };
 
-  // Only call calendar if toggle is on AND we have a date value
   var hasDueCal  = dueCal  && !!due;
   var hasNextCal = nextCal && !!nxt;
-  st('due:'+due+' nxt:'+nxt+' dueCal:'+dueCal+' nextCal:'+nextCal,'');
-  if(hasDueCal || hasNextCal) {
+
+  if (hasDueCal || hasNextCal) {
     try {
-      // calendar_only mode: just create/update calendar event, no task insert
-      var calBody = {
-        raw_input:     title,
-        calendar_only: true,
-        priority:      pri,
-        notes:         notes || undefined,
-      };
-      if(hasDueCal)  calBody.due_date       = due;
-      if(hasNextCal) calBody.next_step_date = nxt;
-      if(calId) calBody.update_event_id = calId;
+      var calBody = { raw_input: title, calendar_only: true, priority: pri };
+      if (hasDueCal)  calBody.due_date        = due;
+      if (hasNextCal) calBody.next_step_date   = nxt;
+      if (calId)      calBody.update_event_id  = calId;
       var calR = await fetch(EDGE, {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+AK},
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AK },
         body: JSON.stringify(calBody)
       });
       var calD = await calR.json();
-      if(calD.success && calD.calendar_event_id) {
+      if (calD.success && calD.calendar_event_id) {
         patch.calendar_event_id = calD.calendar_event_id;
-        st('Calendar updated','ok');
-      } else {
-        st('Calendar failed: '+(calD.error||JSON.stringify(calD)),'err');
       }
-    } catch(e) { console.error('Calendar error:',e); }
+    } catch(e) { console.error('Cal error:', e); }
   }
 
-  if(editAttachedFile) {
+  if (editAttachedFile) {
     var photoUrl = await uploadPhoto(editAttachedFile);
-    if(photoUrl) patch.photo_url = photoUrl;
+    if (photoUrl) patch.photo_url = photoUrl;
     editAttachedFile = null;
   }
 
-  try{
-    await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(patch)});
-    var i=tasks.findIndex(function(t){return t.id===id;});
-    if(i>-1)Object.assign(tasks[i],patch);
+  try {
+    await api('/rest/v1/tasks?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(patch) });
+    var i = tasks.findIndex(function(t) { return t.id === id; });
+    if (i > -1) Object.assign(tasks[i], patch);
     closeEdit(); render();
-    st('Changes saved','ok');
-  }catch(e){
-    st('Save error: '+e.message,'err');
+    st('Changes saved', 'ok');
+  } catch(e) {
+    st('Save failed: ' + e.message, 'err');
   }
-  saveBtn.disabled=false; saveBtn.innerHTML='Save';
-  st('Changes saved','ok');
+  saveBtn.disabled = false;
+  saveBtn.innerHTML = 'Save';
 }
-
-function deleteTask(id) {
-  var row=document.getElementById('row-'+id);
-  if(!row)return;
-  var conf=row.querySelector('.del-confirm');
-  if(conf){conf.remove();return;}
-  conf=document.createElement('div');
-  conf.className='del-confirm'; conf.style.display='block';
-  conf.innerHTML='<p>Delete permanently? This cannot be undone.</p>'
-    +'<div class="del-confirm-btns">'
-    +'<button class="btn ghost xs">Cancel</button>'
-    +'<button class="btn danger xs" data-id="'+id+'" data-action="delete-confirm">Delete permanently</button>'
-    +'</div>';
-  conf.querySelector('.btn.ghost').onclick = function(){conf.remove();};
-  row.querySelector('.rbody').appendChild(conf);
-}
-
 async function confirmDeleteCard(id) {
   try{await api('/rest/v1/tasks?id=eq.'+id,{method:'DELETE'});}catch(e){}
   tasks=tasks.filter(function(t){return t.id!==id;});
