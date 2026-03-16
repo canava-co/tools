@@ -592,6 +592,7 @@ function maybeClose(e){ if(e.target===document.getElementById('edit-modal')) clo
 function closeEdit(){ document.getElementById('edit-modal').style.display='none'; }
 
 async function saveEdit() {
+  st('Saving...','');
   var id     = document.getElementById('edit-id').value;
   var calId  = document.getElementById('edit-cal-id').value;
   var title  = document.getElementById('edit-title').value;
@@ -648,12 +649,16 @@ async function saveEdit() {
     editAttachedFile = null;
   }
 
-  try{ await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(patch)}); }catch(e){}
-  var i=tasks.findIndex(function(t){return t.id===id;});
-  if(i>-1)Object.assign(tasks[i],patch);
-  closeEdit(); render();
+  try{
+    await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(patch)});
+    var i=tasks.findIndex(function(t){return t.id===id;});
+    if(i>-1)Object.assign(tasks[i],patch);
+    closeEdit(); render();
+    st('Changes saved','ok');
+  }catch(e){
+    st('Save error: '+e.message,'err');
+  }
   saveBtn.disabled=false; saveBtn.innerHTML='Save';
-  st('Changes saved','ok');
   st('Changes saved','ok');
 }
 
