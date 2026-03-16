@@ -497,6 +497,16 @@ async function doCapture() {
   var notes=document.getElementById('f-notes').value.trim();
   var dueDate=document.getElementById('f-due').value;
   var nextDate=document.getElementById('f-next').value;
+  // Normalize dates: iOS Safari may return MM/DD/YYYY, Supabase needs YYYY-MM-DD
+  function normDate(v) {
+    if (!v) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+    var p=v.split('/');
+    if (p.length===3) return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');
+    return v;
+  }
+  dueDate  = normDate(dueDate);
+  nextDate = normDate(nextDate);
   var cat=document.getElementById('f-cat').value;
   var pri=document.getElementById('f-pri').value;
   var dueCal=capCal.due, nextCal=capCal.next;
@@ -593,16 +603,44 @@ function maybeClose(e){ if(e.target===document.getElementById('edit-modal')) clo
 function closeEdit(){ document.getElementById('edit-modal').style.display='none'; }
 
 async function saveEdit() {
-  var id = document.getElementById('edit-id').value;
+  var id    = document.getElementById('edit-id').value;
+  var calId = document.getElementById('edit-cal-id').value;
+  var due   = document.getElementById('edit-due').value || null;
+  var nxt   = document.getElementById('edit-next').value || null;
+  var pri   = document.getElementById('edit-pri').value || 'medium';
+  var title = document.getElementById('edit-title').value;
   var u = {
-    title:          document.getElementById('edit-title').value,
+    title:          title,
     notes:          document.getElementById('edit-notes').value || null,
     url:            document.getElementById('edit-url').value || null,
     category:       document.getElementById('edit-cat').value || null,
-    priority:       document.getElementById('edit-pri').value || 'medium',
-    due_date:       document.getElementById('edit-due').value || null,
-    next_step_date: document.getElementById('edit-next').value || null,
+    priority:       pri,
+    due_date:       due,
+    next_step_date: nxt,
   };
+
+  // Calendar — fire if either toggle is on and date exists
+  var hasDueCal  = editCal.due  && !!due;
+  var hasNextCal = editCal.next && !!nxt;
+
+  if (hasDueCal || hasNextCal) {
+    try {
+      var calBody = { raw_input: title, calendar_only: true, priority: pri };
+      if (hasDueCal)  calBody.due_date       = due;
+      if (hasNextCal) calBody.next_step_date  = nxt;
+      if (calId)      calBody.update_event_id = calId;
+      var calR = await fetch(EDGE, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+AK },
+        body: JSON.stringify(calBody)
+      });
+      var calD = await calR.json();
+      if (calD.success && calD.calendar_event_id) {
+        u.calendar_event_id = calD.calendar_event_id;
+      }
+    } catch(e) {}
+  }
+
   try { await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(u)}); } catch(e) {}
   var i = tasks.findIndex(function(t){return t.id===id;});
   if (i>-1) Object.assign(tasks[i], u);
