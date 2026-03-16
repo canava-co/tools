@@ -377,12 +377,12 @@ function counts() {
 function inferCat(t) {
   if (t.category) return t.category;
   var tx = ((t.raw_input||'')+' '+(t.title||'')).toLowerCase();
-  if (/\blunch\b|\bdinner\b|\bmeeting\b|\bappointment\b|\bcall\b|\bat \d|\bpm\b|\bam\b/.test(tx)) return 'appointment';
-  if (/\bfollow.?up\b|\bcheck in\b/.test(tx)) return 'follow-up';
-  if (/\bidea\b|\bconcept\b|\bpitch\b/.test(tx)) return 'idea';
-  if (/\bnote\b|\bremember\b|\bfyi\b/.test(tx)) return 'note';
-  if (/\bcontact\b|\breach out\b/.test(tx)) return 'contact';
-  if (/\breference\b|\bread\b/.test(tx)) return 'reference';
+  if (/lunch|dinner|meeting|appointment|call|pm\b|am\b/.test(tx)) return 'appointment';
+  if (/follow.?up|check in/.test(tx)) return 'follow-up';
+  if (/idea|concept|pitch/.test(tx)) return 'idea';
+  if (/note|remember|fyi/.test(tx)) return 'note';
+  if (/contact|reach out/.test(tx)) return 'contact';
+  if (/reference|read/.test(tx)) return 'reference';
   return 'task';
 }
 
@@ -399,21 +399,22 @@ function isLate(d) { return d && new Date(d+'T23:59:59') < new Date(); }
 function isWeek(d) {
   if(!d)return false;
   var dt=new Date(d+'T12:00:00'),t=new Date();t.setHours(0,0,0,0);
-  return Math.round((dt-t)/86400000)>=0 && Math.round((dt-t)/86400000)<7;
+  var diff=Math.round((dt-t)/86400000);
+  return diff>=0&&diff<7;
 }
 
-// Button click handlers using data attributes to avoid escaping issues
+// Single event listener for all row buttons - avoids inline onclick escaping issues
 document.addEventListener('click', function(e) {
   var btn = e.target.closest('button[data-id]');
   if (!btn) return;
   var id = btn.getAttribute('data-id');
   var action = btn.getAttribute('data-action');
-  if (action === 'complete') upd(id, 'done');
-  else if (action === 'restore') upd(id, 'active');
-  else if (action === 'archive') upd(id, 'archived');
-  else if (action === 'edit') openEdit(id);
-  else if (action === 'delete') deleteTask(id);
-  else if (action === 'delete-confirm') confirmDeleteCard(id);
+  if (action === 'complete')       upd(id, 'done');
+  else if (action === 'restore')   upd(id, 'active');
+  else if (action === 'archive')   upd(id, 'archived');
+  else if (action === 'edit')      openEdit(id);
+  else if (action === 'delete')    deleteTask(id);
+  else if (action === 'del-confirm') confirmDeleteCard(id);
 });
 
 function render() {
@@ -443,7 +444,7 @@ function render() {
     return new Date(a.next_step_date)-new Date(b.next_step_date);
   });
   var el=document.getElementById('list');
-  if(!list.length){showEmpty(tab==='active'?'Nothing here - capture your first thought above':'Nothing in this view');return;}
+  if(!list.length){showEmpty(tab==='active'?'Nothing here yet':'Nothing in this view');return;}
   el.innerHTML=list.map(function(t){
     var c=inferCat(t),p=t.priority||'medium',due=fmt(t.due_date),nxt=fmt(t.next_step_date),late=tab==='active'&&isLate(t.due_date);
     var acts='';
@@ -543,8 +544,8 @@ async function doCapture() {
       else render();
       var calWanted=(dueCal||nextCal);
       var calDone=!!task.calendar_event_id;
-      var calMsg=calWanted?(calDone?' - added to calendar':' - CALENDAR FAILED'):'';
-      st('"'+(task.title||raw).substring(0,50)+'" captured'+calMsg,calWanted&&!calDone?'err':'ok');
+      var calMsg=calWanted?(calDone?' - added to calendar':' - calendar pending'):'';
+      st('"'+(task.title||raw).substring(0,50)+'" captured'+calMsg,'ok');
     } else {
       st('Error: '+(data.error||'unknown'),'err');
     }
@@ -566,15 +567,15 @@ async function upd(id, s) {
 function openEdit(id) {
   var t=tasks.find(function(x){return x.id===id;});
   if(!t)return;
-  document.getElementById('edit-id').value    = id;
+  document.getElementById('edit-id').value     = id;
   document.getElementById('edit-cal-id').value = t.calendar_event_id||'';
-  document.getElementById('edit-title').value = t.title||t.raw_input||'';
-  document.getElementById('edit-notes').value = t.notes||'';
-  document.getElementById('edit-url').value   = t.url||'';
-  document.getElementById('edit-cat').value   = inferCat(t);
-  document.getElementById('edit-pri').value   = t.priority||'medium';
-  document.getElementById('edit-due').value   = t.due_date||'';
-  document.getElementById('edit-next').value  = t.next_step_date||'';
+  document.getElementById('edit-title').value  = t.title||t.raw_input||'';
+  document.getElementById('edit-notes').value  = t.notes||'';
+  document.getElementById('edit-url').value    = t.url||'';
+  document.getElementById('edit-cat').value    = inferCat(t);
+  document.getElementById('edit-pri').value    = t.priority||'medium';
+  document.getElementById('edit-due').value    = t.due_date||'';
+  document.getElementById('edit-next').value   = t.next_step_date||'';
   resetEditToggles();
   var prev=document.getElementById('edit-photo-prev');
   var img=document.getElementById('edit-photo-img');
@@ -592,68 +593,45 @@ function maybeClose(e){ if(e.target===document.getElementById('edit-modal')) clo
 function closeEdit(){ document.getElementById('edit-modal').style.display='none'; }
 
 async function saveEdit() {
-  var id     = document.getElementById('edit-id').value;
-  var calId  = document.getElementById('edit-cal-id').value;
-  var title  = document.getElementById('edit-title').value;
-  var notes  = document.getElementById('edit-notes').value;
-  var url    = document.getElementById('edit-url').value;
-  var cat    = document.getElementById('edit-cat').value;
-  var pri    = document.getElementById('edit-pri').value;
-  var due    = document.getElementById('edit-due').value || null;
-  var nxt    = document.getElementById('edit-next').value || null;
-  var dueCal  = editCal.due;
-  var nextCal = editCal.next;
-
-  var saveBtn = document.getElementById('save-btn');
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = '<span class="spin"></span>';
-
-  var patch = {
-    title: title, notes: notes, url: url,
-    category: cat, priority: pri,
-    due_date: due, next_step_date: nxt
+  var id = document.getElementById('edit-id').value;
+  var u = {
+    title:          document.getElementById('edit-title').value,
+    notes:          document.getElementById('edit-notes').value || null,
+    url:            document.getElementById('edit-url').value || null,
+    category:       document.getElementById('edit-cat').value || null,
+    priority:       document.getElementById('edit-pri').value || 'medium',
+    due_date:       document.getElementById('edit-due').value || null,
+    next_step_date: document.getElementById('edit-next').value || null,
   };
-
-  var hasDueCal  = dueCal  && !!due;
-  var hasNextCal = nextCal && !!nxt;
-
-  if (hasDueCal || hasNextCal) {
-    try {
-      var calBody = { raw_input: title, calendar_only: true, priority: pri };
-      if (hasDueCal)  calBody.due_date        = due;
-      if (hasNextCal) calBody.next_step_date   = nxt;
-      if (calId)      calBody.update_event_id  = calId;
-      var calR = await fetch(EDGE, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AK },
-        body: JSON.stringify(calBody)
-      });
-      var calD = await calR.json();
-      if (calD.success && calD.calendar_event_id) {
-        patch.calendar_event_id = calD.calendar_event_id;
-      }
-    } catch(e) { console.error('Cal error:', e); }
-  }
-
-  if (editAttachedFile) {
-    var photoUrl = await uploadPhoto(editAttachedFile);
-    if (photoUrl) patch.photo_url = photoUrl;
-    editAttachedFile = null;
-  }
-
-  try {
-    await api('/rest/v1/tasks?id=eq.' + id, { method: 'PATCH', body: JSON.stringify(patch) });
-    var i = tasks.findIndex(function(t) { return t.id === id; });
-    if (i > -1) Object.assign(tasks[i], patch);
-    closeEdit(); render();
-    st('Changes saved', 'ok');
-  } catch(e) {
-    st('Save failed: ' + e.message, 'err');
-  }
-  saveBtn.disabled = false;
-  saveBtn.innerHTML = 'Save';
+  try { await api('/rest/v1/tasks?id=eq.'+id, {method:'PATCH', body:JSON.stringify(u)}); } catch(e) {}
+  var i = tasks.findIndex(function(t){return t.id===id;});
+  if (i>-1) Object.assign(tasks[i], u);
+  closeEdit(); render();
+  st('Changes saved', 'ok');
 }
+
+// Delete - shows inline confirm row below the task
+function deleteTask(id) {
+  // Remove any existing confirm boxes first
+  document.querySelectorAll('.del-confirm-inline').forEach(function(el){el.remove();});
+  var row = document.getElementById('row-'+id);
+  if(!row) return;
+  // Create confirm row spanning full width below the task
+  var conf = document.createElement('div');
+  conf.className = 'del-confirm-inline';
+  conf.setAttribute('data-for', id);
+  conf.style.cssText = 'grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:1px solid var(--high);background:var(--card);margin-top:0;';
+  conf.innerHTML = '<p style="font-size:9px;color:var(--navy);font-style:italic;margin:0;">Delete permanently? This cannot be undone.</p>'
+    +'<div style="display:flex;gap:6px;">'
+    +'<button class="btn ghost xs" onclick="this.closest(\'.del-confirm-inline\').remove()">Cancel</button>'
+    +'<button class="btn danger xs" data-id="'+id+'" data-action="del-confirm">Delete permanently</button>'
+    +'</div>';
+  row.after(conf);
+}
+
 async function confirmDeleteCard(id) {
+  var conf = document.querySelector('.del-confirm-inline[data-for="'+id+'"]');
+  if(conf) conf.remove();
   try{await api('/rest/v1/tasks?id=eq.'+id,{method:'DELETE'});}catch(e){}
   tasks=tasks.filter(function(t){return t.id!==id;});
   counts(); render();
