@@ -605,14 +605,7 @@ function closeEdit(){ document.getElementById('edit-modal').style.display='none'
 async function saveEdit() {
   var id    = document.getElementById('edit-id').value;
   var calId = document.getElementById('edit-cal-id').value;
-  // FIX: normalize dates — iOS Safari returns MM/DD/YYYY, Supabase needs YYYY-MM-DD
-  function normDate(v) {
-    if (!v) return null;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
-    var p = v.split('/');
-    if (p.length === 3) return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');
-    return v;
-  }
+  function normDate(v) { if(!v)return null; if(/^\d{4}-\d{2}-\d{2}$/.test(v))return v; var p=v.split('/'); if(p.length===3)return p[2]+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0'); return v; }
   var due = normDate(document.getElementById('edit-due').value) || null;
   var nxt = normDate(document.getElementById('edit-next').value) || null;
   var pri   = document.getElementById('edit-pri').value || 'medium';
