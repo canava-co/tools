@@ -96,7 +96,11 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;h
 .si-code{font-family:'Share Tech Mono',monospace;font-size:6px;letter-spacing:.04em;color:rgba(255,255,255,.65);padding:1px 2px;pointer-events:none;}
 .si-rot{position:absolute;top:2px;left:2px;font-family:'Share Tech Mono',monospace;font-size:7px;color:rgba(255,255,255,.55);pointer-events:none;}
 .si-rm{position:absolute;top:2px;right:2px;width:13px;height:13px;background:rgba(0,0,0,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.9);cursor:pointer;opacity:0;transition:opacity .1s;z-index:10;font-family:Arial,sans-serif;line-height:1;}
-.si:hover .si-rm,.si.selected .si-rm{opacity:1;}
+.si-stack-badge{position:absolute;top:2px;left:2px;font-family:'Share Tech Mono',monospace;font-size:8px;font-weight:700;color:rgba(255,255,255,.9);background:rgba(0,0,0,.35);padding:1px 4px;border-radius:2px;pointer-events:none;letter-spacing:.04em;}
+.si-stk{position:absolute;width:13px;height:13px;background:rgba(0,0,0,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:rgba(255,255,255,.9);cursor:pointer;opacity:0;transition:opacity .1s;z-index:11;font-family:Arial,sans-serif;line-height:1;}
+.si-stk-up{bottom:18px;right:2px;}
+.si-stk-dn{bottom:2px;right:18px;}
+.si:hover .si-stk,.si.selected .si-stk{opacity:1;}
 
 /* overflow indicator */
 .tier-overflow-marker{position:absolute;right:-20px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:11px;font-family:'Share Tech Mono',monospace;pointer-events:none;}
@@ -389,11 +393,12 @@ function buildTierEl(tier, sh, wPx) {
 }
 
 function buildItemEl(item, def, fw, fh, xOff, tierId) {
+  const stack = item.stack || 1;
   const sEl = el('div','si');
   sEl.id = 'si-' + item.iid;
   sEl.style.left   = xOff + 'px';
   sEl.style.width  = fw + 'px';
-  sEl.style.height = fh + 'px';
+  sEl.style.height = Math.round(fh * stack) + 'px';
   sEl.style.backgroundColor = def.color;
   if (def.border) sEl.style.border = '1.5px solid rgba(54,54,117,.3)';
   if (def.clear)  { sEl.style.backgroundColor='rgba(74,156,196,.18)'; sEl.style.border='1.5px dashed #4a9cc4'; }
@@ -402,6 +407,12 @@ function buildItemEl(item, def, fw, fh, xOff, tierId) {
     const rot = el('div','si-rot');
     rot.textContent = '↺';
     sEl.appendChild(rot);
+  }
+
+  if (stack > 1) {
+    const stk = el('div','si-stack-badge');
+    stk.textContent = '×' + stack;
+    sEl.appendChild(stk);
   }
 
   const lbl = el('div','si-lbl');
@@ -416,8 +427,22 @@ function buildItemEl(item, def, fw, fh, xOff, tierId) {
     sEl.appendChild(cod);
   }
 
+  // Stack +/− buttons
+  const stkUp = el('div','si-stk si-stk-up');
+  stkUp.textContent = '+';
+  stkUp.addEventListener('mousedown', e => e.stopPropagation());
+  stkUp.addEventListener('click', e => { e.stopPropagation(); stackItem(tierId, item.iid, 1); });
+  sEl.appendChild(stkUp);
+
+  const stkDn = el('div','si-stk si-stk-dn');
+  stkDn.textContent = '−';
+  stkDn.addEventListener('mousedown', e => e.stopPropagation());
+  stkDn.addEventListener('click', e => { e.stopPropagation(); stackItem(tierId, item.iid, -1); });
+  sEl.appendChild(stkDn);
+
   const rm = el('div','si-rm');
   rm.textContent = '×';
+  rm.addEventListener('mousedown', e => e.stopPropagation()); // ← fix: prevent drag eating the click
   rm.addEventListener('click', e => { e.stopPropagation(); removeItem(tierId, item.iid); });
   sEl.appendChild(rm);
 
@@ -497,7 +522,7 @@ function addItemToTier(defId) {
   }
   const tier = S.tiers.find(t => t.id === S.focusTier);
   if (!tier) return;
-  tier.items.push({ iid:S.seq++, defId, rot:0, code:'' });
+  tier.items.push({ iid:S.seq++, defId, rot:0, stack:1, code:'' });
   render();
   markUnsaved();
   showToast(BDEFS[defId]?.name + ' → T' + S.focusTier);
@@ -519,7 +544,20 @@ function flipItem(tierId, iid) {
   showToast(`Flipped → ${face}" face forward`);
 }
 
-// ── TIER MGMT ─────────────────────────────────────────────────────────
+function stackItem(tierId, iid, delta) {
+  const t    = S.tiers.find(t=>t.id===tierId);
+  const item = t?.items.find(i=>i.iid===iid);
+  if (!item) return;
+  item.stack = Math.max(1, (item.stack||1) + delta);
+  const d = BDEFS[item.defId];
+  const tier = t;
+  const maxStack = Math.floor(tier.heightIn / d.eh);
+  if (item.stack > maxStack && maxStack > 0) {
+    showToast(`Stack of ${item.stack} — tier is ${Math.round(tier.heightIn)}" (${maxStack} fit cleanly)`);
+  }
+  render(); markUnsaved();
+  showToast(`${d.name} × ${item.stack}`);
+}
 function addTier() {
   const sh = SHELVES[S.shelfId];
   const newH = +(sh.hIn / (S.tiers.length + 1)).toFixed(2);
