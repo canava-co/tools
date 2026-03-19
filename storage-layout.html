@@ -421,7 +421,7 @@ body {
   <span>·</span>
   <span id="sb-save">unsaved</span>
   <span>·</span>
-  <span>click palette to add · drag to move · hover × to remove</span>
+  <span>click palette to add · drag to move · right-click to rotate · hover × to remove</span>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -430,15 +430,27 @@ body {
 // ─────────────────────────────────────────────────────────────────────────
 // CANAVA · Storage Layout Planner
 //
-// Save/load: localStorage (v1)
-// Supabase swap: replace saveRaw() and loadRaw() with fetch() calls:
-//   POST  https://YOUR.supabase.co/rest/v1/layouts  { name, data }
-//   GET   https://YOUR.supabase.co/rest/v1/layouts?name=eq.default
-//   Headers: apikey: ANON_KEY, Content-Type: application/json
+// Save/load: Supabase REST API
+// Table SQL (run once in Supabase SQL editor):
+//   CREATE TABLE layouts (
+//     name TEXT PRIMARY KEY,
+//     data JSONB NOT NULL,
+//     updated_at TIMESTAMPTZ DEFAULT NOW()
+//   );
+//   ALTER TABLE layouts ENABLE ROW LEVEL SECURITY;
+//   CREATE POLICY "allow_all" ON layouts FOR ALL USING (true) WITH CHECK (true);
 // ─────────────────────────────────────────────────────────────────────────
 
 const CELL = 24;          // px per 6-inch grid square
 const STORAGE_KEY = 'canava-layout-v1';
+
+const SB_URL = 'https://rylapwjambqfppjktjra.supabase.co';
+const SB_KEY = 'sb_publishable_-h1S5LEUyy6-ffAdEGawcw_-Saflr7w';
+const SB_HEADERS = {
+  'Content-Type': 'application/json',
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+};
 
 const UNITS = {
   '10x15': { w:20, h:30, label:'10 × 15 ft · 150 sq ft' },
@@ -475,6 +487,13 @@ const CAT_META = {
   ROLL:   { label:'Rolling items' },
   CORNER: { label:'Corner + misc' },
 };
+
+// ── ROTATION HELPER ───────────────────────────────────────────────────
+// rot: 0 = normal, 1 = 90° clockwise (w/h swapped)
+function getItemDims(item) {
+  const def = DEFS.find(d => d.id === item.defId);
+  return item.rot ? { w: def.h, h: def.w } : { w: def.w, h: def.h };
+}
 
 // ── STATE ─────────────────────────────────────────────────────────────
 const S = { unit:'10x15', labels:true, items:[], seq:1 };
@@ -550,6 +569,7 @@ function renderRoom() {
 function renderItem(item) {
   const def = DEFS.find(d => d.id === item.defId);
   if (!def) return;
+  const dims = getItemDims(item);
   const room = document.getElementById('room');
 
   const el = document.createElement('div');
@@ -558,15 +578,15 @@ function renderItem(item) {
   el.style.cssText = `
     left:${item.x * CELL}px;
     top:${item.y * CELL}px;
-    width:${def.w * CELL}px;
-    height:${def.h * CELL}px;
+    width:${dims.w * CELL}px;
+    height:${dims.h * CELL}px;
     background-color:${def.color};
     z-index:${item.iid};
   `;
 
   const lbl = document.createElement('div');
   lbl.className = 'fi-lbl';
-  lbl.textContent = def.name;
+  lbl.textContent = def.name + (item.rot ? ' ↺' : '');
   if (!S.labels) lbl.style.display = 'none';
   el.appendChild(lbl);
 
@@ -585,6 +605,7 @@ function renderItem(item) {
   el.appendChild(rm);
 
   el.addEventListener('mousedown', e => startDrag(e, item.iid));
+  el.addEventListener('contextmenu', e => { e.preventDefault(); rotateItem(item.iid); });
   room.appendChild(el);
 }
 
@@ -598,6 +619,7 @@ function addItem(defId) {
   const item = {
     iid: S.seq++,
     defId,
+    rot: 0,
     x: Math.max(0, Math.min(u.w - def.w, off)),
     y: Math.max(0, Math.min(u.h - def.h, off)),
   };
@@ -616,7 +638,19 @@ function removeItem(iid) {
   markUnsaved();
 }
 
-// ── DRAG ──────────────────────────────────────────────────────────────
+function rotateItem(iid) {
+  const item = S.items.find(i => i.iid === iid);
+  if (!item) return;
+  item.rot = item.rot ? 0 : 1;
+  const u = UNITS[S.unit];
+  const dims = getItemDims(item);
+  item.x = Math.max(0, Math.min(u.w - dims.w, item.x));
+  item.y = Math.max(0, Math.min(u.h - dims.h, item.y));
+  const el = document.getElementById('fi-' + iid);
+  if (el) el.remove();
+  renderItem(item);
+  markUnsaved();
+}
 let drag = null;
 
 function startDrag(e, iid) {
@@ -625,10 +659,11 @@ function startDrag(e, iid) {
   e.stopPropagation();
   const item = S.items.find(i => i.iid === iid);
   const def  = DEFS.find(d => d.id === item.defId);
+  const dims = getItemDims(item);
   const el   = document.getElementById('fi-' + iid);
   document.querySelectorAll('.fi.selected').forEach(f => f.classList.remove('selected'));
   el.classList.add('selected','dragging');
-  drag = { iid, item, def, el,
+  drag = { iid, item, def, dims, el,
            mx0:e.clientX, my0:e.clientY,
            ix0:item.x,    iy0:item.y };
 }
@@ -640,8 +675,8 @@ document.addEventListener('mousemove', e => {
   const dy = e.clientY - drag.my0;
   let nx = Math.round((drag.ix0 * CELL + dx) / CELL);
   let ny = Math.round((drag.iy0 * CELL + dy) / CELL);
-  nx = Math.max(0, Math.min(u.w - drag.def.w, nx));
-  ny = Math.max(0, Math.min(u.h - drag.def.h, ny));
+  nx = Math.max(0, Math.min(u.w - drag.dims.w, nx));
+  ny = Math.max(0, Math.min(u.h - drag.dims.h, ny));
   drag.el.style.left = (nx * CELL) + 'px';
   drag.el.style.top  = (ny * CELL) + 'px';
   drag.item.x = nx;
@@ -668,8 +703,9 @@ function setUnit(u) {
   const dims = UNITS[u];
   S.items.forEach(item => {
     const def = DEFS.find(d => d.id === item.defId);
-    item.x = Math.max(0, Math.min(dims.w - def.w, item.x));
-    item.y = Math.max(0, Math.min(dims.h - def.h, item.y));
+    const idims = getItemDims(item);
+    item.x = Math.max(0, Math.min(dims.w - idims.w, item.x));
+    item.y = Math.max(0, Math.min(dims.h - idims.h, item.y));
   });
   renderRoom();
   markUnsaved();
@@ -686,24 +722,48 @@ function setLabels(on) {
 }
 
 // ── SAVE / LOAD ───────────────────────────────────────────────────────
-// v1: localStorage — swap these two functions for Supabase
-function saveRaw(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+// Supabase REST — falls back to localStorage if table not yet created
+async function saveRaw(data) {
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/layouts`, {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ name: 'default', data, updated_at: new Date().toISOString() }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); // mirror locally
+  } catch(err) {
+    console.warn('Supabase save failed, using localStorage:', err.message);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
 }
-function loadRaw() {
-  const r = localStorage.getItem(STORAGE_KEY);
-  return r ? JSON.parse(r) : null;
+async function loadRaw() {
+  try {
+    const res = await fetch(`${SB_URL}/rest/v1/layouts?name=eq.default&select=data`, {
+      headers: SB_HEADERS,
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = await res.json();
+    if (rows && rows.length) return rows[0].data;
+    throw new Error('no rows');
+  } catch(err) {
+    console.warn('Supabase load failed, using localStorage:', err.message);
+    const r = localStorage.getItem(STORAGE_KEY);
+    return r ? JSON.parse(r) : null;
+  }
 }
 
-function saveLayout() {
-  saveRaw({ unit:S.unit, labels:S.labels, items:S.items, seq:S.seq, ts:Date.now() });
+async function saveLayout() {
+  document.getElementById('sb-save').textContent = 'saving…';
+  await saveRaw({ unit:S.unit, labels:S.labels, items:S.items, seq:S.seq, ts:Date.now() });
   const t = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
   document.getElementById('sb-save').textContent = 'saved ' + t;
   showToast('Layout saved');
 }
 
-function loadLayout() {
-  const d = loadRaw();
+async function loadLayout() {
+  document.getElementById('sb-save').textContent = 'loading…';
+  const d = await loadRaw();
   if (!d) { showToast('No saved layout found'); return; }
   S.unit   = d.unit   || '10x15';
   S.labels = d.labels !== undefined ? d.labels : true;
