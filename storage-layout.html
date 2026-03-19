@@ -374,6 +374,64 @@ body {
   z-index: 9999;
 }
 .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── MODAL ───────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(54,54,117,.18);
+  backdrop-filter: blur(2px);
+  z-index: 8000;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal {
+  background: var(--paper);
+  border: 1.5px solid var(--border);
+  border-radius: 4px;
+  padding: 22px 26px 20px;
+  min-width: 320px; max-width: 420px; width: 90vw;
+  box-shadow: 0 8px 40px rgba(54,54,117,.18);
+}
+.modal-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px;
+}
+.modal input[type="text"] {
+  width: 100%;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px; padding: 7px 10px;
+  border: 1.5px solid var(--border); border-radius: 3px;
+  background: rgba(255,255,255,.7); color: var(--ink);
+  outline: none; margin-bottom: 12px; letter-spacing: .04em;
+}
+.modal input[type="text"]:focus { border-color: rgba(54,54,117,.45); }
+.modal-btns { display:flex; gap:8px; justify-content:flex-end; }
+.modal-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 3px;
+  border: 1.5px solid var(--border);
+  background: transparent; color: var(--ink);
+  cursor: pointer; transition: background .1s;
+}
+.modal-btn:hover { background: rgba(54,54,117,.06); }
+.modal-btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.modal-btn.primary:hover { background: #2a2a5a; }
+.save-list { margin-bottom: 14px; max-height: 220px; overflow-y: auto; }
+.save-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--border); border-radius: 3px;
+  margin-bottom: 5px; cursor: pointer;
+  transition: background .1s; background: rgba(255,255,255,.55);
+}
+.save-row:hover { background: rgba(54,54,117,.05); }
+.save-row-name { flex:1; font-size:12px; font-weight:500; color:var(--ink); }
+.save-row-ts { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--muted); letter-spacing:.06em; }
+.save-row-del { font-size:11px; color:rgba(201,79,42,.55); padding:2px 6px; cursor:pointer; border-radius:2px; }
+.save-row-del:hover { background:rgba(201,79,42,.09); color:var(--accent); }
+.modal-empty { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:.1em; color:var(--muted); text-align:center; padding:18px 0; }
+
 </style>
 </head>
 <body>
@@ -397,8 +455,8 @@ body {
     <button class="tgl"        id="btn-loff" onclick="setLabels(false)">Off</button>
   </div>
   <div class="tb-div"></div>
-  <button class="tb-btn save" onclick="saveLayout()">↓ Save</button>
-  <button class="tb-btn"      onclick="loadLayout()">↑ Load</button>
+  <button class="tb-btn save" onclick="openSaveModal()">↓ Save</button>
+  <button class="tb-btn"      onclick="openLoadModal()">↑ Load</button>
   <button class="tb-btn"      onclick="clearLayout()">✕ Clear</button>
   <span class="tb-dims" id="tb-dims">10 × 15 ft · 150 sq ft</span>
 </div>
@@ -425,6 +483,7 @@ body {
 </div>
 
 <div class="toast" id="toast"></div>
+<div id="modal-root"></div>
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────
@@ -511,7 +570,7 @@ function getItemDims(item) {
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────
-const S = { unit:'10x15', labels:true, items:[], seq:1 };
+const S = { unit:'10x15', labels:true, items:[], seq:1, currentName:'' };
 
 // ── INIT ──────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -755,62 +814,142 @@ function setLabels(on) {
   });
 }
 
-// ── SAVE / LOAD ───────────────────────────────────────────────────────
-// Supabase REST — falls back to localStorage if table not yet created
-async function saveRaw(data) {
-  try {
-    const res = await fetch(`${SB_URL}/rest/v1/layouts`, {
-      method: 'POST',
-      headers: { ...SB_HEADERS, 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify({ name: 'default', data, updated_at: new Date().toISOString() }),
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); // mirror locally
-  } catch(err) {
-    console.warn('Supabase save failed, using localStorage:', err.message);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
+// ── SAVE / LOAD (NAMED SLOTS) ─────────────────────────────────────────
+async function sbSave(name, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts`, {
+    method: 'POST',
+    headers: { ...SB_HEADERS, 'Content-Type':'application/json', 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify({ name, data, updated_at: new Date().toISOString() }),
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
 }
-async function loadRaw() {
-  try {
-    const res = await fetch(`${SB_URL}/rest/v1/layouts?name=eq.default&select=data`, {
-      headers: SB_HEADERS,
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const rows = await res.json();
-    if (rows && rows.length) return rows[0].data;
-    throw new Error('no rows');
-  } catch(err) {
-    console.warn('Supabase load failed, using localStorage:', err.message);
-    const r = localStorage.getItem(STORAGE_KEY);
-    return r ? JSON.parse(r) : null;
-  }
+async function sbLoad(name) {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts?name=eq.${encodeURIComponent(name)}&select=data`, { headers: SB_HEADERS });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const rows = await res.json();
+  return rows && rows.length ? rows[0].data : null;
+}
+async function sbList() {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts?select=name,data,updated_at&order=updated_at.desc`, { headers: SB_HEADERS });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  return await res.json();
+}
+async function sbDelete(name) {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts?name=eq.${encodeURIComponent(name)}`, {
+    method: 'DELETE', headers: SB_HEADERS
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
 }
 
-async function saveLayout() {
+// ── MODAL HELPERS ─────────────────────────────────────────────────────
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+function showModal(html) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `<div class="modal-backdrop" id="modal-bd">${html}</div>`;
+  root.querySelector('#modal-bd').addEventListener('click', e => { if (e.target.id === 'modal-bd') closeModal(); });
+}
+
+// ── SAVE MODAL ────────────────────────────────────────────────────────
+function openSaveModal() {
+  showModal(`
+    <div class="modal">
+      <div class="modal-title">↓ Save Layout</div>
+      <input type="text" id="save-name-inp" placeholder="Layout name…" maxlength="60" autocomplete="off" />
+      <div class="modal-btns">
+        <button class="modal-btn" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="doSave()">Save</button>
+      </div>
+    </div>
+  `);
+  const inp = document.getElementById('save-name-inp');
+  inp.value = S.currentName || '';
+  inp.focus();
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') doSave(); if (e.key === 'Escape') closeModal(); });
+}
+
+async function doSave() {
+  const name = document.getElementById('save-name-inp').value.trim();
+  if (!name) { document.getElementById('save-name-inp').focus(); return; }
+  closeModal();
   document.getElementById('sb-save').textContent = 'saving…';
-  await saveRaw({ unit:S.unit, labels:S.labels, items:S.items, seq:S.seq, ts:Date.now() });
+  const payload = { unit:S.unit, labels:S.labels, items:S.items, seq:S.seq, ts:Date.now() };
+  try {
+    await sbSave(name, payload);
+    localStorage.setItem(STORAGE_KEY + ':' + name, JSON.stringify(payload));
+  } catch(e) {
+    console.warn('Supabase save failed, localStorage only:', e.message);
+    localStorage.setItem(STORAGE_KEY + ':' + name, JSON.stringify(payload));
+  }
+  S.currentName = name;
   const t = new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
-  document.getElementById('sb-save').textContent = 'saved ' + t;
-  showToast('Layout saved');
+  document.getElementById('sb-save').textContent = `"${name}" saved ${t}`;
+  showToast(`Saved: ${name}`);
 }
 
-async function loadLayout() {
+// ── LOAD MODAL ────────────────────────────────────────────────────────
+async function openLoadModal() {
+  showModal(`<div class="modal"><div class="modal-title">↑ Load Layout</div><div class="modal-empty">Loading…</div></div>`);
+  let rows = [];
+  try {
+    rows = await sbList();
+  } catch(e) {
+    // Fall back to localStorage scan
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(STORAGE_KEY + ':')) {
+        const n = k.slice((STORAGE_KEY + ':').length);
+        try { const d = JSON.parse(localStorage.getItem(k)); rows.push({ name: n, data: d, updated_at: d.ts ? new Date(d.ts).toISOString() : '' }); } catch(ex){}
+      }
+    }
+  }
+  const listHtml = rows.length
+    ? rows.map(r => {
+        const ts = r.updated_at ? new Date(r.updated_at).toLocaleDateString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+        const n = r.name.replace(/"/g, '&quot;');
+        return `<div class="save-row" onclick="doLoad('${n}')">
+          <div class="save-row-name">${r.name}</div>
+          <div class="save-row-ts">${ts}</div>
+          <div class="save-row-del" onclick="event.stopPropagation();doDelete('${n}')">×</div>
+        </div>`;
+      }).join('')
+    : `<div class="modal-empty">No saved layouts yet</div>`;
+  showModal(`
+    <div class="modal">
+      <div class="modal-title">↑ Load Layout</div>
+      <div class="save-list">${listHtml}</div>
+      <div class="modal-btns"><button class="modal-btn" onclick="closeModal()">Cancel</button></div>
+    </div>
+  `);
+}
+
+async function doLoad(name) {
+  closeModal();
   document.getElementById('sb-save').textContent = 'loading…';
-  const d = await loadRaw();
-  if (!d) { showToast('No saved layout found'); return; }
+  let d = null;
+  try { d = await sbLoad(name); } catch(e) {}
+  if (!d) { try { d = JSON.parse(localStorage.getItem(STORAGE_KEY + ':' + name)); } catch(ex){} }
+  if (!d) { showToast('Layout not found'); document.getElementById('sb-save').textContent = 'unsaved'; return; }
   S.unit   = d.unit   || '10x15';
   S.labels = d.labels !== undefined ? d.labels : true;
   S.items  = d.items  || [];
   S.seq    = d.seq    || S.items.length + 1;
+  S.currentName = name;
   document.getElementById('btn-1015').classList.toggle('active', S.unit === '10x15');
   document.getElementById('btn-1020').classList.toggle('active', S.unit === '10x20');
   document.getElementById('btn-lon').classList.toggle('active',  S.labels);
   document.getElementById('btn-loff').classList.toggle('active', !S.labels);
   renderRoom();
-  const ts = d.ts ? new Date(d.ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
-  document.getElementById('sb-save').textContent = 'loaded · saved ' + ts;
-  showToast('Layout loaded');
+  const ts = d.ts ? new Date(d.ts).toLocaleDateString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' }) : '';
+  document.getElementById('sb-save').textContent = `"${name}" · ${ts}`;
+  showToast(`Loaded: ${name}`);
+}
+
+async function doDelete(name) {
+  if (!confirm(`Delete "${name}"?`)) return;
+  try { await sbDelete(name); } catch(e) {}
+  localStorage.removeItem(STORAGE_KEY + ':' + name);
+  showToast(`Deleted: ${name}`);
+  openLoadModal();
 }
 
 function clearLayout() {
