@@ -560,7 +560,7 @@ function showTab(name, btn) {
 }
 
 function initMap() {
-  var map = L.map('map').setView([41.15, -73.73], 10);
+  var map = L.map('map');
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '© OpenStreetMap contributors © CARTO',
@@ -600,6 +600,8 @@ function initMap() {
     { lat: 41.0565, lng: -73.5908, color: blue,  name: 'Extra Space — Stamford', addr: '1934 W Main St, Stamford, CT', url: 'https://www.extraspace.com/storage/facilities/us/connecticut/stamford', note: 'REIT · CT pricing may run higher' },
   ];
 
+  var allLatLngs = [];
+
   facilities.forEach(function(f) {
     var popup = '<div style="font-family:\'DM Sans\',sans-serif;min-width:200px">' +
       '<div style="font-weight:500;font-size:13px;margin-bottom:3px;color:#363675">' + f.name + '</div>' +
@@ -608,6 +610,7 @@ function initMap() {
       '<a href="' + f.url + '" target="_blank" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;color:#c94f2a;text-decoration:none;letter-spacing:0.08em">VIEW FACILITY →</a>' +
       '</div>';
     L.marker([f.lat, f.lng], { icon: makeIcon(f.color) }).addTo(map).bindPopup(popup, { maxWidth: 240 });
+    allLatLngs.push([f.lat, f.lng]);
   });
 
   // Blue Hill anchor
@@ -616,8 +619,11 @@ function initMap() {
     html: '<div style="width:16px;height:16px;border-radius:3px;background:#363675;opacity:0.55;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,0.3);transform:rotate(45deg)"></div>',
     iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -12]
   });
+  allLatLngs.push([41.0932, -73.8359]);
   L.marker([41.0932, -73.8359], { icon: bhIcon }).addTo(map)
     .bindPopup('<div style="font-family:\'DM Sans\',sans-serif"><div style="font-weight:500;color:#363675">Blue Hill at Stone Barns</div><div style="font-size:10px;color:#7a8a99;font-family:\'Share Tech Mono\',monospace">630 Bedford Rd, Tarrytown · Reference point</div></div>');
+
+  map.fitBounds(allLatLngs, { padding: [32, 32] });
 }
 </script>
 </body>
