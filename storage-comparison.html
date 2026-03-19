@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="NO_BORDER.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
   :root {
     --ink:     #363675;
@@ -789,7 +789,7 @@
     <div style="margin-top:16px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;background:rgba(250,248,243,0.8);border:1.5px solid var(--border);border-radius:6px;padding:18px 20px">
       <div>
         <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Scan before you leave</div>
-        <div id="scout-qr"></div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&color=363675&bgcolor=faf8f3&data=https%3A%2F%2Fwww.google.com%2Fmaps%2Fdir%2F334%2BFish%2BCreek%2BRd%2C%2BSaugerties%2C%2BNY%2F145%2BPalisade%2BSt%2C%2BDobbs%2BFerry%2C%2BNY%2F160%2BWildey%2BSt%2C%2BTarrytown%2C%2BNY%2F555%2BWhite%2BPlains%2BRd%2C%2BTarrytown%2C%2BNY%2F444%2BSaw%2BMill%2BRiver%2BRd%2C%2BElmsford%2C%2BNY%2F3%2BValley%2BAve%2C%2BElmsford%2C%2BNY%2F33%2BW%2BMain%2BSt%2C%2BElmsford%2C%2BNY%2F75%2BS%2BBroadway%2C%2BWhite%2BPlains%2C%2BNY%2F480%2BBedford%2BRd%2C%2BChappaqua%2C%2BNY%2F415%2BAdams%2BSt%2C%2BBedford%2BHills%2C%2BNY%2F334%2BFish%2BCreek%2BRd%2C%2BSaugerties%2C%2BNY" width="150" height="150" alt="Scan for Google Maps route" style="display:block;border-radius:4px;border:1px solid var(--border)">
         <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.08em;color:var(--muted);margin-top:6px;text-align:center">Google Maps · 11 stops</div>
       </div>
       <div>
@@ -824,15 +824,7 @@ function showTab(name, btn) {
   document.getElementById('panel-' + name).classList.add('active');
   btn.classList.add('active');
   if (name === 'map' && !window._mapInit) { initMap(); window._mapInit = true; }
-  if (name === 'scout' && !window._qrInit) {
-    new QRCode(document.getElementById('scout-qr'), {
-      text: 'https://www.google.com/maps/dir/334+Fish+Creek+Rd,+Saugerties,+NY/145+Palisade+St,+Dobbs+Ferry,+NY/160+Wildey+St,+Tarrytown,+NY/555+White+Plains+Rd,+Tarrytown,+NY/444+Saw+Mill+River+Rd,+Elmsford,+NY/3+Valley+Ave,+Elmsford,+NY/33+W+Main+St,+Elmsford,+NY/75+S+Broadway,+White+Plains,+NY/480+Bedford+Rd,+Chappaqua,+NY/415+Adams+St,+Bedford+Hills,+NY/334+Fish+Creek+Rd,+Saugerties,+NY',
-      width: 140, height: 140,
-      colorDark: '#363675', colorLight: '#faf8f3',
-      correctLevel: QRCode.CorrectLevel.M
-    });
-    window._qrInit = true;
-  }
+
 }
 
 function initMap() {
