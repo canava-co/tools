@@ -345,6 +345,49 @@
 
     </div>
 
+    <div class="cluster-label">Vehicle storage · Near GoodFriend Bedford Hills · same road + 10 min south</div>
+    <div class="facility-grid">
+
+      <div class="fcard top-pick">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.onedriversclub.com/" target="_blank">One Drivers Club</a></div>
+          <div class="fcard-badges"><span class="badge badge-local">Specialty</span><span class="badge badge-pick">★ Steps from GoodFriend</span></div>
+        </div>
+        <div class="fcard-address">341 Railroad Ave, Bedford Hills, NY · (914) 242-0404<a href="https://maps.google.com/?q=341+Railroad+Ave+Bedford+Hills+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓ full facility</div></div>
+          <div class="spec"><div class="spec-key">Indoor</div><div class="spec-val sv-yes">✓ enclosed bays</div></div>
+          <div class="spec"><div class="spec-key">Distance</div><div class="spec-val sv-yes">Walking from GoodFriend</div></div>
+          <div class="spec"><div class="spec-key">Hours</div><div class="spec-val sv-yes">M–Sa 8–6 · Su 10–4</div></div>
+          <div class="spec"><div class="spec-key">Rating</div><div class="spec-val sv-yes">4.8★ / 26 reviews</div></div>
+          <div class="spec"><div class="spec-key">Type</div><div class="spec-val">Auto club / members lounge</div></div>
+        </div>
+        <div class="fcard-note">
+          Climate-controlled indoor car storage on the same road as GoodFriend — 341 Railroad Ave vs. 415 Adams St. <strong>Described as the best tri-state facility for rare, antique, and classic automobiles.</strong> Members lounge, white glove treatment, staff coordinate transport and maintenance. If you store at GoodFriend, your car is a short walk away on the same trip.
+        </div>
+      </div>
+
+      <div class="fcard strong">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.usstoragecenters.com/storage-units/ny/bedford-hills/34-norm-ave" target="_blank">US Storage Centers — Bedford Hills</a></div>
+          <div class="fcard-badges"><span class="badge badge-chain">Chain</span></div>
+        </div>
+        <div class="fcard-address">34 Norm Ave, Bedford Hills, NY · (914) 875-2526<a href="https://maps.google.com/?q=34+Norm+Ave+Bedford+Hills+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Vehicle storage</div><div class="spec-val sv-yes">✓ outdoor parking</div></div>
+          <div class="spec"><div class="spec-key">Distance</div><div class="spec-val sv-yes">~10 min from GoodFriend</div></div>
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-cond">Outdoor · uncovered</div></div>
+          <div class="spec"><div class="spec-key">Hours</div><div class="spec-val sv-yes">M–F 9:30–6 · Sa 8:30–5</div></div>
+          <div class="spec"><div class="spec-key">Rating</div><div class="spec-val sv-yes">4.8★ / 242 reviews</div></div>
+          <div class="spec"><div class="spec-key">Sunday</div><div class="spec-val sv-no">Closed</div></div>
+        </div>
+        <div class="fcard-note">
+          Outdoor vehicle parking 10 min south of GoodFriend. Same US Storage Centers operator as Tarrytown. Good fallback if One Drivers Club is full or more than needed. Same caveat on rent increases applies.
+        </div>
+      </div>
+
+    </div>
+
     <div class="cluster-label">East edge · Port Chester / Stamford · New Canaan corridor · access-unit use case</div>
     <div class="facility-grid">
 
@@ -642,6 +685,7 @@
         <div class="ml-row"><div class="ml-dot" style="background:#2d7d4f"></div>Strong</div>
         <div class="ml-row"><div class="ml-dot" style="background:#2a6b9c"></div>Standard</div>
         <div class="ml-row"><div class="ml-dot" style="background:#363675;opacity:0.6"></div>Blue Hill anchor</div>
+        <div class="ml-row"><div class="ml-dot" style="background:#9b59b6"></div>Vehicle storage</div>
       </div>
     </div>
   </div>
@@ -856,6 +900,9 @@ function initMap() {
     // Top picks
     { lat: 41.0567, lng: -73.7940, color: rust,  name: 'Safe Haven Self Storage', addr: '444 Saw Mill River Rd, Elmsford', url: 'https://www.safehavenselfstorage.com/444-saw-mill-river-rd-elmsford-ny-10523', note: '★ Top Pick · 10×15 & 10×20 confirmed · First floor + ramp · Individual alarms' },
     { lat: 41.2395, lng: -73.6978, color: rust,  name: 'GoodFriend Self Storage', addr: '415 Adams St, Bedford Hills', url: 'https://www.goodfriendstorage.com/415-adams-street-bedford-hills-ny-10507', note: '★ Top Pick · 4-bay indoor drive-in loading · 7am–7pm daily · Full climate control' },
+    // Vehicle storage near GoodFriend
+    { lat: 41.242005, lng: -73.6901516, color: '#9b59b6', name: 'One Drivers Club 🚗', addr: '341 Railroad Ave, Bedford Hills', url: 'https://www.onedriversclub.com/', note: 'Climate-controlled indoor car storage · Same road as GoodFriend · Members lounge · White glove service' },
+    { lat: 41.2236, lng: -73.7181, color: '#9b59b6', name: 'US Storage Centers — Bedford Hills 🚗', addr: '34 Norm Ave, Bedford Hills', url: 'https://www.usstoragecenters.com/storage-units/ny/bedford-hills/34-norm-ave', note: 'Outdoor vehicle parking · ~10 min from GoodFriend · 4.8★/242 reviews' },
     // Strong
     { lat: 41.0571, lng: -73.7965, color: green, name: 'Safeguard Self Storage', addr: '3 Valley Ave, Elmsford', url: 'https://www.safeguardit.com/self-storage/ny/elmsford/westchester-elmsford-storage-units/', note: 'Regional · Best Elmsford fallback' },
     { lat: 41.2020, lng: -73.7230, color: green, name: 'Safe Haven — Mount Kisco', addr: '333 N Bedford Rd, Mount Kisco', url: 'https://www.safehavenselfstorage.com/', note: 'Same local owner as Elmsford · Quieter access' },
