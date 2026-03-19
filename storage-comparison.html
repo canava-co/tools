@@ -208,6 +208,7 @@
     <button class="tab" onclick="showTab('needs', this)">Needs Brief</button>
     <button class="tab" onclick="showTab('mailbox', this)">Mailbox Match</button>
     <button class="tab" onclick="showTab('map', this)">Map</button>
+    <button class="tab" onclick="showTab('scout', this)">Scout Trip</button>
   </div>
 
   <!-- ══ FACILITIES ══ -->
@@ -637,6 +638,150 @@
         <div class="ml-row"><div class="ml-dot" style="background:#2a6b9c"></div>Standard</div>
         <div class="ml-row"><div class="ml-dot" style="background:#363675;opacity:0.6"></div>Blue Hill anchor</div>
       </div>
+    </div>
+  </div>
+
+
+  <!-- ══ SCOUT TRIP ══ -->
+  <div class="panel" id="panel-scout">
+    <div style="font-size:13px;font-weight:300;color:rgba(54,54,117,0.68);max-width:660px;margin-bottom:20px;line-height:1.65">
+      All 9 stops — 6 storage, 3 mailbox. The full overlap window where every location is open is <strong style="color:var(--ink)">Mon–Fri, 10am–5pm</strong>. Prime Storage opens at 10am (latest of the group) and the mailbox coworking spaces close around 5–6pm. Plan for a full weekday.
+    </div>
+
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Office / visit hours by day</div>
+    <div style="overflow-x:auto;margin-bottom:24px">
+    <table style="width:100%;border-collapse:collapse;font-size:11px;min-width:560px">
+      <thead>
+        <tr style="border-bottom:1px solid var(--ink)">
+          <th style="text-align:left;font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:4px 8px 6px 0;min-width:180px">Location</th>
+          <th style="font-family:var(--mono);font-size:8.5px;color:var(--muted);padding:4px 8px 6px;text-align:center">Mon–Fri</th>
+          <th style="font-family:var(--mono);font-size:8.5px;color:var(--muted);padding:4px 8px 6px;text-align:center">Saturday</th>
+          <th style="font-family:var(--mono);font-size:8.5px;color:var(--muted);padding:4px 8px 6px;text-align:center">Sunday</th>
+          <th style="font-family:var(--mono);font-size:8.5px;color:var(--muted);padding:4px 8px 6px;text-align:left">Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="5" style="font-family:var(--mono);font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);padding:10px 0 5px;border-bottom:1px solid var(--border)">Storage &middot; 6 facilities</td></tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">Safe Haven Elmsford &#9733;</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">8am&#8211;7pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">8am&#8211;6pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--accent);padding:7px 8px">11am&#8211;4pm</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Longest weekday hours of the group</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">GoodFriend Bedford Hills &#9733;</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">7am&#8211;7pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">7am&#8211;7pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">7am&#8211;7pm</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Only facility open 7 days at full hours</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">Safeguard Elmsford</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">9am&#8211;6pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">8:30am&#8211;5:30pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--accent);padding:7px 8px">10am&#8211;5pm</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Access gate 6am&#8211;10pm daily</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">SecureSpace Elmsford</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">~9am&#8211;5pm staff</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">~9am&#8211;5pm staff</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">~9am&#8211;5pm staff</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Access 6am&#8211;10pm 7 days &middot; 6-story &middot; confirm staff hours &middot; &#9888; reviews flag rent increases</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">Prime Storage Tarrytown</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--accent);padding:7px 8px">10am&#8211;6pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--accent);padding:7px 8px">10am&#8211;5pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Latest opener &middot; access 6am&#8211;10pm &middot; &#9888; reviews flag rate + insurance increases</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">US Storage Centers Tarrytown</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--accent);padding:7px 8px">9:30am&#8211;6pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--accent);padding:7px 8px">8:30am&#8211;5pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">&#9888; reviews flag steep rent increases &middot; confirm 10&times;20 availability by phone</td>
+        </tr>
+        <tr><td colspan="5" style="font-family:var(--mono);font-size:8px;letter-spacing:0.16em;text-transform:uppercase;color:var(--blue);padding:14px 0 5px;border-bottom:1px solid var(--border)">Mailbox &middot; 3 iPostal1 locations</td></tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">Dobbs Ferry &#8212; HudCo &#9733;</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">9am&#8211;6pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Hudson River Landing &#8212; stunning historic manor on the Hudson. Worth seeing in person.</td>
+        </tr>
+        <tr style="border-bottom:1px solid #eee">
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">White Plains &#8212; 75 S. Broadway</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">~9am&#8211;5pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Renovated Readers Digest Building &middot; Whole Foods on site &middot; confirm pickup hours with iPostal1</td>
+        </tr>
+        <tr>
+          <td style="padding:7px 8px 7px 0;font-weight:500;color:var(--ink);font-size:12px">Chappaqua &#8212; 480 Bedford Rd</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--green);padding:7px 8px">~9am&#8211;5pm</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="text-align:center;font-family:var(--mono);font-size:9.5px;color:var(--muted);padding:7px 8px">Closed</td>
+          <td style="font-size:11px;font-weight:300;color:rgba(54,54,117,0.6);padding:7px 8px">Serviced office building &middot; professional tenants &middot; confirm pickup hours with iPostal1</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Suggested route &middot; one full weekday &middot; ~5&#8211;6 hrs</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;margin-bottom:24px">
+
+      <div style="background:rgba(250,248,243,0.8);border:1.5px solid var(--border);border-radius:6px;padding:14px 16px">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px">Option A &middot; If leaning Elmsford</div>
+        <div style="font-size:12px;font-weight:300;color:var(--ink);line-height:2.1">
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">9:00am</span> &nbsp;Dobbs Ferry &#8212; HudCo (iPostal1)<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">10:00am</span> Safe Haven Elmsford<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">10:45am</span> Safeguard Elmsford<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">11:30am</span> SecureSpace Elmsford<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">12:00pm</span> Lunch<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">1:00pm</span> &nbsp;Prime Storage Tarrytown<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">1:45pm</span> &nbsp;US Storage Centers Tarrytown<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">2:30pm</span> White Plains &#8212; 75 S. Broadway<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">3:30pm</span> GoodFriend Bedford Hills
+        </div>
+      </div>
+
+      <div style="background:rgba(250,248,243,0.8);border:1.5px solid var(--border);border-radius:6px;padding:14px 16px">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--green);margin-bottom:8px">Option B &middot; If leaning GoodFriend</div>
+        <div style="font-size:12px;font-weight:300;color:var(--ink);line-height:2.1">
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">9:00am</span> &nbsp;Chappaqua &#8212; 480 Bedford (iPostal1)<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">9:45am</span> &nbsp;GoodFriend Bedford Hills<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">10:45am</span> White Plains &#8212; 75 S. Broadway<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">11:30am</span> Safe Haven Elmsford<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">12:15pm</span> Safeguard + SecureSpace Elmsford<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">1:15pm</span> &nbsp;Lunch<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">2:00pm</span> &nbsp;Prime Storage Tarrytown<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">2:45pm</span> &nbsp;US Storage Centers Tarrytown<br>
+          <span style="font-family:var(--mono);font-size:9px;color:var(--muted)">3:30pm</span> &nbsp;Dobbs Ferry &#8212; HudCo
+        </div>
+      </div>
+
+      <div style="background:rgba(201,79,42,0.05);border:1.5px solid rgba(201,79,42,0.2);border-radius:6px;padding:14px 16px">
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px">Key constraints</div>
+        <div style="font-size:12px;font-weight:300;color:var(--ink);line-height:2">
+          &#10003; Weekday only &#8212; all 3 mailboxes closed weekends<br>
+          &#10003; Full overlap window: 10am&#8211;5pm Mon&#8211;Fri<br>
+          &#126; Prime + US Storage closed Sundays<br>
+          &#10003; GoodFriend only 7-day option if splitting the trip<br>
+          &#126; Allow 30&#8211;45 min per storage visit<br>
+          &#126; Allow 20&#8211;30 min per mailbox visit<br>
+          &#9888; Confirm SecureSpace staff hours before going<br>
+          &#9888; Confirm iPostal1 pickup hours before going<br>
+          &#9888; US Storage: call to confirm 10&times;20 availability
+        </div>
+      </div>
+
+    </div>
+
+    <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:var(--muted);padding:10px 14px;background:rgba(250,248,243,0.6);border:1px solid var(--border);border-radius:4px;line-height:1.7">
+      Bonus on Dobbs Ferry: 145 Palisade St is Hudson River Landing &#8212; a 160,000 sq ft historic manor / former brewery on the Hudson with hundreds of creative tenants. It has been called the best commercial space in Westchester. Worth seeing regardless of which storage decision lands.
     </div>
   </div>
 
