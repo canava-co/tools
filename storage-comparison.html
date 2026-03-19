@@ -8,6 +8,7 @@
 <link rel="apple-touch-icon" href="NO_BORDER.png">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
   :root {
     --ink:     #363675;
@@ -783,6 +784,27 @@
     <div style="font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:var(--muted);padding:10px 14px;background:rgba(250,248,243,0.6);border:1px solid var(--border);border-radius:4px;line-height:1.7">
       Bonus on Dobbs Ferry: 145 Palisade St is Hudson River Landing &#8212; a 160,000 sq ft historic manor / former brewery on the Hudson with hundreds of creative tenants. It has been called the best commercial space in Westchester. Worth seeing regardless of which storage decision lands.
     </div>
+
+    <!-- TESLA / NO CARPLAY LAUNCH -->
+    <div style="margin-top:16px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:start;background:rgba(250,248,243,0.8);border:1.5px solid var(--border);border-radius:6px;padding:18px 20px">
+      <div>
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Scan before you leave</div>
+        <div id="scout-qr"></div>
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.08em;color:var(--muted);margin-top:6px;text-align:center">Google Maps · 11 stops</div>
+      </div>
+      <div>
+        <div style="font-family:var(--mono);font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink);margin-bottom:8px">Getting this into Tesla nav</div>
+        <div style="font-size:12px;font-weight:300;color:var(--ink);line-height:1.9">
+          <strong style="font-weight:500">Option 1 — Phone mount (easiest)</strong><br>
+          Scan QR → opens full 11-stop route in Google Maps on your phone → start navigation → mount phone in Tesla.<br><br>
+          <strong style="font-weight:500">Option 2 — Send to Tesla</strong><br>
+          If you have the Tesla app connected to Google Maps: scan QR on phone → open in Maps → tap Share → Send to Tesla. Route loads in the Tesla nav center.<br><br>
+          <strong style="font-weight:500">Option 3 — Tesla browser</strong><br>
+          In the Tesla browser, open the Notion visit notes page → tap the Google Maps route link. Opens the full route in the Tesla browser; you can follow it stop by stop.
+        </div>
+        <a href="https://www.google.com/maps/dir/334+Fish+Creek+Rd,+Saugerties,+NY/145+Palisade+St,+Dobbs+Ferry,+NY/160+Wildey+St,+Tarrytown,+NY/555+White+Plains+Rd,+Tarrytown,+NY/444+Saw+Mill+River+Rd,+Elmsford,+NY/3+Valley+Ave,+Elmsford,+NY/33+W+Main+St,+Elmsford,+NY/75+S+Broadway,+White+Plains,+NY/480+Bedford+Rd,+Chappaqua,+NY/415+Adams+St,+Bedford+Hills,+NY/334+Fish+Creek+Rd,+Saugerties,+NY" target="_blank" style="display:inline-block;margin-top:12px;font-family:var(--mono);font-size:9px;letter-spacing:0.1em;color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(201,79,42,0.25);padding-bottom:1px">→ Open full route in Google Maps</a>
+      </div>
+    </div>
   </div>
 
   <div class="footer">
@@ -802,6 +824,15 @@ function showTab(name, btn) {
   document.getElementById('panel-' + name).classList.add('active');
   btn.classList.add('active');
   if (name === 'map' && !window._mapInit) { initMap(); window._mapInit = true; }
+  if (name === 'scout' && !window._qrInit) {
+    new QRCode(document.getElementById('scout-qr'), {
+      text: 'https://www.google.com/maps/dir/334+Fish+Creek+Rd,+Saugerties,+NY/145+Palisade+St,+Dobbs+Ferry,+NY/160+Wildey+St,+Tarrytown,+NY/555+White+Plains+Rd,+Tarrytown,+NY/444+Saw+Mill+River+Rd,+Elmsford,+NY/3+Valley+Ave,+Elmsford,+NY/33+W+Main+St,+Elmsford,+NY/75+S+Broadway,+White+Plains,+NY/480+Bedford+Rd,+Chappaqua,+NY/415+Adams+St,+Bedford+Hills,+NY/334+Fish+Creek+Rd,+Saugerties,+NY',
+      width: 140, height: 140,
+      colorDark: '#363675', colorLight: '#faf8f3',
+      correctLevel: QRCode.CorrectLevel.M
+    });
+    window._qrInit = true;
+  }
 }
 
 function initMap() {
