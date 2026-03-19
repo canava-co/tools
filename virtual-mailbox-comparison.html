@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Mailbox Comparison</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F3EE;
+    --surface: #FDFCF9;
+    --ink: #1A1916;
+    --ink-2: #5A5750;
+    --ink-3: #9A9790;
+    --border: #DDD9D0;
+    --border-light: #ECEAE4;
+    --yes-bg: #E8F4EC;
+    --yes-ink: #2A6B40;
+    --no-bg: #FAECEC;
+    --no-ink: #8B2B2B;
+    --cond-bg: #FEF4E4;
+    --cond-ink: #8B5E1A;
+    --accent: #C8B89A;
+    --group-bg: #F0EDE6;
+    --warn: #B85C00;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 2.5rem 2rem;
+  }
+
+  header {
+    max-width: 1300px;
+    margin: 0 auto 2.5rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-left h1 {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  .header-left p {
+    font-size: 0.8rem;
+    color: var(--ink-3);
+    margin-top: 0.35rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--ink-2);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .pip {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .pip.yes  { background: var(--yes-bg);  color: var(--yes-ink); }
+  .pip.no   { background: var(--no-bg);   color: var(--no-ink); }
+  .pip.cond { background: var(--cond-bg); color: var(--cond-ink); }
+
+  .table-wrap {
+    max-width: 1300px;
+    margin: 0 auto;
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 1100px;
+  }
+
+  /* Group header row */
+  tr.group-row th {
+    background: var(--group-bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    padding: 0.5rem 0.75rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  tr.group-row th.left { text-align: left; }
+
+  .col-divider {
+    border-left: 1.5px solid var(--border) !important;
+  }
+
+  /* Column header row */
+  tr.col-row th {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--ink-2);
+    padding: 0.6rem 0.75rem;
+    text-align: center;
+    border-bottom: 1.5px solid var(--border);
+    white-space: nowrap;
+    background: var(--surface);
+  }
+
+  tr.col-row th.left { text-align: left; }
+
+  /* Data rows */
+  tbody tr {
+    border-bottom: 1px solid var(--border-light);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #FAF9F5; }
+
+  td {
+    padding: 0.9rem 0.75rem;
+    vertical-align: top;
+    text-align: center;
+    font-size: 0.8rem;
+  }
+
+  td.left { text-align: left; }
+
+  .svc-name {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .svc-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-3);
+    margin-top: 0.2rem;
+  }
+
+  .note {
+    font-size: 0.68rem;
+    color: var(--ink-2);
+    margin-top: 0.3rem;
+    text-align: left;
+    line-height: 1.5;
+  }
+
+  .note.warn {
+    color: var(--warn);
+  }
+
+  .sto {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .sto.short {
+    color: var(--warn);
+  }
+
+  .tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+  }
+
+  .tag.green  { background: var(--yes-bg);  color: var(--yes-ink); }
+  .tag.amber  { background: var(--cond-bg); color: var(--cond-ink); }
+  .tag.red    { background: var(--no-bg);   color: var(--no-ink); }
+
+  .col-note {
+    min-width: 220px;
+    font-size: 0.72rem;
+    color: var(--ink-2);
+    line-height: 1.55;
+  }
+
+  footer {
+    max-width: 1300px;
+    margin: 1.5rem auto 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--ink-3);
+  }
+
+  a { color: var(--ink-2); }
+  a:hover { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>Virtual Mailbox — Service Comparison</h1>
+    <p>Personal + MICOLI LLC · NY address · mobile lifestyle · last updated March 2026</p>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><span class="pip yes">✓</span> Yes</div>
+    <div class="legend-item"><span class="pip cond">~</span> Conditional</div>
+    <div class="legend-item"><span class="pip no">✕</span> No</div>
+  </div>
+</header>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr class="group-row">
+      <th class="left" rowspan="2" style="min-width:120px; border-right: 1px solid var(--border-light);">Service</th>
+      <th colspan="4" style="border-right: 1.5px solid var(--border);">Core features</th>
+      <th colspan="2" style="border-right: 1.5px solid var(--border);">Domestic</th>
+      <th colspan="2" style="border-right: 1.5px solid var(--border);">International</th>
+      <th colspan="2" style="border-right: 1.5px solid var(--border);">Free storage</th>
+      <th rowspan="2" style="min-width:80px; border-right: 1px solid var(--border-light);">Ownership</th>
+      <th class="left" rowspan="2" style="min-width:220px;">Notes</th>
+    </tr>
+    <tr class="col-row">
+      <th>NY address</th>
+      <th>Mail scan</th>
+      <th>Check deposit</th>
+      <th class="col-divider">Local pickup</th>
+      <th class="col-divider">Pkg consolidation</th>
+      <th>Dom fwd</th>
+      <th class="col-divider">Intl mail</th>
+      <th>Intl packages</th>
+      <th class="col-divider">Mail</th>
+      <th>Packages</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- iPostal1 -->
+    <tr>
+      <td class="left" style="border-right: 1px solid var(--border-light);">
+        <div class="svc-name">iPostal1</div>
+        <div class="svc-sub">USZoom LLC</div>
+      </td>
+      <td><span class="pip yes">✓</span><div class="note">100+ NY locations</div></td>
+      <td><span class="pip cond">~</span><div class="note">Envelope exterior free. $2.25/letter to open &amp; scan</div></td>
+      <td><span class="pip cond">~</span><div class="note">Bank must accept mail deposits</div></td>
+      <td class="col-divider"><span class="pip cond">~</span><div class="note">Schedule via app; small fee at some locations</div></td>
+      <td class="col-divider"><span class="pip yes">✓</span></td>
+      <td><span class="pip yes">✓</span></td>
+      <td class="col-divider"><span class="pip cond">~</span><div class="note">Select locations only. Up to 80% off at designated intl forwarding addresses</div></td>
+      <td><span class="pip cond">~</span><div class="note">Select locations only. USPS, UPS, FedEx, DHL</div></td>
+      <td class="col-divider"><span class="sto">30 days</span></td>
+      <td><span class="sto">30 days</span><div class="note">&lt;12×12×12. 5 days for larger pkgs</div></td>
+      <td style="border-right: 1px solid var(--border-light);">
+        <span class="tag green">Bootstrapped</span>
+        <div class="note" style="margin-top:5px">Founder-led since 2007. Upstate NY.</div>
+      </td>
+      <td class="left col-note">Best NY network density. International forwarding tied to specific designated locations — verify before picking address. Per-scan fees add up vs. competitors that bundle scanning. Strongest long-term stability of the group.</td>
+    </tr>
+
+    <!-- Anytime Mailbox -->
+    <tr>
+      <td class="left" style="border-right: 1px solid var(--border-light);">
+        <div class="svc-name">Anytime Mailbox</div>
+        <div class="svc-sub">Henderson, NV</div>
+      </td>
+      <td><span class="pip yes">✓</span><div class="note">2,500+ locations</div></td>
+      <td><span class="pip yes">✓</span></td>
+      <td><span class="pip cond">~</span><div class="note">Select locations only</div></td>
+      <td class="col-divider"><span class="pip cond">~</span><div class="note">Location dependent; not universal</div></td>
+      <td class="col-divider"><span class="pip yes">✓</span></td>
+      <td><span class="pip yes">✓</span></td>
+      <td class="col-divider"><span class="pip yes">✓</span><div class="note">All locations. Real-time carrier comparison</div></td>
+      <td><span class="pip yes">✓</span><div class="note">USPS, FedEx, UPS, DHL. Consolidation available</div></td>
+      <td class="col-divider"><span class="sto">Flexible</span><div class="note">Location dependent; traveler-friendly</div></td>
+      <td><span class="sto">Flexible</span><div class="note">Location dependent</div></td>
+      <td style="border-right: 1px solid var(--border-light);">
+        <span class="tag green">Bootstrapped</span>
+        <div class="note" style="margin-top:5px">Founder-led since 2013. No outside investors.</div>
+      </td>
+      <td class="left col-note">Strongest for international — all locations forward globally, real-time carrier pricing, consolidation built in. Storage flexibility genuinely useful for mobile life. Explicitly advises against using address for LLC registration/banking — check state rules. Best all-around for globally mobile use.</td>
+    </tr>
+
+    <!-- PostScan Mail -->
+    <tr>
+      <td class="left" style="border-right: 1px solid var(--border-light);">
+        <div class="svc-name">PostScan Mail</div>
+        <div class="svc-sub">Anaheim, CA</div>
+      </td>
+      <td><span class="pip yes">✓</span><div class="note">1,000+ locations</div></td>
+      <td><span class="pip yes">✓</span></td>
+      <td><span class="pip yes">✓</span></td>
+      <td class="col-divider"><span class="pip cond">~</span><div class="note">Free at most locations. ID required. Not all addresses</div></td>
+      <td class="col-divider"><span class="pip yes">✓</span></td>
+      <td><span class="pip yes">✓</span></td>
+      <td class="col-divider"><span class="pip cond">~</span><div class="note">~20 countries only: Canada, UK, select EU &amp; Asia</div></td>
+      <td><span class="pip cond">~</span><div class="note">Same ~20 country limit. Consolidation available</div></td>
+      <td class="col-divider"><span class="sto">30 days</span></td>
+      <td><span class="sto short">7 days only</span><div class="note warn">Fees start fast — real problem for mobile use</div></td>
+      <td style="border-right: 1px solid var(--border-light);">
+        <span class="tag green">Bootstrapped</span>
+        <div class="note" style="margin-top:5px">Founder-led since 2012. Anaheim, CA.</div>
+      </td>
+      <td class="left col-note">Limited international coverage (~20 countries) knocks it back for global mobility. 7-day package storage window is a liability if you're not stateside. Strong check deposit and local pickup. Least visible company of the three bootstrapped options.</td>
+    </tr>
+
+    <!-- Stable -->
+    <tr>
+      <td class="left" style="border-right: 1px solid var(--border-light);">
+        <div class="svc-name">Stable</div>
+        <div class="svc-sub">San Francisco, CA</div>
+      </td>
+      <td><span class="pip yes">✓</span><div class="note">NYC + 25 US cities</div></td>
+      <td><span class="pip yes">✓</span><div class="note">Auto-scans all mail. AI-searchable</div></td>
+      <td><span class="pip yes">✓</span><div class="note">~$3/check. Fully automatable</div></td>
+      <td class="col-divider"><span class="pip no">✕</span><div class="note">No pickup. Forward or shred only</div></td>
+      <td class="col-divider"><span class="pip cond">~</span><div class="note">Not clearly documented</div></td>
+      <td><span class="pip yes">✓</span></td>
+      <td class="col-divider"><span class="pip yes">✓</span><div class="note">Worldwide. Negotiated bulk rates — no live carrier comparison</div></td>
+      <td><span class="pip yes">✓</span><div class="note">Worldwide. Bulk negotiated rates. No carrier selection</div></td>
+      <td class="col-divider"><span class="sto">30 days</span><div class="note">Then auto-shredded</div></td>
+      <td><span class="sto">30 days</span><div class="note">Then auto-shredded</div></td>
+      <td style="border-right: 1px solid var(--border-light);">
+        <span class="tag amber">YC-backed</span>
+        <div class="note" style="margin-top:5px">$150K seed, 2020. 30 employees. Most acquisition-prone.</div>
+      </td>
+      <td class="left col-note">Best multi-entity support — add MICOLI as a named recipient under one account. Address confirmed IRS/bank/state compliant. No pickup ever. International works worldwide but pricing is opaque — their rates, not a live comparison. Continuity risk is real.</td>
+    </tr>
+
+    <!-- LegalZoom -->
+    <tr>
+      <td class="left" style="border-right: 1px solid var(--border-light);">
+        <div class="svc-name">LegalZoom</div>
+        <div class="svc-sub">fka Earth Class Mail</div>
+      </td>
+      <td><span class="pip yes">✓</span><div class="note">Park Ave, NYC</div></td>
+      <td><span class="pip yes">✓</span></td>
+      <td><span class="pip cond">~</span><div class="note">$20/check. Free overnight to BofA, Chase, WF only</div></td>
+      <td class="col-divider"><span class="pip no">✕</span></td>
+      <td class="col-divider"><span class="pip yes">✓</span></td>
+      <td><span class="pip yes">✓</span></td>
+      <td class="col-divider"><span class="pip yes">✓</span></td>
+      <td><span class="pip cond">~</span><div class="note">Size-capped: max 150 lbs, 15.5×24×18.5 in</div></td>
+      <td class="col-divider"><span class="sto">30 days</span></td>
+      <td><span class="sto">30 days</span></td>
+      <td style="border-right: 1px solid var(--border-light);">
+        <span class="tag red">Public co.</span>
+        <div class="note" style="margin-top:5px">NASDAQ: LZ. Acquired ECM $63M, 2021.</div>
+      </td>
+      <td class="left col-note">$20/check deposit is the worst of the group. Package forwarding internationally is size-capped. Mail is a feature to LegalZoom, not a business. You already know what this product feels like in practice.</td>
+    </tr>
+
+  </tbody>
+</table>
+</div>
+
+<footer>
+  <span>Research via Claude · March 2026 · for personal + MICOLI LLC use</span>
+  <span>Open in any browser · update by editing HTML</span>
+</footer>
+
+</body>
+</html>
