@@ -96,6 +96,9 @@ body { background:var(--paper); color:var(--ink); font-family:'DM Sans',sans-ser
   pointer-events:none;
 }
 
+.tb-btn.primary-action { background:var(--ink); color:var(--paper); border-color:var(--ink); font-size:10px; padding:4px 16px; }
+.tb-btn.primary-action:hover { background:#2a2a5a; }
+
 /* ── BIN WALL ── */
 .bin-wall { display:flex; align-items:flex-end; gap:2px; position:relative; }
 
@@ -243,6 +246,9 @@ body { background:var(--paper); color:var(--ink); font-family:'DM Sans',sans-ser
     <option value="5" selected>5 high (max rated)</option>
   </select>
   <div class="tb-div"></div>
+  <button class="tb-btn primary-action" id="add-col-tb" onclick="addColumn()">+ Add Column</button>
+  <span id="tb-selected-type" style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;"></span>
+  <div class="tb-div"></div>
   <span class="tb-lbl" id="tb-dims">22"W bins · 13"H each</span>
   <div class="tb-div"></div>
   <button class="tb-btn save"   onclick="openSaveModal()">↓ Save</button>
@@ -318,7 +324,13 @@ window.addEventListener('DOMContentLoaded', () => {
 // ── COLOR PICKER ──────────────────────────────────────────────────────
 function buildColorPicker() {
   const el = document.getElementById('colorPicker');
-  el.innerHTML = `<div class="cp-head">Bin type</div>`;
+  el.innerHTML = '';
+
+  const head = document.createElement('div');
+  head.className = 'cp-head';
+  head.textContent = 'Bin type';
+  el.appendChild(head);
+
   TYPE_ORDER.forEach(tid => {
     const t = BIN_TYPES[tid];
     const row = document.createElement('div');
@@ -332,13 +344,21 @@ function buildColorPicker() {
       S.selected = tid;
       document.querySelectorAll('.cp-row').forEach(r => r.classList.remove('active'));
       row.classList.add('active');
+      // update toolbar indicator
+      const tbSel = document.getElementById('tb-selected-type');
+      if (tbSel) tbSel.textContent = t.name.toLowerCase();
     });
     el.appendChild(row);
   });
-  el.innerHTML += `<div class="cp-divider"></div>`;
+
+  // Use appendChild — NOT innerHTML += (that destroys event listeners)
+  const divider = document.createElement('div');
+  divider.className = 'cp-divider';
+  el.appendChild(divider);
+
   const note = document.createElement('div');
   note.style.cssText = 'font-family:"Share Tech Mono",monospace;font-size:8px;color:var(--muted);padding:6px 4px;letter-spacing:.06em;line-height:1.5';
-  note.textContent = 'Select type then click + to add a column.';
+  note.textContent = 'Select type, then click "+ Add Column" in toolbar.';
   el.appendChild(note);
 }
 
