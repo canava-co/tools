@@ -3,1024 +3,525 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Storage — Facility Comparison</title>
+<title>Storage — Facility Research</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="NO_BORDER.png">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap');
-
   :root {
-    --cream: #f5f1eb;
-    --warm-white: #faf8f4;
-    --ink: #1a1714;
-    --ink-mid: #3d3830;
-    --ink-light: #7a7268;
-    --ink-faint: #c4bdb4;
-    --rust: #b85c38;
-    --rust-light: #e8c4b4;
-    --sage: #5a7a5e;
-    --sage-light: #c4d4c5;
-    --amber: #c8941a;
-    --amber-light: #f0dfa0;
-    --stone: #8c8278;
-    --border: #ddd8d0;
-    --rule: #e8e2d8;
+    --ink:     #363675;
+    --paper:   #f4f1ec;
+    --white:   #faf8f3;
+    --accent:  #c94f2a;
+    --green:   #2d7d4f;
+    --blue:    #2a6b9c;
+    --muted:   rgba(54,54,117,0.45);
+    --border:  rgba(54,54,117,0.18);
+    --borderl: rgba(54,54,117,0.30);
+    --gt:      rgba(42,107,120,0.10);
+    --gtm:     rgba(42,107,120,0.18);
+    --mono:    'Share Tech Mono', monospace;
+    --sans:    'DM Sans', sans-serif;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--warm-white);
-    color: var(--ink);
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 300;
-    line-height: 1.6;
-    min-height: 100vh;
-  }
-
-  /* ── HEADER ── */
-  header {
-    background: var(--ink);
-    color: var(--cream);
-    padding: 2.5rem 3rem 2rem;
-    position: relative;
-    overflow: hidden;
-  }
-  header::before {
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--sans); min-height: 100vh; position: relative; }
+  body::before {
     content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 280px; height: 280px;
-    border-radius: 50%;
-    background: rgba(184,92,56,0.12);
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--gtm) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gtm) 1px, transparent 1px),
+      linear-gradient(var(--gt) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gt) 1px, transparent 1px);
+    background-size: 100px 100px, 100px 100px, 20px 20px, 20px 20px;
+    pointer-events: none; z-index: 0;
   }
-  .header-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--rust-light);
-    margin-bottom: 0.75rem;
-  }
-  header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 400;
-    line-height: 1.15;
-    max-width: 600px;
-  }
-  header h1 em {
-    font-style: italic;
-    color: var(--rust-light);
-  }
-  .header-sub {
-    margin-top: 1rem;
-    font-size: 0.82rem;
-    color: var(--ink-faint);
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.04em;
-  }
-  .header-sub span {
-    margin-right: 1.5rem;
-  }
+  .page { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 40px 28px 80px; }
 
-  /* ── NEEDS BRIEF ── */
-  .brief {
-    background: var(--cream);
-    border-bottom: 1px solid var(--border);
-    padding: 1.5rem 3rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    align-items: flex-start;
-  }
-  .brief-group {
-    flex: 1;
-    min-width: 180px;
-  }
-  .brief-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--stone);
-    margin-bottom: 0.4rem;
-  }
-  .brief-val {
-    font-size: 0.82rem;
-    color: var(--ink-mid);
-    line-height: 1.5;
-  }
-  .brief-val strong {
-    font-weight: 500;
-    color: var(--ink);
-  }
+  /* HEADER */
+  .header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 28px; gap: 20px; flex-wrap: wrap; }
+  .title-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  h1 { font-family: var(--sans); font-weight: 300; font-size: clamp(24px, 4vw, 36px); letter-spacing: -0.02em; line-height: 1.1; color: var(--ink); }
+  h1 em { font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400; }
+  .header-meta { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.1em; color: var(--muted); text-align: right; line-height: 1.8; }
+  .header-meta a { color: var(--accent); text-decoration: none; }
 
-  /* ── LEGEND ── */
-  .legend {
-    display: flex;
-    gap: 2rem;
-    padding: 0.9rem 3rem;
-    background: var(--warm-white);
-    border-bottom: 1px solid var(--rule);
-    flex-wrap: wrap;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.75rem;
-    color: var(--ink-light);
-  }
-  .pip {
-    width: 16px; height: 16px;
-    border-radius: 3px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.65rem;
-    font-weight: 500;
-    flex-shrink: 0;
-  }
-  .pip-yes  { background: var(--sage-light);   color: var(--sage); }
-  .pip-cond { background: var(--amber-light);  color: #9a6a10; }
-  .pip-no   { background: #eee7e0;             color: var(--stone); }
-  .pip-local { background: var(--rust-light);  color: var(--rust); }
+  /* BRIEF */
+  .brief-bar { background: rgba(250,248,243,0.8); border: 1.5px solid var(--border); border-radius: 6px; padding: 14px 18px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px; backdrop-filter: blur(4px); }
+  .brief-item { flex: 1; min-width: 150px; }
+  .brief-key { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .brief-val { font-size: 12px; font-weight: 300; color: var(--ink); line-height: 1.5; }
+  .brief-val strong { font-weight: 500; }
 
-  /* ── TABS ── */
-  .tabs {
-    display: flex;
-    gap: 0;
-    padding: 0 3rem;
-    border-bottom: 2px solid var(--border);
-    background: var(--warm-white);
-    overflow-x: auto;
-  }
-  .tab {
-    padding: 0.75rem 1.2rem;
-    font-size: 0.78rem;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.06em;
-    cursor: pointer;
-    border: none;
-    background: none;
-    color: var(--ink-light);
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    white-space: nowrap;
-    transition: color 0.15s, border-color 0.15s;
-  }
+  /* TABS */
+  .tabs { display: flex; margin-bottom: 22px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .tab { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; padding: 8px 18px 10px; border: none; background: none; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; transition: color 0.15s; }
   .tab:hover { color: var(--ink); }
-  .tab.active {
-    color: var(--rust);
-    border-bottom-color: var(--rust);
-  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* ── TABLE WRAPPER ── */
-  .table-wrap {
-    overflow-x: auto;
-    padding: 2rem 3rem 3rem;
-  }
-
-  /* ── MAIN TABLE ── */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.8rem;
-  }
-  thead tr {
-    border-bottom: 2px solid var(--ink);
-  }
-  .th-group {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.58rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--stone);
-    padding: 0 0.5rem 0.3rem;
-    text-align: center;
-    border-bottom: 1px solid var(--border);
-  }
-  .th-group.left { text-align: left; }
-  th {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-mid);
-    font-weight: 500;
-    padding: 0.5rem 0.5rem 0.7rem;
-    text-align: center;
-    white-space: nowrap;
-  }
-  th.left { text-align: left; }
-
-  tbody tr {
-    border-bottom: 1px solid var(--rule);
-    vertical-align: top;
-    transition: background 0.1s;
-  }
-  tbody tr:hover { background: var(--cream); }
-  tbody tr.pinned { background: #f0ebe3; }
-  tbody tr.pinned td:first-child::before {
-    content: '★';
-    color: var(--rust);
-    font-size: 0.7rem;
-    margin-right: 0.3rem;
-  }
-
-  td {
-    padding: 0.85rem 0.5rem;
-    vertical-align: top;
-    text-align: center;
-  }
-  td.left { text-align: left; }
-
-  /* facility name cell */
-  .facility-name {
-    min-width: 180px;
-  }
-  .facility-name a {
-    font-weight: 500;
-    color: var(--ink);
-    text-decoration: none;
-    font-size: 0.85rem;
-    display: block;
-    line-height: 1.3;
-  }
-  .facility-name a:hover { color: var(--rust); }
-  .facility-name .location {
-    font-size: 0.72rem;
-    color: var(--ink-light);
-    margin-top: 0.15rem;
-  }
-  .facility-name .operator {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    color: var(--stone);
-    margin-top: 0.25rem;
-    letter-spacing: 0.04em;
-  }
-  .badge {
-    display: inline-block;
-    padding: 0.1rem 0.4rem;
-    border-radius: 2px;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.55rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 0.25rem;
-  }
-  .badge-local { background: var(--rust-light); color: var(--rust); }
-  .badge-regional { background: #dde4f0; color: #3a4a7a; }
-  .badge-chain { background: #e8e4de; color: var(--stone); }
-  .badge-pick { background: var(--ink); color: var(--cream); }
-
-  /* status icons */
-  .yes   { color: var(--sage);  font-size: 0.9rem; }
-  .cond  { color: var(--amber); font-size: 0.9rem; }
-  .no    { color: var(--ink-faint); font-size: 0.9rem; }
-
-  /* notes cell */
-  .notes-cell {
-    min-width: 220px;
-    text-align: left;
-    font-size: 0.75rem;
-    color: var(--ink-mid);
-    line-height: 1.5;
-  }
-  .notes-cell .highlight {
-    background: var(--amber-light);
-    padding: 0.1rem 0.25rem;
-    border-radius: 2px;
-    font-size: 0.72rem;
-  }
-
-  /* size pill */
-  .size {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.68rem;
-    color: var(--ink-mid);
-    line-height: 1.8;
-  }
-  .size .avail { color: var(--sage); font-weight: 500; }
-  .size .maybe { color: var(--amber); }
-  .size .no-size { color: var(--ink-faint); }
-
-  /* map link */
-  .map-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    color: var(--ink-light);
-    text-decoration: none;
-    border-bottom: 1px dotted var(--ink-faint);
-    padding-bottom: 1px;
-  }
-  .map-link:hover { color: var(--rust); border-bottom-color: var(--rust); }
-
-  /* ── SECTION HEADING ROWS ── */
-  tr.section-head td {
-    background: var(--ink);
-    color: var(--cream);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 0.4rem 0.5rem;
-    font-weight: 500;
-  }
-
-  /* ── NEEDS PANEL ── */
-  .needs-panel {
-    display: none;
-    padding: 2rem 3rem 3rem;
-  }
-  .needs-panel.active { display: block; }
-  .needs-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1rem;
-  }
-  .needs-card {
-    background: var(--cream);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1.25rem;
-  }
-  .needs-card-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--stone);
-    margin-bottom: 0.75rem;
-  }
-  .needs-list {
-    list-style: none;
-    font-size: 0.8rem;
-    color: var(--ink-mid);
-    line-height: 1.7;
-  }
-  .needs-list li::before {
-    content: '—';
-    color: var(--ink-faint);
-    margin-right: 0.5rem;
-  }
-  .needs-list li.must::before {
-    content: '✦';
-    color: var(--rust);
-    font-size: 0.6rem;
-    margin-right: 0.5rem;
-  }
-
-  /* ── PROXIMITY PANEL ── */
-  .prox-panel {
-    display: none;
-    padding: 2rem 3rem 3rem;
-  }
-  .prox-panel.active { display: block; }
-  .prox-intro {
-    font-size: 0.82rem;
-    color: var(--ink-mid);
-    max-width: 640px;
-    margin-bottom: 1.5rem;
-    line-height: 1.65;
-  }
-  .prox-table-wrap {
-    overflow-x: auto;
-  }
-  .prox-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.78rem;
-  }
-  .prox-table th {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.6rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--stone);
-    padding: 0.5rem 0.75rem 0.6rem;
-    text-align: left;
-    border-bottom: 1px solid var(--ink);
-  }
-  .prox-table td {
-    padding: 0.7rem 0.75rem;
-    border-bottom: 1px solid var(--rule);
-    vertical-align: top;
-    text-align: left;
-    font-size: 0.78rem;
-    color: var(--ink-mid);
-  }
-  .prox-table tr:hover td { background: var(--cream); }
-  .mail-match {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.68rem;
-    color: var(--sage);
-  }
-  .mail-note {
-    font-size: 0.72rem;
-    color: var(--stone);
-    margin-top: 0.2rem;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    padding: 1.5rem 3rem;
-    border-top: 1px solid var(--rule);
-    font-family: 'DM Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--ink-faint);
-    letter-spacing: 0.04em;
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  /* ── HIDDEN PANELS ── */
+  /* PANELS */
   .panel { display: none; }
   .panel.active { display: block; }
-  .table-panel.active { display: block; }
 
-  @media (max-width: 768px) {
-    header, .brief, .legend, .tabs, .table-wrap, .needs-panel, .prox-panel, footer {
-      padding-left: 1.25rem;
-      padding-right: 1.25rem;
-    }
+  /* LEGEND */
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 16px; padding: 9px 14px; background: rgba(250,248,243,0.6); border: 1px solid var(--border); border-radius: 4px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--muted); }
+  .dot { width: 14px; height: 14px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 9px; font-family: var(--mono); flex-shrink: 0; }
+  .dot-yes  { background: rgba(45,125,79,0.15); color: var(--green); font-size: 11px; }
+  .dot-cond { background: rgba(201,79,42,0.12); color: var(--accent); }
+  .dot-no   { background: rgba(54,54,117,0.07); color: var(--muted); }
+
+  /* CLUSTER LABEL */
+  .cluster-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--muted); padding: 10px 0 8px; margin-top: 10px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+
+  /* CARDS */
+  .facility-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 11px; margin-bottom: 6px; }
+  .fcard { background: rgba(250,248,243,0.8); border: 1.5px solid var(--border); border-radius: 6px; padding: 16px 17px 14px; position: relative; overflow: hidden; transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s; backdrop-filter: blur(4px); animation: cardIn 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+  @keyframes cardIn { from { opacity:0; transform: translateY(7px); } to { opacity:1; transform: translateY(0); } }
+  .fcard:nth-child(1){animation-delay:0.04s}.fcard:nth-child(2){animation-delay:0.08s}.fcard:nth-child(3){animation-delay:0.12s}.fcard:nth-child(4){animation-delay:0.16s}.fcard:nth-child(5){animation-delay:0.20s}.fcard:nth-child(6){animation-delay:0.24s}
+  .fcard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 6px 6px 0 0; }
+  .fcard.top-pick::before { background: var(--accent); }
+  .fcard.strong::before   { background: var(--green); }
+  .fcard.standard::before { background: rgba(54,54,117,0.15); }
+  .fcard:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(54,54,117,0.09); border-color: var(--borderl); }
+
+  .fcard-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
+  .fcard-name { font-size: 14px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; }
+  .fcard-name a { color: var(--ink); text-decoration: none; transition: color 0.15s; }
+  .fcard-name a:hover { color: var(--accent); }
+
+  .fcard-badges { display: flex; gap: 4px; flex-wrap: wrap; flex-shrink: 0; }
+  .badge { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 5px; border-radius: 2px; white-space: nowrap; }
+  .badge-pick     { background: rgba(201,79,42,0.11); color: var(--accent); border: 1px solid rgba(201,79,42,0.2); }
+  .badge-local    { background: rgba(45,125,79,0.09);  color: var(--green);  border: 1px solid rgba(45,125,79,0.18); }
+  .badge-regional { background: rgba(42,107,156,0.09); color: var(--blue);   border: 1px solid rgba(42,107,156,0.18); }
+  .badge-chain    { background: rgba(54,54,117,0.06);  color: var(--muted);  border: 1px solid var(--border); }
+
+  .fcard-address { font-family: var(--mono); font-size: 9px; letter-spacing: 0.04em; color: var(--muted); margin-bottom: 10px; line-height: 1.6; }
+  .fcard-address a { color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--border); margin-left: 6px; }
+  .fcard-address a:hover { color: var(--accent); }
+
+  /* SPECS */
+  .specs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom: 11px; }
+  .spec { background: rgba(54,54,117,0.03); border: 1px solid var(--border); border-radius: 3px; padding: 5px 7px; }
+  .spec-key { font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .spec-val { font-size: 11px; font-weight: 400; color: var(--ink); line-height: 1.3; }
+  .sv-yes  { color: var(--green);  font-family: var(--mono); font-size: 12px; }
+  .sv-cond { color: var(--accent); font-size: 10.5px; }
+  .sv-no   { color: var(--muted);  font-family: var(--mono); font-size: 12px; }
+
+  /* NOTE */
+  .fcard-note { font-size: 11.5px; font-weight: 300; color: rgba(54,54,117,0.68); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 9px; }
+  .fcard-note strong { font-weight: 500; color: var(--ink); }
+  .hl { background: rgba(201,79,42,0.08); padding: 1px 4px; border-radius: 2px; }
+
+  /* NEEDS */
+  .needs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 11px; }
+  .ncard { background: rgba(250,248,243,0.8); border: 1.5px solid var(--border); border-radius: 6px; padding: 16px 18px; backdrop-filter: blur(4px); }
+  .ncard-title { font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; padding-bottom: 7px; border-bottom: 1px solid var(--border); }
+  .nlist { list-style: none; font-size: 12px; font-weight: 300; color: var(--ink); line-height: 1.8; }
+  .nlist li { display: flex; gap: 7px; align-items: flex-start; }
+  .nlist li::before { content: '—'; font-family: var(--mono); font-size: 10px; color: var(--border); flex-shrink: 0; margin-top: 2px; }
+  .nlist li.must::before { content: '✦'; color: var(--accent); font-size: 8px; margin-top: 4px; }
+
+  /* MAILBOX MATCH */
+  .match-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 11px; }
+  .mcard { background: rgba(250,248,243,0.8); border: 1.5px solid var(--border); border-radius: 6px; padding: 16px 18px; backdrop-filter: blur(4px); animation: cardIn 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+  .mcard:nth-child(1){animation-delay:0.05s}.mcard:nth-child(2){animation-delay:0.10s}.mcard:nth-child(3){animation-delay:0.15s}.mcard:nth-child(4){animation-delay:0.20s}
+  .mcard-cluster { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 3px; letter-spacing: -0.01em; }
+  .mcard-sub { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 11px; }
+  .mcard-match { font-family: var(--mono); font-size: 12px; color: var(--accent); letter-spacing: 0.04em; margin-bottom: 6px; }
+  .mcard-why { font-size: 12px; font-weight: 300; color: rgba(54,54,117,0.68); line-height: 1.6; margin-bottom: 9px; }
+  .mcard-caveat { font-family: var(--mono); font-size: 9px; letter-spacing: 0.03em; color: var(--muted); line-height: 1.6; border-top: 1px solid var(--border); padding-top: 8px; }
+
+  /* COMPANION CARD */
+  .companion { margin-top: 18px; padding: 14px 18px; background: rgba(250,248,243,0.8); border: 1.5px solid var(--border); border-radius: 6px; }
+  .companion-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .companion a { color: var(--ink); text-decoration: none; font-size: 13px; font-weight: 500; }
+  .companion a:hover { color: var(--accent); }
+  .companion-desc { font-size: 11.5px; font-weight: 300; color: rgba(54,54,117,0.6); margin-top: 4px; line-height: 1.5; }
+
+  /* FOOTER */
+  .footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .footer-text { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--muted); }
+  .footer-link { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(201,79,42,0.22); }
+
+  @media (max-width: 680px) {
+    .page { padding: 22px 15px 60px; }
+    .specs { grid-template-columns: repeat(2, 1fr); }
+    .facility-grid, .match-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
+<div class="page">
 
-<header>
-  <div class="header-label">Storage · Research Tool</div>
-  <h1>Facility Comparison<br><em>Active archive · Art-safe · Mobile access</em></h1>
-  <div class="header-sub">
-    <span>East of Hudson only</span>
-    <span>~30 mi of Blue Hill at Stone Barns</span>
-    <span>10×15 or 10×20 target</span>
-    <span>Last updated March 2026</span>
-  </div>
-</header>
-
-<div class="brief">
-  <div class="brief-group">
-    <div class="brief-label">Contents</div>
-    <div class="brief-val">Art (3 large canvases + rolled piece) · ~40 bins · Metro shelving · 2 rolling racks · Backdrops · Small appliances · Chair + table</div>
-  </div>
-  <div class="brief-group">
-    <div class="brief-label">Unit Requirements</div>
-    <div class="brief-val"><strong>Minimum:</strong> 10×15 · <strong>Ideal:</strong> 10×20 · Climate controlled · Ground floor preferred · Wide hallways · Working aisle clearance</div>
-  </div>
-  <div class="brief-group">
-    <div class="brief-label">Non-negotiable</div>
-    <div class="brief-val"><strong>Climate stability</strong> for art · No Public Storage · Ground floor or freight elevator · Regular access (not set-and-forget)</div>
-  </div>
-  <div class="brief-group">
-    <div class="brief-label">Complementary Tool</div>
-    <div class="brief-val"><a href="https://tools.canava.co/virtual-mailbox-comparison.html" style="color:var(--rust);text-decoration:none;font-size:0.8rem;">→ Virtual Mailbox Comparison</a><br><span style="font-size:0.72rem;color:var(--stone);">Match mailbox address to storage location</span></div>
-  </div>
-</div>
-
-<div class="legend">
-  <div class="legend-item"><div class="pip pip-yes">✓</div> Confirmed yes</div>
-  <div class="legend-item"><div class="pip pip-cond">~</div> Conditional / verify</div>
-  <div class="legend-item"><div class="pip pip-no">✕</div> No</div>
-  <div class="legend-item"><div class="pip pip-local">L</div> Local/regional operator</div>
-  <div class="legend-item" style="margin-left:auto;font-size:0.72rem;color:var(--stone);">★ Top picks based on your criteria</div>
-</div>
-
-<div class="tabs">
-  <button class="tab active" onclick="showTab('comparison')">Comparison Table</button>
-  <button class="tab" onclick="showTab('needs')">Needs Brief</button>
-  <button class="tab" onclick="showTab('proximity')">Mailbox Match</button>
-</div>
-
-<!-- ══════════════════════════════════════════════
-     TAB 1: COMPARISON TABLE
-     ══════════════════════════════════════════════ -->
-<div id="tab-comparison" class="table-panel active">
-<div class="table-wrap">
-<table>
-  <thead>
-    <tr>
-      <th colspan="2" class="th-group left">Facility</th>
-      <th colspan="3" class="th-group">Climate &amp; Access</th>
-      <th colspan="3" class="th-group">Units</th>
-      <th colspan="2" class="th-group">Operations</th>
-      <th colspan="1" class="th-group">Ownership</th>
-      <th class="th-group left">Notes</th>
-    </tr>
-    <tr>
-      <th class="left" style="min-width:180px">Facility</th>
-      <th class="left" style="min-width:80px">Maps</th>
-      <th>Climate<br>Controlled</th>
-      <th>Ground<br>Floor</th>
-      <th>Wide<br>Access</th>
-      <th>10×15<br>Avail</th>
-      <th>10×20<br>Avail</th>
-      <th>Height<br>Clearance</th>
-      <th>Access<br>Hours</th>
-      <th>Art<br>Safe</th>
-      <th>Operator</th>
-      <th class="left">Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-
-    <!-- CLUSTER 1: Elmsford / Tarrytown -->
-    <tr class="section-head"><td colspan="12">Closest cluster · Elmsford / Tarrytown / White Plains</td></tr>
-
-    <!-- Safe Haven Elmsford - TOP PICK -->
-    <tr class="pinned">
-      <td class="left facility-name">
-        <a href="https://www.safehavenselfstorage.com/444-saw-mill-river-rd-elmsford-ny-10523" target="_blank">Safe Haven Self Storage</a>
-        <div class="location">444 Saw Mill River Rd, Elmsford, NY</div>
-        <div class="operator">Independent — local</div>
-        <span class="badge badge-local">Local</span>
-        <span class="badge badge-pick">Top Pick</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=444+Saw+Mill+River+Rd+Elmsford+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span><div style="font-size:0.65rem;color:var(--stone)">Call to confirm</div></td>
-      <td><span class="cond">~</span><div style="font-size:0.65rem;color:var(--stone)">Verify hours</div></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-local">Local op</span></td>
-      <td class="left notes-cell">Independently owned local operator — best candidate for the relationship you'd want with a space you're actively using. Climate control confirmed category-wide. <span class="highlight">Call directly: likely flexible on access and layout.</span> Has multiple locations (also Mount Kisco, Valhalla).</td>
-    </tr>
-
-    <!-- Safeguard Elmsford -->
-    <tr class="pinned">
-      <td class="left facility-name">
-        <a href="https://www.safeguardit.com/self-storage/ny/elmsford/westchester-elmsford-storage-units/" target="_blank">Safeguard Self Storage</a>
-        <div class="location">3 Valley Ave, Elmsford, NY</div>
-        <div class="operator">Regional chain — Westchester presence</div>
-        <span class="badge badge-regional">Regional</span>
-        <span class="badge badge-pick">Top Pick</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=3+Valley+Ave+Elmsford+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span><div style="font-size:0.65rem;color:var(--stone)">Extended hrs typical</div></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-regional">Regional</span></td>
-      <td class="left notes-cell">Strong regional operator with Westchester focus. More accountable than nationals, less personal than Safe Haven. Climate control well-regarded. Good candidate for side-by-side comparison with Safe Haven.</td>
-    </tr>
-
-    <!-- SecureSpace Elmsford -->
-    <tr class="pinned">
-      <td class="left facility-name">
-        <a href="https://www.securespace.com/storage-units/ny/elmsford-self-storage" target="_blank">SecureSpace Self Storage</a>
-        <div class="location">33 W Main St, Elmsford, NY</div>
-        <div class="operator">National — growing chain</div>
-        <span class="badge badge-chain">Chain</span>
-        <span class="badge badge-pick">Top Pick</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=33+W+Main+St+Elmsford+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">Chain</span></td>
-      <td class="left notes-cell">Newer national brand entering NYC suburbs. Modern facilities, online management, 24hr access at most locations. Less personal but more predictable. Good fallback if local options are full.</td>
-    </tr>
-
-    <!-- Prime Storage Tarrytown -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://primestorage.com/locations/ny/tarrytown/NY66/" target="_blank">Prime Storage</a>
-        <div class="location">555 White Plains Rd, Tarrytown, NY</div>
-        <div class="operator">Regional chain</div>
-        <span class="badge badge-regional">Regional</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=555+White+Plains+Rd+Tarrytown+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-regional">Regional</span></td>
-      <td class="left notes-cell">Closest to Blue Hill at Stone Barns. Good access from Saw Mill Pkwy. Prime Storage is a solid regional operator — not local, not faceless national. Worth calling for unit availability and ceiling height specs.</td>
-    </tr>
-
-    <!-- US Storage Centers Tarrytown -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.usstoragecenters.com/storage-units/ny/tarrytown/160-wildey-st" target="_blank">US Storage Centers</a>
-        <div class="location">160 Wildey St, Tarrytown, NY</div>
-        <div class="operator">National chain</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=160+Wildey+St+Tarrytown+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">Chain</span></td>
-      <td class="left notes-cell">National operator. Reliable climate control, consistent but impersonal. 160 Wildey St is in a light-industrial pocket — often easier truck/loading access than storefront locations.</td>
-    </tr>
-
-    <!-- CubeSmart White Plains -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.cubesmart.com/new-york-self-storage/white-plains-self-storage/2239.html" target="_blank">CubeSmart</a>
-        <div class="location">80 S Kensico Ave, White Plains, NY</div>
-        <div class="operator">National REIT (NYSE: CUBE)</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=80+S+Kensico+Ave+White+Plains+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">REIT</span></td>
-      <td class="left notes-cell">Publicly traded REIT — most stable ownership of the nationals, least personal. Climate control is well-maintained across the network. White Plains location likely multi-story with elevator; confirm freight access before booking.</td>
-    </tr>
-
-    <!-- Extra Space White Plains -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.extraspace.com/storage/facilities/us/new_york/white_plains/3762" target="_blank">Extra Space Storage</a>
-        <div class="location">1 Holland Ave, White Plains, NY</div>
-        <div class="operator">National REIT (NYSE: EXR)</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=1+Holland+Ave+White+Plains+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">REIT</span></td>
-      <td class="left notes-cell">Now merged with Life Storage / iStorage. Large national REIT, consistent quality. Holland Ave is near White Plains downtown — likely indoor, multi-floor. Confirm ground floor or freight elevator with rolling rack clearance.</td>
-    </tr>
-
-    <!-- CLUSTER 2: Northern Westchester -->
-    <tr class="section-head"><td colspan="12">Northern Westchester · Quieter access · Mount Kisco / Bedford Hills / Valhalla</td></tr>
-
-    <!-- Safe Haven Mount Kisco -->
-    <tr class="pinned">
-      <td class="left facility-name">
-        <a href="https://www.safehavenselfstorage.com/" target="_blank">Safe Haven — Mount Kisco</a>
-        <div class="location">333 N Bedford Rd, Mount Kisco, NY</div>
-        <div class="operator">Independent — same local group</div>
-        <span class="badge badge-local">Local</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=333+N+Bedford+Rd+Mount+Kisco+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-local">Local</span></td>
-      <td class="left notes-cell">Same local operator as Elmsford. If Elmsford is full or less practical, this is the backup within the same trust relationship. Mount Kisco is quieter, easier parking, generally more accessible than the Elmsford/Tarrytown corridor.</td>
-    </tr>
-
-    <!-- GoodFriend Bedford Hills -->
-    <tr class="pinned">
-      <td class="left facility-name">
-        <a href="https://www.goodfriendstorage.com/climate-controlled-self-storage-bedford-hills-ny" target="_blank">GoodFriend Self Storage</a>
-        <div class="location">Bedford Hills, NY</div>
-        <div class="operator">Independent — regional</div>
-        <span class="badge badge-local">Local/Regional</span>
-        <span class="badge badge-pick">Art-Capable</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=Bedford+Hills+NY+GoodFriend+Self+Storage" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-local">Local/Reg</span></td>
-      <td class="left notes-cell">Local/regional operator specifically known for climate-controlled storage appropriate for valuables and art. <span class="highlight">Worth a direct call about ceiling height and art storage setup.</span> Bedford Hills is slightly north and east — good if you're coming down from Saugerties regularly.</td>
-    </tr>
-
-    <!-- Safe Haven Valhalla -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.safehavenselfstorage.com/" target="_blank">Safe Haven — Valhalla</a>
-        <div class="location">1 Commerce St, Valhalla, NY</div>
-        <div class="operator">Independent — same local group</div>
-        <span class="badge badge-local">Local</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=1+Commerce+St+Valhalla+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-local">Local</span></td>
-      <td class="left notes-cell">Third Safe Haven location — same ownership, same trust. Valhalla sits between White Plains and Mount Kisco. Third option if the other two Safe Haven locations are full or don't have the right unit.</td>
-    </tr>
-
-    <!-- CubeSmart Mount Kisco -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.cubesmart.com/new-york-self-storage/mount-kisco-self-storage" target="_blank">CubeSmart — Mount Kisco</a>
-        <div class="location">80 Radio Cir, Mount Kisco, NY</div>
-        <div class="operator">National REIT</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=80+Radio+Cir+Mount+Kisco+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">REIT</span></td>
-      <td class="left notes-cell">Reliable climate control, professional management. Radio Cir is a commercial strip — likely ground-floor accessible. Good fallback national option in the northern corridor.</td>
-    </tr>
-
-    <!-- CLUSTER 3: East / CT Edge -->
-    <tr class="section-head"><td colspan="12">East edge · Port Chester / Stamford corridor · Near New Canaan</td></tr>
-
-    <!-- Life Storage Port Chester -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.extraspace.com/storage/facilities/us/new_york/port_chester" target="_blank">Life Storage (Extra Space)</a>
-        <div class="location">80 Boston Post Rd, Port Chester, NY</div>
-        <div class="operator">National REIT (merged with EXR)</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=80+Boston+Post+Rd+Port+Chester+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">REIT</span></td>
-      <td class="left notes-cell">Boston Post Rd location useful if you're frequently moving between Westchester and CT (New Canaan). Good for the access-unit concept — east side of the Westchester/CT corridor. Confirm elevator/loading dock specs.</td>
-    </tr>
-
-    <!-- CubeSmart Port Chester -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.cubesmart.com/storage/new-york-storage/port-chester-storage" target="_blank">CubeSmart — Port Chester</a>
-        <div class="location">120 Midland Ave, Port Chester, NY</div>
-        <div class="operator">National REIT</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=120+Midland+Ave+Port+Chester+NY" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">REIT</span></td>
-      <td class="left notes-cell">120 Midland Ave is close to the CT border — practical for the New Canaan / Greenwich access-unit scenario. Consistent CubeSmart climate control. Midland Ave has good truck access.</td>
-    </tr>
-
-    <!-- Extra Space Stamford -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.extraspace.com/storage/facilities/us/connecticut/stamford" target="_blank">Extra Space Storage — Stamford</a>
-        <div class="location">1934 W Main St, Stamford, CT</div>
-        <div class="operator">National REIT</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=1934+W+Main+St+Stamford+CT" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">REIT</span></td>
-      <td class="left notes-cell">W Main St Stamford — good for the New Canaan access-unit use case. Stamford pricing may run higher than Westchester equivalents. Worth checking if the unit cost differential justifies the CT location.</td>
-    </tr>
-
-    <!-- CubeSmart Stamford -->
-    <tr>
-      <td class="left facility-name">
-        <a href="https://www.cubesmart.com/storage/connecticut-storage/stamford-storage" target="_blank">CubeSmart — Stamford</a>
-        <div class="location">300 Stillwater Ave, Stamford, CT</div>
-        <div class="operator">National REIT</div>
-        <span class="badge badge-chain">Chain</span>
-      </td>
-      <td class="left"><a class="map-link" href="https://maps.google.com/?q=300+Stillwater+Ave+Stamford+CT" target="_blank">↗ Maps</a></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td class="size"><span class="avail">Verify</span></td>
-      <td><span class="cond">~</span></td>
-      <td><span class="yes">✓</span></td>
-      <td><span class="yes">✓</span></td>
-      <td style="text-align:left"><span class="badge badge-chain">REIT</span></td>
-      <td class="left notes-cell">Stillwater Ave is slightly inland from the coast — industrial pocket with easy truck access. Second CT option if Stamford Extra Space doesn't have the right unit size.</td>
-    </tr>
-
-  </tbody>
-</table>
-</div>
-</div>
-
-<!-- ══════════════════════════════════════════════
-     TAB 2: NEEDS BRIEF
-     ══════════════════════════════════════════════ -->
-<div id="tab-needs" class="needs-panel">
-  <div style="max-width:800px">
-    <p style="font-size:0.82rem;color:var(--ink-mid);line-height:1.65;margin-bottom:1.5rem">Your full requirements brief — bring this when you visit facilities or use it to screen by phone before making trips.</p>
-  </div>
-  <div class="needs-grid">
-    <div class="needs-card">
-      <div class="needs-card-title">Non-negotiable</div>
-      <ul class="needs-list">
-        <li class="must">Climate controlled (interior, not just exterior building)</li>
-        <li class="must">Stable temperature — art-safe environment</li>
-        <li class="must">Ground floor or genuine freight elevator (rolling racks must move freely)</li>
-        <li class="must">10×15 minimum — 10×20 preferred</li>
-        <li class="must">No Public Storage</li>
-        <li class="must">Active access — not set-and-forget</li>
-      </ul>
+  <div class="header">
+    <div>
+      <div class="title-label">Storage · Research Tool</div>
+      <h1>Facility Guide <em>· east Hudson corridor</em></h1>
     </div>
-    <div class="needs-card">
-      <div class="needs-card-title">Contents — Art</div>
-      <ul class="needs-list">
-        <li>3 large boxed canvases: ~9×9 ft, ~7×7 ft, ~4×5 ft</li>
-        <li>1 rolled painting (large, lightweight)</li>
-        <li>1 box (~3×2×4 ft) with smaller works</li>
-        <li>All professionally packed, wrapped in non-reactive plastic</li>
-        <li>Stored upright on runners, raised off floor, slight lean for airflow</li>
-        <li class="must">Ceiling height must clear 9+ ft canvases stored upright</li>
-      </ul>
-    </div>
-    <div class="needs-card">
-      <div class="needs-card-title">Contents — Working Archive</div>
-      <ul class="needs-list">
-        <li>~40 bins, labeled, stackable (stacked ~5 high)</li>
-        <li>Metro shelving units on locking casters</li>
-        <li>2 professional rolling racks (actively used)</li>
-        <li>Backdrop tubes / fabric rolls</li>
-        <li>Steamer, small appliances (Sonos, blender)</li>
-        <li>Sewing machine</li>
-        <li>Herman Miller chair + folding table</li>
-      </ul>
-    </div>
-    <div class="needs-card">
-      <div class="needs-card-title">Target Unit Layout</div>
-      <ul class="needs-list">
-        <li>Back wall: canvases upright on runners, raised off floor</li>
-        <li>Side wall 1: bins stacked</li>
-        <li>Side wall 2: shelving + equipment</li>
-        <li>Front/corner: backdrops, fabric, steamer</li>
-        <li>Center: rolling racks + chair + table</li>
-        <li class="must">Clear working aisle down the center — U-shape layout</li>
-      </ul>
-    </div>
-    <div class="needs-card">
-      <div class="needs-card-title">Questions to Ask Facilities</div>
-      <ul class="needs-list">
-        <li>Actual ceiling height in 10×15 / 10×20 units?</li>
-        <li>Ground floor available? If not, elevator — freight or standard?</li>
-        <li>Hallway width — can rolling racks move freely?</li>
-        <li>Access hours — evenings and weekends?</li>
-        <li>Climate control spec — temp range maintained?</li>
-        <li>Loading dock or drive-up? Is there a ramp?</li>
-        <li>Unit availability — any waitlist?</li>
-        <li>Month-to-month vs. long-term discount?</li>
-      </ul>
-    </div>
-    <div class="needs-card">
-      <div class="needs-card-title">Decision Priority</div>
-      <ul class="needs-list">
-        <li class="must">1. Climate stability (art protection)</li>
-        <li class="must">2. Layout usability (working archive, not just storage)</li>
-        <li class="must">3. Ease of access (racks, bins, repeated visits)</li>
-        <li>4. Proximity to Blue Hill / parkways</li>
-        <li>5. Unit availability (10×15 or 10×20)</li>
-        <li>6. Local/regional operator preference</li>
-      </ul>
+    <div class="header-meta">
+      Art-safe · Active archive · Mobile access<br>
+      ~30 mi Blue Hill at Stone Barns · east of Hudson only<br>
+      Last updated March 2026<br>
+      <a href="https://tools.canava.co/virtual-mailbox-comparison.html">→ companion: virtual mailbox tool</a>
     </div>
   </div>
-</div>
 
-<!-- ══════════════════════════════════════════════
-     TAB 3: MAILBOX MATCH
-     ══════════════════════════════════════════════ -->
-<div id="tab-proximity" class="prox-panel">
-  <p class="prox-intro">The goal: pick a virtual mailbox with a physical address close enough to your storage that local pickup makes sense when you're already making a storage run. Below is each storage cluster matched against the mailbox services with NY network addresses.</p>
-  <div class="prox-table-wrap">
-  <table class="prox-table">
-    <thead>
-      <tr>
-        <th>Storage cluster</th>
-        <th>Best mailbox match</th>
-        <th>Why</th>
-        <th>Mailbox service</th>
-        <th>Considerations</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><strong>Elmsford / Tarrytown / White Plains</strong><br><span style="font-size:0.72rem;color:var(--stone)">Saw Mill Pkwy corridor</span></td>
-        <td><div class="mail-match">iPostal1</div><div class="mail-note">100+ NY locations — likely has Westchester coverage</div></td>
-        <td>Network density means you can almost certainly find an iPostal1 address within a few miles of Elmsford. When you run to storage, you swing by and pick up mail or packages.</td>
-        <td><a href="https://tools.canava.co/virtual-mailbox-comparison.html" target="_blank" style="color:var(--rust);font-size:0.75rem">→ See mailbox tool</a></td>
-        <td>Confirm a specific Westchester address exists in iPostal1's network before committing. International forwarding only at select locations.</td>
-      </tr>
-      <tr>
-        <td><strong>Mount Kisco / Bedford Hills / Valhalla</strong><br><span style="font-size:0.72rem;color:var(--stone)">Northern Westchester</span></td>
-        <td><div class="mail-match">iPostal1 or Anytime Mailbox</div><div class="mail-note">Both have network reach into northern Westchester</div></td>
-        <td>Northern Westchester is less dense but both services should have a location within 10–15 mi. Anytime Mailbox is better if consulting work is taking you international — all locations forward globally.</td>
-        <td><a href="https://tools.canava.co/virtual-mailbox-comparison.html" target="_blank" style="color:var(--rust);font-size:0.75rem">→ See mailbox tool</a></td>
-        <td>Anytime Mailbox explicitly notes their addresses may not work for LLC registration/banking — check for MICOLI if that's in play.</td>
-      </tr>
-      <tr>
-        <td><strong>Port Chester / Stamford (CT edge)</strong><br><span style="font-size:0.72rem;color:var(--stone)">Near New Canaan corridor</span></td>
-        <td><div class="mail-match">Stable or iPostal1</div><div class="mail-note">Stable: NYC + select cities. iPostal1: check for Port Chester/CT coverage</div></td>
-        <td>If you end up with storage near Port Chester, the New Canaan corridor is very close. Stable's business-forward setup works well if MICOLI is the primary entity. Check deposit, multi-entity, IRS-recognized address.</td>
-        <td><a href="https://tools.canava.co/virtual-mailbox-comparison.html" target="_blank" style="color:var(--rust);font-size:0.75rem">→ See mailbox tool</a></td>
-        <td>Stable's continuity risk is real (YC-backed 2020, no subsequent round). Best tooling, uncertain future.</td>
-      </tr>
-      <tr>
-        <td><strong>Two-unit strategy</strong><br><span style="font-size:0.72rem;color:var(--stone)">Long-term + access unit</span></td>
-        <td><div class="mail-match">NYC address (any service)</div><div class="mail-note">Keep mail at a stable NYC or Westchester address regardless of storage split</div></td>
-        <td>If you split into a long-term art/furniture unit and a smaller access unit near New Canaan, your mailbox address doesn't need to track the storage locations. A single stable NYC address works for both MICOLI and personal.</td>
-        <td><a href="https://tools.canava.co/virtual-mailbox-comparison.html" target="_blank" style="color:var(--rust);font-size:0.75rem">→ See mailbox tool</a></td>
-        <td>This is probably the cleanest setup — pick mailbox for the best service, pick storage for the best facility, don't force them to be near each other unless local pickup is genuinely useful in your routine.</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="brief-bar">
+    <div class="brief-item">
+      <div class="brief-key">Target unit</div>
+      <div class="brief-val"><strong>10×15 min · 10×20 ideal</strong> — climate controlled · ground floor preferred</div>
+    </div>
+    <div class="brief-item">
+      <div class="brief-key">Non-negotiable</div>
+      <div class="brief-val">Climate stability for art · No Public Storage · Rolling rack clearance · Regular access</div>
+    </div>
+    <div class="brief-item">
+      <div class="brief-key">Art</div>
+      <div class="brief-val">3 canvases up to 9×9 ft · rolled piece · ~40 bins · 2 rolling racks · shelving</div>
+    </div>
+    <div class="brief-item">
+      <div class="brief-key">Layout</div>
+      <div class="brief-val">U-shape · art upright on runners · working aisle · bins + shelving on walls</div>
+    </div>
   </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('facilities', this)">Facilities</button>
+    <button class="tab" onclick="showTab('needs', this)">Needs Brief</button>
+    <button class="tab" onclick="showTab('mailbox', this)">Mailbox Match</button>
+  </div>
+
+  <!-- ══ FACILITIES ══ -->
+  <div class="panel active" id="panel-facilities">
+
+    <div class="legend">
+      <div class="legend-item"><div class="dot dot-yes">✓</div> Confirmed</div>
+      <div class="legend-item"><div class="dot dot-cond">~</div> Conditional / verify</div>
+      <div class="legend-item"><div class="dot dot-no">✕</div> No</div>
+      <div class="legend-item" style="margin-left:auto;font-family:var(--mono);font-size:9px;color:var(--accent)">rust bar = top picks · green bar = strong · grey bar = standard</div>
+    </div>
+
+    <div class="cluster-label">Closest cluster · Elmsford / Tarrytown / White Plains · Saw Mill Pkwy corridor</div>
+    <div class="facility-grid">
+
+      <div class="fcard top-pick">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.safehavenselfstorage.com/444-saw-mill-river-rd-elmsford-ny-10523" target="_blank">Safe Haven Self Storage</a></div>
+          <div class="fcard-badges"><span class="badge badge-local">Local</span><span class="badge badge-pick">★ Top Pick</span></div>
+        </div>
+        <div class="fcard-address">444 Saw Mill River Rd, Elmsford, NY 10523 · (914) 592-1000<a href="https://maps.google.com/?q=444+Saw+Mill+River+Rd+Elmsford+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-yes">✓ confirmed</div></div>
+          <div class="spec"><div class="spec-key">Ground floor</div><div class="spec-val sv-yes">✓ + ramp</div></div>
+          <div class="spec"><div class="spec-key">Elevator</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">Unit alarm</div><div class="spec-val sv-yes">✓ each unit</div></div>
+          <div class="spec"><div class="spec-key">Access hours</div><div class="spec-val sv-cond">Limited — verify</div></div>
+        </div>
+        <div class="fcard-note">
+          Independently owned, Westchester and Fairfield Counties only — same family 25+ years, minimal rent increases (one customer 25yrs says raised ~3x total). <strong>10×15 and 10×20 confirmed available.</strong> First-floor units, ramp, elevated truck drop-off, handcarts. Individual unit alarms. Very recent reviews (2025) note clean, well-staffed. <span class="hl">Access hours are limited — confirm before committing.</span> Best combination of local trust, right unit sizes confirmed, and stable pricing.
+        </div>
+      </div>
+
+      <div class="fcard top-pick">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.goodfriendstorage.com/415-adams-street-bedford-hills-ny-10507" target="_blank">GoodFriend Self Storage</a></div>
+          <div class="fcard-badges"><span class="badge badge-local">Local / Regional</span><span class="badge badge-pick">★ Top Pick</span></div>
+        </div>
+        <div class="fcard-address">415 Adams St, Bedford Hills, NY 10507 · (914) 570-0123<a href="https://maps.google.com/?q=415+Adams+St+Bedford+Hills+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓ full facility</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Indoor loading</div><div class="spec-val sv-yes">✓ 4-bay drive-in</div></div>
+          <div class="spec"><div class="spec-key">Access hours</div><div class="spec-val sv-yes">7am–7pm daily</div></div>
+          <div class="spec"><div class="spec-key">Elevator</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">Free moving van</div><div class="spec-val sv-yes">✓ at move-in</div></div>
+        </div>
+        <div class="fcard-note">
+          <strong>Standout: 4-bay indoor drive-in loading area</strong> — you pull inside to unload, fully protected from weather. Exceptional for art and rolling racks. Entire facility climate controlled. 7am–7pm 7 days confirmed. 24/7 video. Recent 2025 reviews consistently excellent. Slightly further but the indoor loading bay alone changes the math for how you'd actually use this space. <span class="hl">Call about ceiling height and 10×20 availability first.</span>
+        </div>
+      </div>
+
+      <div class="fcard strong">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.safeguardit.com/self-storage/ny/elmsford/westchester-elmsford-storage-units/" target="_blank">Safeguard Self Storage</a></div>
+          <div class="fcard-badges"><span class="badge badge-regional">Regional</span></div>
+        </div>
+        <div class="fcard-address">3 Valley Ave, Elmsford, NY<a href="https://maps.google.com/?q=3+Valley+Ave+Elmsford+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Ground floor</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Hours</div><div class="spec-val sv-yes">Extended typical</div></div>
+          <div class="spec"><div class="spec-key">Operator</div><div class="spec-val">Westchester regional</div></div>
+          <div class="spec"><div class="spec-key">Fallback</div><div class="spec-val sv-yes">Best in-cluster</div></div>
+        </div>
+        <div class="fcard-note">
+          Westchester-focused regional chain — more accountable than nationals, less personal than Safe Haven. Climate control well-regarded. Best fallback if Safe Haven Elmsford doesn't have the right unit size.
+        </div>
+      </div>
+
+      <div class="fcard standard">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.securespace.com/storage-units/ny/elmsford-self-storage" target="_blank">SecureSpace Self Storage</a></div>
+          <div class="fcard-badges"><span class="badge badge-chain">Chain</span></div>
+        </div>
+        <div class="fcard-address">33 W Main St, Elmsford, NY<a href="https://maps.google.com/?q=33+W+Main+St+Elmsford+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Ground floor</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Hours</div><div class="spec-val sv-yes">Often 24hr</div></div>
+          <div class="spec"><div class="spec-key">Operator</div><div class="spec-val">National</div></div>
+          <div class="spec"><div class="spec-key">Online mgmt</div><div class="spec-val sv-yes">✓</div></div>
+        </div>
+        <div class="fcard-note">
+          Growing national brand with modern facilities. Often 24hr access. Less personal but reliable. Third Elmsford option.
+        </div>
+      </div>
+
+      <div class="fcard standard">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://primestorage.com/locations/ny/tarrytown/NY66/" target="_blank">Prime Storage</a></div>
+          <div class="fcard-badges"><span class="badge badge-regional">Regional</span></div>
+        </div>
+        <div class="fcard-address">555 White Plains Rd, Tarrytown, NY<a href="https://maps.google.com/?q=555+White+Plains+Rd+Tarrytown+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Blue Hill</div><div class="spec-val sv-yes">Closest option</div></div>
+          <div class="spec"><div class="spec-key">Parkway</div><div class="spec-val sv-yes">✓ Saw Mill</div></div>
+          <div class="spec"><div class="spec-key">Ground floor</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Operator</div><div class="spec-val">Regional chain</div></div>
+        </div>
+        <div class="fcard-note">
+          Physically closest to Blue Hill at Stone Barns. Solid regional operator. Worth a call if proximity to Blue Hill is the deciding factor.
+        </div>
+      </div>
+
+      <div class="fcard standard">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.usstoragecenters.com/storage-units/ny/tarrytown/160-wildey-st" target="_blank">US Storage Centers</a></div>
+          <div class="fcard-badges"><span class="badge badge-chain">Chain</span></div>
+        </div>
+        <div class="fcard-address">160 Wildey St, Tarrytown, NY · also 34 Norm Ave, Bedford Hills<a href="https://maps.google.com/?q=160+Wildey+St+Tarrytown+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Truck access</div><div class="spec-val sv-yes">Good — industrial</div></div>
+          <div class="spec"><div class="spec-key">2 locations</div><div class="spec-val sv-yes">Tarrytown + Bedford Hills</div></div>
+          <div class="spec"><div class="spec-key">Operator</div><div class="spec-val">National</div></div>
+          <div class="spec"><div class="spec-key">Ground floor</div><div class="spec-val sv-cond">Likely — industrial pocket</div></div>
+        </div>
+        <div class="fcard-note">
+          Wildey St is in an industrial pocket — typically better truck and loading access than storefront locations. Also has a <strong>Bedford Hills location at 34 Norm Ave</strong> (confirmed, not in the ChatGPT research).
+        </div>
+      </div>
+
+    </div>
+
+    <div class="cluster-label">East edge · Port Chester / Stamford · New Canaan corridor · access-unit use case</div>
+    <div class="facility-grid">
+
+      <div class="fcard standard">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.extraspace.com/storage/facilities/us/new_york/port_chester" target="_blank">Life Storage (Extra Space)</a></div>
+          <div class="fcard-badges"><span class="badge badge-chain">REIT</span></div>
+        </div>
+        <div class="fcard-address">80 Boston Post Rd, Port Chester, NY<a href="https://maps.google.com/?q=80+Boston+Post+Rd+Port+Chester+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">New Canaan</div><div class="spec-val sv-yes">~8 mi</div></div>
+          <div class="spec"><div class="spec-key">I-287 access</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Operator</div><div class="spec-val">REIT (EXR merger)</div></div>
+          <div class="spec"><div class="spec-key">Ground floor</div><div class="spec-val sv-cond">Verify elevator</div></div>
+        </div>
+        <div class="fcard-note">Boston Post Rd is right on the Westchester/CT border. Good for the access-unit half of a two-unit strategy near New Canaan. Confirm loading dock access.</div>
+      </div>
+
+      <div class="fcard standard">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.cubesmart.com/storage/new-york-storage/port-chester-storage" target="_blank">CubeSmart — Port Chester</a></div>
+          <div class="fcard-badges"><span class="badge badge-chain">REIT</span></div>
+        </div>
+        <div class="fcard-address">120 Midland Ave, Port Chester, NY<a href="https://maps.google.com/?q=120+Midland+Ave+Port+Chester+NY" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">New Canaan</div><div class="spec-val sv-yes">~6 mi</div></div>
+          <div class="spec"><div class="spec-key">Greenwich</div><div class="spec-val sv-yes">~1 mi to border</div></div>
+          <div class="spec"><div class="spec-key">Truck access</div><div class="spec-val sv-yes">Good — Midland Ave</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Use case</div><div class="spec-val">Access unit</div></div>
+        </div>
+        <div class="fcard-note">Closest option to the Greenwich/New Canaan corridor. Ideal as a smaller access unit if primary art storage is at Elmsford or GoodFriend and you want frequently-needed items nearby.</div>
+      </div>
+
+      <div class="fcard standard">
+        <div class="fcard-top">
+          <div class="fcard-name"><a href="https://www.extraspace.com/storage/facilities/us/connecticut/stamford" target="_blank">Extra Space — Stamford, CT</a></div>
+          <div class="fcard-badges"><span class="badge badge-chain">REIT</span></div>
+        </div>
+        <div class="fcard-address">1934 W Main St, Stamford, CT<a href="https://maps.google.com/?q=1934+W+Main+St+Stamford+CT" target="_blank">↗ map</a></div>
+        <div class="specs">
+          <div class="spec"><div class="spec-key">Climate</div><div class="spec-val sv-yes">✓</div></div>
+          <div class="spec"><div class="spec-key">New Canaan</div><div class="spec-val sv-yes">~8 mi</div></div>
+          <div class="spec"><div class="spec-key">State</div><div class="spec-val">Connecticut</div></div>
+          <div class="spec"><div class="spec-key">Pricing</div><div class="spec-val sv-cond">Likely higher</div></div>
+          <div class="spec"><div class="spec-key">10×15 / 10×20</div><div class="spec-val sv-cond">Verify</div></div>
+          <div class="spec"><div class="spec-key">Ground floor</div><div class="spec-val sv-cond">Verify</div></div>
+        </div>
+        <div class="fcard-note">W Main St, Stamford. Good if you're spending significant time in the CT corridor. Stamford storage pricing typically runs higher than Westchester — compare before committing.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ NEEDS ══ -->
+  <div class="panel" id="panel-needs">
+    <div class="needs-grid">
+
+      <div class="ncard">
+        <div class="ncard-title">Non-Negotiable</div>
+        <ul class="nlist">
+          <li class="must">Climate controlled — interior, not just exterior shell</li>
+          <li class="must">Stable temperature year-round, art-safe</li>
+          <li class="must">Ground floor or genuine freight elevator for rolling racks</li>
+          <li class="must">10×15 minimum · 10×20 preferred</li>
+          <li class="must">No Public Storage</li>
+          <li class="must">Active access — working archive, not set-and-forget</li>
+        </ul>
+      </div>
+
+      <div class="ncard">
+        <div class="ncard-title">Art Contents</div>
+        <ul class="nlist">
+          <li>3 boxed canvases: ~9×9 ft · ~7×7 ft · ~4×5 ft</li>
+          <li>1 rolled painting (large, lightweight)</li>
+          <li>1 box ~3×2×4 ft with smaller works</li>
+          <li>All professionally packed, non-reactive wrap</li>
+          <li class="must">Ceiling height must clear 9+ ft stored upright</li>
+          <li>Stored on 4×4 runners, raised off floor, slight lean for airflow</li>
+        </ul>
+      </div>
+
+      <div class="ncard">
+        <div class="ncard-title">Working Archive Contents</div>
+        <ul class="nlist">
+          <li>~40 bins, labeled, stackable ~5 high</li>
+          <li>Metro shelving on locking casters</li>
+          <li>2 professional rolling racks — actively used</li>
+          <li>Backdrop tubes / fabric rolls</li>
+          <li>Steamer · small appliances · sewing machine</li>
+          <li>Herman Miller chair + folding table</li>
+        </ul>
+      </div>
+
+      <div class="ncard">
+        <div class="ncard-title">Target Layout — U-Shape</div>
+        <ul class="nlist">
+          <li>Back wall: canvases upright on runners, raised off floor</li>
+          <li>Side wall 1: bins stacked in columns</li>
+          <li>Side wall 2: shelving + equipment</li>
+          <li>Front / corner: backdrops, fabric, steamer</li>
+          <li>Center: rolling racks + chair + table</li>
+          <li class="must">Clear working aisle — nothing needs to be unloaded to access anything</li>
+        </ul>
+      </div>
+
+      <div class="ncard">
+        <div class="ncard-title">Questions to Ask Every Facility</div>
+        <ul class="nlist">
+          <li>Ceiling height in 10×15 and 10×20 specifically?</li>
+          <li>Ground floor available? If not, freight or standard elevator?</li>
+          <li>Hallway width — two rolling racks side by side?</li>
+          <li>Access hours — evenings? Sundays?</li>
+          <li>Temperature range maintained, year-round spec?</li>
+          <li>Loading: dock, drive-up, or lobby ramp?</li>
+          <li>Unit availability or waitlist?</li>
+          <li>Month-to-month vs. long-term pricing?</li>
+        </ul>
+      </div>
+
+      <div class="ncard">
+        <div class="ncard-title">Decision Priority Order</div>
+        <ul class="nlist">
+          <li class="must">1. Climate stability — protect the art</li>
+          <li class="must">2. Layout usability — working archive, not just storage</li>
+          <li class="must">3. Ease of access — racks, bins, repeated visits</li>
+          <li>4. Proximity to Blue Hill / parkways / Saugerties</li>
+          <li>5. Right unit size available</li>
+          <li>6. Local / regional operator preference</li>
+          <li>7. Price</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ MAILBOX MATCH ══ -->
+  <div class="panel" id="panel-mailbox">
+    <div style="font-size:13px;font-weight:300;color:rgba(54,54,117,0.68);max-width:640px;margin-bottom:18px;line-height:1.65">
+      Goal: find a mailbox address close enough to your storage that local pickup makes sense on the same run. Below maps each cluster to the most practical mailbox match.
+    </div>
+
+    <div class="match-grid">
+
+      <div class="mcard">
+        <div class="mcard-cluster">Elmsford / Tarrytown cluster</div>
+        <div class="mcard-sub">Saw Mill Pkwy corridor</div>
+        <div class="mcard-match">→ iPostal1</div>
+        <div class="mcard-why">100+ NY locations makes Westchester coverage almost certain. You can likely find an iPostal1 address within a few miles of Elmsford. Storage run + mail pickup on the same trip. Verify a specific address exists in the network before committing.</div>
+        <div class="mcard-caveat">International forwarding at select locations only — verify if global forwarding is needed before choosing your specific address.</div>
+      </div>
+
+      <div class="mcard">
+        <div class="mcard-cluster">GoodFriend / Bedford Hills</div>
+        <div class="mcard-sub">Northern Westchester</div>
+        <div class="mcard-match">→ iPostal1 or Anytime Mailbox</div>
+        <div class="mcard-why">iPostal1 for Westchester coverage. Anytime Mailbox if consulting work takes you internationally — all locations forward globally, real-time carrier comparison. GoodFriend's 7am–7pm access pairs well with a nearby pickup stop on the same run.</div>
+        <div class="mcard-caveat">Anytime Mailbox explicitly advises against using their address for LLC registration/banking — matters for MICOLI if address is used formally.</div>
+      </div>
+
+      <div class="mcard">
+        <div class="mcard-cluster">Port Chester / Stamford edge</div>
+        <div class="mcard-sub">New Canaan corridor</div>
+        <div class="mcard-match">→ Stable or iPostal1</div>
+        <div class="mcard-why">Stable's multi-entity setup handles MICOLI + personal under one account with IRS-recognized address and ~$3/check deposit. iPostal1 as the more stable ownership alternative if Stable's YC-backed / no follow-on round situation concerns you.</div>
+        <div class="mcard-caveat">Stable: best tooling for two entities, real continuity risk. Don't anchor MICOLI's official address there without a backup plan.</div>
+      </div>
+
+      <div class="mcard">
+        <div class="mcard-cluster">The honest summary</div>
+        <div class="mcard-sub">Two-unit strategy</div>
+        <div class="mcard-match">→ pick mailbox independently</div>
+        <div class="mcard-why">If you split into a long-term art unit (Elmsford or GoodFriend) and a smaller access unit near New Canaan, the mailbox doesn't need to track either. One stable NYC or Westchester address covers both personal and MICOLI. Pick the mailbox for service quality, not proximity.</div>
+        <div class="mcard-caveat">Local pickup only matters if storage runs are frequent enough to make combining trips worthwhile. For most mobile schedules, mailbox and storage are independent decisions.</div>
+      </div>
+
+    </div>
+
+    <div class="companion">
+      <div class="companion-label">Companion Tool</div>
+      <a href="https://tools.canava.co/virtual-mailbox-comparison.html" target="_blank">Virtual Mailbox — Service Comparison →</a>
+      <div class="companion-desc">Full comparison of iPostal1, Anytime Mailbox, PostScan Mail, Stable, and LegalZoom across NY address, mail scan, check deposit, local pickup, package consolidation, domestic forwarding, international mail and packages, free storage, and ownership structure.</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">Research via Claude · March 2026 · Geren / CANAVA · east Hudson storage corridor</div>
+    <a href="https://tools.canava.co" class="footer-link">tools.canava.co</a>
+  </div>
+
 </div>
-
-<footer>
-  <div>Research via Claude · March 2026 · Geren / CANAVA · East Hudson storage corridor</div>
-  <div><a href="https://tools.canava.co/virtual-mailbox-comparison.html" style="color:var(--ink-faint);text-decoration:none">↗ companion: virtual mailbox tool</a></div>
-</footer>
-
 <script>
-function showTab(name) {
-  // hide all
-  document.querySelectorAll('.table-panel, .needs-panel, .prox-panel').forEach(el => {
-    el.classList.remove('active');
-    if (el.classList.contains('needs-panel')) el.style.display = 'none';
-    if (el.classList.contains('prox-panel')) el.style.display = 'none';
-  });
+function showTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-
-  if (name === 'comparison') {
-    document.getElementById('tab-comparison').classList.add('active');
-  } else if (name === 'needs') {
-    const el = document.getElementById('tab-needs');
-    el.style.display = 'block';
-    el.classList.add('active');
-  } else if (name === 'proximity') {
-    const el = document.getElementById('tab-proximity');
-    el.style.display = 'block';
-    el.classList.add('active');
-  }
-
-  // activate tab button
-  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  btn.classList.add('active');
 }
 </script>
 </body>
