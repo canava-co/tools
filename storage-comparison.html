@@ -6,6 +6,8 @@
 <title>Storage — Facility Research</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
 <link rel="apple-touch-icon" href="NO_BORDER.png">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
   :root {
     --ink:     #363675;
@@ -140,6 +142,20 @@
   .companion a:hover { color: var(--accent); }
   .companion-desc { font-size: 11.5px; font-weight: 300; color: rgba(54,54,117,0.6); margin-top: 4px; line-height: 1.5; }
 
+  /* MAP */
+  #map { height: 520px; border-radius: 6px; border: 1.5px solid var(--border); }
+  .map-wrap { position: relative; }
+  .map-legend-float {
+    position: absolute; bottom: 24px; left: 14px; z-index: 900;
+    background: rgba(250,248,243,0.95); border: 1.5px solid var(--border);
+    border-radius: 5px; padding: 10px 14px; backdrop-filter: blur(4px);
+    font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .map-legend-float .ml-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  .map-legend-float .ml-row:last-child { margin-bottom: 0; }
+  .ml-dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+
   /* FOOTER */
   .footer { margin-top: 44px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
   .footer-text { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--muted); }
@@ -191,6 +207,7 @@
     <button class="tab active" onclick="showTab('facilities', this)">Facilities</button>
     <button class="tab" onclick="showTab('needs', this)">Needs Brief</button>
     <button class="tab" onclick="showTab('mailbox', this)">Mailbox Match</button>
+    <button class="tab" onclick="showTab('map', this)">Map</button>
   </div>
 
   <!-- ══ FACILITIES ══ -->
@@ -510,6 +527,23 @@
     </div>
   </div>
 
+
+  <!-- ══ MAP ══ -->
+  <div class="panel" id="panel-map">
+    <div style="font-size:13px;font-weight:300;color:rgba(54,54,117,0.68);max-width:640px;margin-bottom:14px;line-height:1.65">
+      All facilities plotted relative to each other and Blue Hill at Stone Barns. Click any marker for facility name, address, and link. Top picks marked in rust.
+    </div>
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div class="map-legend-float">
+        <div class="ml-row"><div class="ml-dot" style="background:#c94f2a"></div>Top pick</div>
+        <div class="ml-row"><div class="ml-dot" style="background:#2d7d4f"></div>Strong</div>
+        <div class="ml-row"><div class="ml-dot" style="background:#2a6b9c"></div>Standard</div>
+        <div class="ml-row"><div class="ml-dot" style="background:#363675;opacity:0.6"></div>Blue Hill anchor</div>
+      </div>
+    </div>
+  </div>
+
   <div class="footer">
     <div class="footer-text">Research via Claude · March 2026 · Geren / CANAVA · east Hudson storage corridor</div>
     <a href="https://tools.canava.co" class="footer-link">tools.canava.co</a>
@@ -522,6 +556,68 @@ function showTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('panel-' + name).classList.add('active');
   btn.classList.add('active');
+  if (name === 'map' && !window._mapInit) { initMap(); window._mapInit = true; }
+}
+
+function initMap() {
+  var map = L.map('map').setView([41.09, -73.75], 11);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© OpenStreetMap contributors © CARTO',
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(map);
+
+  function makeIcon(color) {
+    return L.divIcon({
+      className: '',
+      html: '<div style="width:14px;height:14px;border-radius:50%;background:' + color + ';border:2.5px solid white;box-shadow:0 1px 5px rgba(0,0,0,0.3)"></div>',
+      iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -10]
+    });
+  }
+
+  var rust  = '#c94f2a';
+  var green = '#2d7d4f';
+  var blue  = '#2a6b9c';
+  var ink   = '#363675';
+
+  var facilities = [
+    // Top picks
+    { lat: 41.0567, lng: -73.7940, color: rust,  name: 'Safe Haven Self Storage', addr: '444 Saw Mill River Rd, Elmsford', url: 'https://www.safehavenselfstorage.com/444-saw-mill-river-rd-elmsford-ny-10523', note: '★ Top Pick · 10×15 & 10×20 confirmed · First floor + ramp · Individual alarms' },
+    { lat: 41.2395, lng: -73.6978, color: rust,  name: 'GoodFriend Self Storage', addr: '415 Adams St, Bedford Hills', url: 'https://www.goodfriendstorage.com/415-adams-street-bedford-hills-ny-10507', note: '★ Top Pick · 4-bay indoor drive-in loading · 7am–7pm daily · Full climate control' },
+    // Strong
+    { lat: 41.0571, lng: -73.7965, color: green, name: 'Safeguard Self Storage', addr: '3 Valley Ave, Elmsford', url: 'https://www.safeguardit.com/self-storage/ny/elmsford/westchester-elmsford-storage-units/', note: 'Regional · Best Elmsford fallback' },
+    { lat: 41.2020, lng: -73.7230, color: green, name: 'Safe Haven — Mount Kisco', addr: '333 N Bedford Rd, Mount Kisco', url: 'https://www.safehavenselfstorage.com/', note: 'Same local owner as Elmsford · Quieter access' },
+    // Standard
+    { lat: 41.0574, lng: -73.7948, color: blue,  name: 'SecureSpace Self Storage', addr: '33 W Main St, Elmsford', url: 'https://www.securespace.com/storage-units/ny/elmsford-self-storage', note: 'Chain · Often 24hr access' },
+    { lat: 41.0712, lng: -73.8368, color: blue,  name: 'Prime Storage', addr: '555 White Plains Rd, Tarrytown', url: 'https://primestorage.com/locations/ny/tarrytown/NY66/', note: 'Regional · Closest to Blue Hill' },
+    { lat: 41.0748, lng: -73.8577, color: blue,  name: 'US Storage Centers — Tarrytown', addr: '160 Wildey St, Tarrytown', url: 'https://www.usstoragecenters.com/storage-units/ny/tarrytown/160-wildey-st', note: 'Chain · Industrial location, good truck access' },
+    { lat: 41.0509, lng: -73.7680, color: blue,  name: 'CubeSmart — White Plains', addr: '80 S Kensico Ave, White Plains', url: 'https://www.cubesmart.com/new-york-self-storage/white-plains-self-storage/2239.html', note: 'REIT · Confirm elevator for rolling racks' },
+    { lat: 41.0779, lng: -73.7742, color: blue,  name: 'Safe Haven — Valhalla', addr: '1 Commerce St, Valhalla', url: 'https://www.safehavenselfstorage.com/', note: 'Same local owner · Between WP and Mt Kisco' },
+    { lat: 41.2011, lng: -73.7298, color: blue,  name: 'CubeSmart — Mount Kisco', addr: '80 Radio Cir, Mount Kisco', url: 'https://www.cubesmart.com/new-york-self-storage/mount-kisco-self-storage', note: 'REIT · Extended hours' },
+    { lat: 41.2270, lng: -73.7009, color: blue,  name: 'US Storage Centers — Bedford Hills', addr: '34 Norm Ave, Bedford Hills', url: 'https://www.usstoragecenters.com/', note: 'Chain · Near GoodFriend' },
+    { lat: 41.0005, lng: -73.6706, color: blue,  name: 'Life Storage (Extra Space)', addr: '80 Boston Post Rd, Port Chester', url: 'https://www.extraspace.com/storage/facilities/us/new_york/port_chester', note: 'REIT · Near New Canaan corridor' },
+    { lat: 40.9986, lng: -73.6640, color: blue,  name: 'CubeSmart — Port Chester', addr: '120 Midland Ave, Port Chester', url: 'https://www.cubesmart.com/storage/new-york-storage/port-chester-storage', note: 'REIT · Closest to Greenwich/New Canaan' },
+    { lat: 41.0565, lng: -73.5908, color: blue,  name: 'Extra Space — Stamford', addr: '1934 W Main St, Stamford, CT', url: 'https://www.extraspace.com/storage/facilities/us/connecticut/stamford', note: 'REIT · CT pricing may run higher' },
+  ];
+
+  facilities.forEach(function(f) {
+    var popup = '<div style="font-family:\'DM Sans\',sans-serif;min-width:200px">' +
+      '<div style="font-weight:500;font-size:13px;margin-bottom:3px;color:#363675">' + f.name + '</div>' +
+      '<div style="font-size:10px;color:#7a8a99;font-family:\'Share Tech Mono\',monospace;margin-bottom:6px">' + f.addr + '</div>' +
+      '<div style="font-size:11px;color:rgba(54,54,117,0.7);margin-bottom:8px;line-height:1.5">' + f.note + '</div>' +
+      '<a href="' + f.url + '" target="_blank" style="font-family:\'Share Tech Mono\',monospace;font-size:9px;color:#c94f2a;text-decoration:none;letter-spacing:0.08em">VIEW FACILITY →</a>' +
+      '</div>';
+    L.marker([f.lat, f.lng], { icon: makeIcon(f.color) }).addTo(map).bindPopup(popup, { maxWidth: 240 });
+  });
+
+  // Blue Hill anchor
+  var bhIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:16px;height:16px;border-radius:3px;background:#363675;opacity:0.55;border:2px solid white;box-shadow:0 1px 5px rgba(0,0,0,0.3);transform:rotate(45deg)"></div>',
+    iconSize: [16, 16], iconAnchor: [8, 8], popupAnchor: [0, -12]
+  });
+  L.marker([41.0932, -73.8359], { icon: bhIcon }).addTo(map)
+    .bindPopup('<div style="font-family:\'DM Sans\',sans-serif"><div style="font-weight:500;color:#363675">Blue Hill at Stone Barns</div><div style="font-size:10px;color:#7a8a99;font-family:\'Share Tech Mono\',monospace">630 Bedford Rd, Tarrytown · Reference point</div></div>');
 }
 </script>
 </body>
