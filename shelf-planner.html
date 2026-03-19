@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shelf Planner · CANAVA</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #363675;
+  --paper:  #f4f1ec;
+  --accent: #c94f2a;
+  --green:  #2d7d4f;
+  --blue:   #2a6b9c;
+  --muted:  rgba(54,54,117,.45);
+  --border: rgba(54,54,117,.18);
+  --warn:   #b87c00;
+  --warn-bg:rgba(184,124,0,.10);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--paper); color:var(--ink); font-family:'DM Sans',sans-serif; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── HEADER ── */
+.header {
+  background:#ebe7e0;
+  background-image:linear-gradient(rgba(54,54,117,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(54,54,117,.12) 1px,transparent 1px),linear-gradient(rgba(54,54,117,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(54,54,117,.05) 1px,transparent 1px);
+  background-size:100px 100px,100px 100px,20px 20px,20px 20px;
+  padding:14px 32px; border-bottom:1.5px solid var(--border);
+  display:flex; align-items:baseline; gap:14px; flex-shrink:0;
+}
+.header-tag { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); display:flex; align-items:center; gap:6px; }
+.pulse-dot { width:6px; height:6px; border-radius:50%; background:var(--accent); animation:blink 2s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.25;transform:scale(.6)} }
+.header-title { font-size:19px; font-weight:500; color:var(--ink); letter-spacing:-.01em; }
+.header-sub   { font-size:11px; color:var(--muted); font-weight:300; font-style:italic; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  background:rgba(255,255,255,.72); border-bottom:1px solid var(--border);
+  padding:7px 32px; display:flex; align-items:center; gap:14px; flex-shrink:0;
+}
+.tb-lbl { font-family:'Share Tech Mono',monospace; font-size:8.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+.tb-btn {
+  font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+  padding:4px 13px; background:transparent; border:1.5px solid var(--border); border-radius:3px;
+  color:var(--ink); cursor:pointer; transition:background .1s;
+}
+.tb-btn:hover { background:rgba(54,54,117,.06); }
+.tb-btn.save { border-color:rgba(45,125,79,.55); color:var(--green); }
+.tb-btn.save:hover { background:rgba(45,125,79,.07); }
+.tgl-group { display:flex; border:1.5px solid var(--border); border-radius:3px; overflow:hidden; }
+.tgl { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:.05em; padding:3px 11px; background:transparent; border:none; color:var(--muted); cursor:pointer; transition:background .12s,color .12s; }
+.tgl.active { background:var(--ink); color:var(--paper); }
+.tgl+.tgl { border-left:1.5px solid var(--border); }
+.tb-div { width:1px; height:20px; background:var(--border); flex-shrink:0; }
+.tb-link { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--blue); letter-spacing:.08em; text-decoration:none; margin-left:auto; }
+.tb-link:hover { text-decoration:underline; }
+
+/* ── MAIN ── */
+.main { display:flex; flex:1; overflow:hidden; }
+
+/* ── PALETTE ── */
+.palette {
+  width:210px; flex-shrink:0; background:rgba(255,255,255,.52);
+  border-right:1.5px solid var(--border); overflow-y:auto; padding-bottom:24px;
+}
+.palette::-webkit-scrollbar { width:5px; }
+.palette::-webkit-scrollbar-thumb { background:rgba(54,54,117,.18); border-radius:3px; }
+.pal-cat { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:.24em; text-transform:uppercase; color:var(--muted); padding:11px 14px 5px; border-top:1px solid var(--border); }
+.pal-cat:first-child { border-top:none; padding-top:8px; }
+.pal-item {
+  display:flex; align-items:center; gap:8px; padding:5px 12px 5px 10px;
+  cursor:pointer; border-left:3px solid transparent; transition:background .1s;
+  user-select:none;
+}
+.pal-item:hover { background:rgba(54,54,117,.05); }
+.pal-item.selected { background:rgba(54,54,117,.08); border-left-color:var(--accent); }
+.pal-swatch { width:26px; height:14px; border-radius:2px; flex-shrink:0; }
+.pal-info { flex:1; min-width:0; }
+.pal-name { font-size:11px; font-weight:400; color:var(--ink); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pal-dim { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--muted); letter-spacing:.04em; }
+.pal-depth-warn { font-family:'Share Tech Mono',monospace; font-size:7.5px; color:var(--warn); }
+
+/* ── CANVAS AREA ── */
+.canvas-wrap {
+  flex:1; overflow:auto; padding:40px 40px 60px;
+  background-color:var(--paper);
+  background-image:linear-gradient(rgba(54,54,117,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(54,54,117,.04) 1px,transparent 1px);
+  background-size:20px 20px;
+  display:flex; align-items:flex-end; gap:40px; justify-content:flex-start;
+}
+.canvas-wrap::-webkit-scrollbar { height:6px; width:6px; }
+.canvas-wrap::-webkit-scrollbar-thumb { background:rgba(54,54,117,.18); border-radius:3px; }
+
+/* ── SHELF UNIT ── */
+.shelf-unit-wrap { display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0; }
+.shelf-unit-name { font-family:'Share Tech Mono',monospace; font-size:8.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); white-space:nowrap; }
+.shelf-unit-dims { font-family:'Share Tech Mono',monospace; font-size:7.5px; color:rgba(54,54,117,.3); }
+
+.shelf-unit {
+  position:relative;
+  background:rgba(250,248,244,.0);
+  flex-shrink:0;
+}
+
+.s-upright {
+  position:absolute; top:0; bottom:0; width:6px;
+  border-radius:1px;
+}
+.s-upright-l { left:0; }
+.s-upright-r { right:0; }
+
+.s-board {
+  position:absolute; left:6px; right:6px;
+  height:3px; z-index:5;
+  background-image:repeating-linear-gradient(to right, currentColor 0, currentColor 2px, transparent 2px, transparent 6px);
+}
+.s-board.draggable {
+  cursor:ns-resize; z-index:10;
+  /* larger hit target */
+  padding:4px 0;
+  margin:-4px 0;
+}
+.s-board.draggable::before {
+  content:'';
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:20px; height:3px;
+  background:rgba(54,54,117,.25);
+  border-radius:2px;
+  opacity:0;
+  transition:opacity .15s;
+}
+.s-board.draggable:hover::before { opacity:1; }
+.s-board.dragging { z-index:20; }
+
+.s-tier {
+  position:absolute; left:6px; right:6px;
+  cursor:crosshair;
+  overflow:hidden;
+  display:flex; align-items:flex-end; gap:1px; padding:0 2px 0 2px;
+}
+.s-tier:hover { background:rgba(54,54,117,.03); }
+.s-tier.drop-target { background:rgba(54,54,117,.07); outline:1px dashed rgba(54,54,117,.22); }
+
+/* tier height label on left */
+.s-tier-h {
+  position:absolute; right:calc(100% + 6px); bottom:2px;
+  font-family:'Share Tech Mono',monospace; font-size:7px; color:rgba(54,54,117,.25);
+  white-space:nowrap; line-height:1;
+}
+
+/* ── PLACED ITEMS ── */
+.si {
+  position:relative; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:1px;
+  cursor:pointer;
+  overflow:hidden;
+  transition:box-shadow .1s, opacity .1s;
+  border:1px solid rgba(0,0,0,.12);
+}
+.si:hover { box-shadow:0 2px 8px rgba(0,0,0,.22); z-index:50; }
+.si.warn-depth { outline:2px solid var(--warn); }
+.si-lbl {
+  font-family:'Share Tech Mono',monospace; font-size:6.5px; letter-spacing:.04em;
+  color:rgba(255,255,255,.92); text-align:center; padding:1px 2px;
+  line-height:1.3; pointer-events:none; text-shadow:0 1px 2px rgba(0,0,0,.5);
+}
+.si-turned-tag {
+  position:absolute; top:1px; right:1px;
+  font-family:'Share Tech Mono',monospace; font-size:5.5px;
+  background:rgba(0,0,0,.3); color:rgba(255,255,255,.8);
+  padding:1px 2px; border-radius:1px; pointer-events:none;
+}
+.si-rm {
+  position:absolute; top:1px; right:1px;
+  width:11px; height:11px; background:rgba(0,0,0,.4);
+  border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-size:8px; color:rgba(255,255,255,.9); cursor:pointer;
+  opacity:0; transition:opacity .1s; z-index:10; font-family:Arial,sans-serif; line-height:1;
+}
+.si:hover .si-rm { opacity:1; }
+
+/* overflow marker on tier */
+.s-overflow {
+  position:absolute; bottom:2px; right:4px;
+  font-family:'Share Tech Mono',monospace; font-size:6px;
+  color:var(--accent); letter-spacing:.04em; pointer-events:none;
+}
+
+/* ── STATUS BAR ── */
+.statusbar {
+  height:24px; background:rgba(54,54,117,.06); border-top:1px solid var(--border);
+  display:flex; align-items:center; padding:0 32px; gap:18px;
+  font-family:'Share Tech Mono',monospace; font-size:8.5px; color:var(--muted);
+  letter-spacing:.09em; flex-shrink:0;
+}
+.sb-dot { width:5px; height:5px; border-radius:50%; background:var(--green); flex-shrink:0; }
+
+/* ── MODAL ── */
+.modal-backdrop { position:fixed; inset:0; background:rgba(54,54,117,.18); backdrop-filter:blur(2px); z-index:8000; display:flex; align-items:center; justify-content:center; }
+.modal { background:var(--paper); border:1.5px solid var(--border); border-radius:4px; padding:22px 26px 20px; min-width:320px; max-width:420px; width:90vw; box-shadow:0 8px 40px rgba(54,54,117,.18); }
+.modal-title { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:.22em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+.modal input[type="text"] { width:100%; font-family:'Share Tech Mono',monospace; font-size:12px; padding:7px 10px; border:1.5px solid var(--border); border-radius:3px; background:rgba(255,255,255,.7); color:var(--ink); outline:none; margin-bottom:12px; letter-spacing:.04em; }
+.modal input[type="text"]:focus { border-color:rgba(54,54,117,.45); }
+.modal-btns { display:flex; gap:8px; justify-content:flex-end; }
+.modal-btn { font-family:'Share Tech Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; padding:5px 14px; border-radius:3px; border:1.5px solid var(--border); background:transparent; color:var(--ink); cursor:pointer; transition:background .1s; }
+.modal-btn:hover { background:rgba(54,54,117,.06); }
+.modal-btn.primary { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+.modal-btn.primary:hover { background:#2a2a5a; }
+.save-list { margin-bottom:14px; max-height:220px; overflow-y:auto; }
+.save-row { display:flex; align-items:center; gap:8px; padding:7px 10px; border:1px solid var(--border); border-radius:3px; margin-bottom:5px; cursor:pointer; transition:background .1s; background:rgba(255,255,255,.55); }
+.save-row:hover { background:rgba(54,54,117,.05); }
+.save-row-name { flex:1; font-size:12px; font-weight:500; color:var(--ink); }
+.save-row-ts { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--muted); letter-spacing:.06em; }
+.save-row-del { font-size:11px; color:rgba(201,79,42,.55); padding:2px 6px; cursor:pointer; border-radius:2px; }
+.save-row-del:hover { background:rgba(201,79,42,.09); color:var(--accent); }
+.modal-empty { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:.1em; color:var(--muted); text-align:center; padding:18px 0; }
+
+/* ── TOAST ── */
+.toast { position:fixed; bottom:36px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--ink); color:rgba(255,255,255,.92); padding:7px 18px; border-radius:3px; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:.1em; opacity:0; transition:opacity .18s,transform .18s; pointer-events:none; z-index:9999; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-tag"><span class="pulse-dot"></span>CANAVA Tools</div>
+  <span class="header-title">Shelf Planner</span>
+  <span class="header-sub">Front elevation · adjustable tiers · 5 units</span>
+</div>
+
+<div class="toolbar">
+  <span class="tb-lbl">Labels</span>
+  <div class="tgl-group">
+    <button class="tgl active" id="btn-lon"  onclick="setLabels(true)">On</button>
+    <button class="tgl"        id="btn-loff" onclick="setLabels(false)">Off</button>
+  </div>
+  <div class="tb-div"></div>
+  <button class="tb-btn save" onclick="openSaveModal()">↓ Save</button>
+  <button class="tb-btn"      onclick="openLoadModal()">↑ Load</button>
+  <button class="tb-btn"      onclick="resetAll()">↺ Reset tiers</button>
+  <span class="tb-lbl" style="margin-left:8px">right-click item → rotate · hover × → remove</span>
+  <a class="tb-link" href="storage-layout.html" target="_blank">← Floor Plan</a>
+  <a class="tb-link" href="https://gerenmicol.github.io/personal/storage.html" target="_blank" style="margin-left:12px">Inventory ↗</a>
+</div>
+
+<div class="main">
+  <div class="palette" id="palette"></div>
+  <div class="canvas-wrap" id="cWrap"></div>
+</div>
+
+<div class="statusbar">
+  <span class="sb-dot"></span>
+  <span id="sb-items">0 items placed</span>
+  <span>·</span>
+  <span id="sb-save">unsaved</span>
+  <span>·</span>
+  <span id="sb-hint">click a container type, then click a shelf tier to place it</span>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modal-root"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────
+// CANAVA · Shelf Planner
+// Scale: 5px per inch
+// Supabase: same project as layout planner
+// ─────────────────────────────────────────────────────────────────────
+
+const SCALE = 5;   // px per inch
+const BOARD  = 3;  // px shelf board thickness
+const POST   = 6;  // px upright post width
+
+const SB_URL = 'https://rylapwjambqfppjktjra.supabase.co';
+const SB_KEY = 'sb_publishable_-h1S5LEUyy6-ffAdEGawcw_-Saflr7w';
+const SB_HDR = { 'Content-Type':'application/json', 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY };
+const STORAGE_KEY = 'canava-shelf-v1';
+
+// ── SHELF DEFINITIONS (all dims in inches) ────────────────────────────
+const SHELF_DEFS = {
+  seville: { name:'Seville 5-tier',    shortName:'Seville',   w:30, totalH:61.5, d:14, tiers:5, color:'#8a9a9a', defaultH:[12,12,12,12,13.5] },
+  metro:   { name:'Metro Black 4-tier', shortName:'Metro Blk', w:36, totalH:61,   d:13, tiers:4, color:'#333333', defaultH:[15,15,16,15] },
+  hdx6a:   { name:'HDX 6-tier · A',    shortName:'HDX 6A',    w:48, totalH:72,   d:18, tiers:6, color:'#7a8a8a', defaultH:[12,12,12,12,12,12] },
+  hdx6b:   { name:'HDX 6-tier · B',    shortName:'HDX 6B',    w:48, totalH:72,   d:18, tiers:6, color:'#7a8a8a', defaultH:[12,12,12,12,12,12] },
+  hdx5:    { name:'HDX 5-tier',         shortName:'HDX 5',     w:72, totalH:72,   d:24, tiers:5, color:'#6a7a7a', defaultH:[14,14,14,14,16] },
+};
+const SHELF_ORDER = ['seville','metro','hdx6a','hdx6b','hdx5'];
+
+// ── CONTAINER DEFINITIONS (w=front width, h=height, d=depth, all inches)
+const CONT_DEFS = [
+  // Global Industrial totes — 22"L × 15"W × 13"H
+  { id:'glob-lt', grp:'Global Ind.',  name:'Light Grey',  w:22,     h:13,    d:15,     color:'#a8a8a8', borderStyle:'1px solid rgba(0,0,0,.2)' },
+  { id:'glob-dk', grp:'Global Ind.',  name:'Dark Grey',   w:22,     h:13,    d:15,     color:'#2e2e2e' },
+  { id:'glob-wh', grp:'Global Ind.',  name:'White',       w:22,     h:13,    d:15,     color:'#d4d0ca', borderStyle:'1px solid rgba(0,0,0,.15)' },
+  { id:'glob-cl', grp:'Global Ind.',  name:'Clear',       w:22,     h:13,    d:15,     color:'rgba(160,210,240,0.35)', borderStyle:'1.5px dashed #4a9cc4' },
+  // IKEA boxes with lids
+  { id:'ikea-sm', grp:'IKEA',         name:'IKEA SM',     w:7,      h:3.25,  d:10.25,  color:'#5a7fa8' },
+  { id:'ikea-lg', grp:'IKEA',         name:'IKEA LG',     w:10.25,  h:6,     d:13.75,  color:'#4a6f98' },
+  // DWR Recycled Crates
+  { id:'dwr-sm',  grp:'DWR Crates',   name:'DWR SM',      w:6.75,   h:4.125, d:10.5,   color:'#c17f3a' },
+  { id:'dwr-md',  grp:'DWR Crates',   name:'DWR MD',      w:10.5,   h:5.5,   d:13.625, color:'#b06a28' },
+  { id:'dwr-lg',  grp:'DWR Crates',   name:'DWR LG',      w:13.625, h:7.375, d:21,     color:'#9a5818' },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────
+const S = {
+  selected: null,   // selected container defId
+  labels: true,
+  currentName: '',
+  plans: {},        // keyed by shelfId → { tierH: [], items: [{id,defId,tier,turned}] }
+  seq: 1,
+};
+
+// initialise plans
+SHELF_ORDER.forEach(sid => {
+  const def = SHELF_DEFS[sid];
+  S.plans[sid] = { tierH: [...def.defaultH], items: [] };
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  buildPalette();
+  buildAllShelves();
+});
+
+// ── PALETTE ───────────────────────────────────────────────────────────
+function buildPalette() {
+  const el = document.getElementById('palette');
+  el.innerHTML = '';
+  const groups = {};
+  CONT_DEFS.forEach(d => { (groups[d.grp] = groups[d.grp]||[]).push(d); });
+  Object.entries(groups).forEach(([grp, defs]) => {
+    const h = document.createElement('div');
+    h.className = 'pal-cat';
+    h.textContent = grp;
+    el.appendChild(h);
+    defs.forEach(def => {
+      const row = document.createElement('div');
+      row.className = 'pal-item';
+      row.id = 'pal-' + def.id;
+      const swStyle = def.borderStyle
+        ? `background:${def.color};border:${def.borderStyle}`
+        : `background:${def.color}`;
+      row.innerHTML = `
+        <div class="pal-swatch" style="${swStyle}"></div>
+        <div class="pal-info">
+          <div class="pal-name">${def.name}</div>
+          <div class="pal-dim">${def.w}" × ${def.h}" × ${def.d}"d</div>
+        </div>`;
+      row.addEventListener('click', () => selectContainer(def.id));
+      el.appendChild(row);
+    });
+  });
+}
+
+function selectContainer(id) {
+  S.selected = (S.selected === id) ? null : id;
+  document.querySelectorAll('.pal-item').forEach(el => el.classList.remove('selected'));
+  if (S.selected) document.getElementById('pal-' + id)?.classList.add('selected');
+  document.getElementById('sb-hint').textContent = S.selected
+    ? `"${CONT_DEFS.find(d=>d.id===S.selected).name}" selected — click a shelf tier to place`
+    : 'click a container type, then click a shelf tier to place it';
+}
+
+// ── BUILD ALL SHELVES ─────────────────────────────────────────────────
+function buildAllShelves() {
+  const wrap = document.getElementById('cWrap');
+  wrap.innerHTML = '';
+  SHELF_ORDER.forEach(sid => {
+    wrap.appendChild(buildShelfUnit(sid));
+  });
+  updateStatus();
+}
+
+function buildShelfUnit(sid) {
+  const def  = SHELF_DEFS[sid];
+  const plan = S.plans[sid];
+  const unitW = def.w * SCALE + POST * 2;
+  const unitH = def.totalH * SCALE;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'shelf-unit-wrap';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'shelf-unit-name';
+  nameEl.textContent = def.name;
+  wrap.appendChild(nameEl);
+
+  const dimsEl = document.createElement('div');
+  dimsEl.className = 'shelf-unit-dims';
+  dimsEl.textContent = `${def.w}" w × ${def.d}" d × ${def.totalH}" h`;
+  wrap.appendChild(dimsEl);
+
+  const unit = document.createElement('div');
+  unit.className = 'shelf-unit';
+  unit.id = 'shelf-' + sid;
+  unit.style.width  = unitW + 'px';
+  unit.style.height = unitH + 'px';
+
+  // uprights
+  ['l','r'].forEach(side => {
+    const up = document.createElement('div');
+    up.className = `s-upright s-upright-${side}`;
+    up.style.background = def.color;
+    unit.appendChild(up);
+  });
+
+  renderShelfBoards(unit, sid);
+  renderShelfTiers(unit, sid);
+
+  wrap.appendChild(unit);
+  return wrap;
+}
+
+// re-render boards and tiers for a shelf (called after tier height change or item add/remove)
+function rerenderShelf(sid) {
+  const unit = document.getElementById('shelf-' + sid);
+  if (!unit) return;
+  unit.querySelectorAll('.s-board,.s-tier,.s-tier-h').forEach(e => e.remove());
+  renderShelfBoards(unit, sid);
+  renderShelfTiers(unit, sid);
+  updateStatus();
+}
+
+function getTierPositions(sid) {
+  const plan = S.plans[sid];
+  const positions = []; // { boardY, tierY, tierH_px } for each tier (0=top)
+  let y = 0;
+  plan.tierH.forEach((h, i) => {
+    const boardY = y;
+    const tierY  = y + BOARD;
+    const tierH  = h * SCALE;
+    positions.push({ boardY, tierY, tierH });
+    y = tierY + tierH;
+  });
+  positions.bottomBoardY = y; // final board
+  return positions;
+}
+
+function renderShelfBoards(unit, sid) {
+  const def   = SHELF_DEFS[sid];
+  const plan  = S.plans[sid];
+  const pos   = getTierPositions(sid);
+
+  // top board (fixed)
+  appendBoard(unit, 0, def.color, false, null);
+  // interior + bottom boards
+  pos.forEach((p, i) => {
+    const isBottom = (i === pos.length - 1);
+    const boardY   = isBottom ? p.tierY + p.tierH : pos[i+1]?.boardY ?? p.tierY + p.tierH;
+    appendBoard(unit, p.tierY + p.tierH, def.color, !isBottom, sid + ':' + i);
+  });
+}
+
+function appendBoard(unit, y, color, draggable, dragKey) {
+  const b = document.createElement('div');
+  b.className = 's-board' + (draggable ? ' draggable' : '');
+  b.style.top = y + 'px';
+  b.style.color = color;
+  if (draggable && dragKey) {
+    b.dataset.dragKey = dragKey;
+    b.addEventListener('mousedown', startBoardDrag);
+  }
+  unit.appendChild(b);
+}
+
+function renderShelfTiers(unit, sid) {
+  const def  = SHELF_DEFS[sid];
+  const plan = S.plans[sid];
+  const pos  = getTierPositions(sid);
+
+  pos.forEach((p, tierIdx) => {
+    const tier = document.createElement('div');
+    tier.className = 's-tier';
+    tier.style.top    = p.tierY + 'px';
+    tier.style.height = p.tierH + 'px';
+    tier.dataset.sid  = sid;
+    tier.dataset.tier = tierIdx;
+
+    tier.addEventListener('click', () => placeCurrent(sid, tierIdx));
+    tier.addEventListener('dragover', e => { e.preventDefault(); tier.classList.add('drop-target'); });
+    tier.addEventListener('dragleave', () => tier.classList.remove('drop-target'));
+    tier.addEventListener('drop', e => { e.preventDefault(); tier.classList.remove('drop-target'); placeCurrent(sid, tierIdx); });
+
+    // height label
+    const hlbl = document.createElement('div');
+    hlbl.className = 's-tier-h';
+    hlbl.id = `th-${sid}-${tierIdx}`;
+    hlbl.textContent = Math.round(plan.tierH[tierIdx]) + '"';
+    tier.appendChild(hlbl);
+
+    // render items in this tier
+    const tierItems = plan.items.filter(it => it.tier === tierIdx);
+    let usedW = 0;
+    tierItems.forEach(it => {
+      const cd  = CONT_DEFS.find(d => d.id === it.defId);
+      if (!cd) return;
+      const visW = it.turned ? cd.d : cd.w;
+      const visH = cd.h;
+      const depthNeeded = it.turned ? cd.w : cd.d;
+      const depthWarn   = depthNeeded > def.d;
+
+      const el = document.createElement('div');
+      el.className = 'si' + (depthWarn ? ' warn-depth' : '');
+      el.style.width   = (visW * SCALE) + 'px';
+      el.style.height  = Math.min(visH * SCALE, p.tierH - 2) + 'px';
+      el.style.background = cd.color;
+      if (cd.borderStyle) el.style.border = cd.borderStyle;
+      el.style.alignSelf = 'flex-end';
+      el.style.marginBottom = '1px';
+
+      if (S.labels) {
+        const lbl = document.createElement('div');
+        lbl.className = 'si-lbl';
+        lbl.textContent = cd.name;
+        el.appendChild(lbl);
+      }
+
+      if (it.turned) {
+        const tag = document.createElement('div');
+        tag.className = 'si-turned-tag';
+        tag.textContent = '↺';
+        el.appendChild(tag);
+      }
+
+      const rm = document.createElement('div');
+      rm.className = 'si-rm';
+      rm.textContent = '×';
+      rm.addEventListener('click', e => { e.stopPropagation(); removeItem(sid, it.id); });
+      el.appendChild(rm);
+
+      el.addEventListener('contextmenu', e => { e.preventDefault(); turnItem(sid, it.id); });
+
+      tier.appendChild(el);
+      usedW += visW;
+    });
+
+    // overflow if items exceed shelf width
+    const shelfInnerW = def.w;
+    if (usedW > shelfInnerW) {
+      const ov = document.createElement('div');
+      ov.className = 's-overflow';
+      ov.textContent = '!' + Math.round(usedW - shelfInnerW) + '" over';
+      tier.appendChild(ov);
+    }
+
+    unit.appendChild(tier);
+  });
+}
+
+// ── BOARD DRAG (adjust tier heights) ──────────────────────────────────
+let boardDrag = null;
+
+function startBoardDrag(e) {
+  e.preventDefault();
+  const key  = e.currentTarget.dataset.dragKey;
+  const [sid, idxStr] = key.split(':');
+  const idx  = parseInt(idxStr); // tier above this board
+  boardDrag  = { sid, idx, startY: e.clientY,
+                 hAbove: S.plans[sid].tierH[idx],
+                 hBelow: S.plans[sid].tierH[idx + 1] ?? null };
+  document.body.style.cursor = 'ns-resize';
+  e.currentTarget.classList.add('dragging');
+}
+
+document.addEventListener('mousemove', e => {
+  if (!boardDrag) return;
+  const { sid, idx, startY, hAbove, hBelow } = boardDrag;
+  const delta = (e.clientY - startY) / SCALE; // inches moved
+  const plan  = S.plans[sid];
+  const minH  = 4; // minimum tier height in inches
+  if (hBelow !== null) {
+    const totalH = hAbove + hBelow;
+    plan.tierH[idx]     = Math.max(minH, Math.min(totalH - minH, hAbove + delta));
+    plan.tierH[idx + 1] = totalH - plan.tierH[idx];
+  } else {
+    plan.tierH[idx] = Math.max(minH, hAbove + delta);
+  }
+  rerenderShelf(sid);
+});
+
+document.addEventListener('mouseup', () => {
+  if (!boardDrag) return;
+  document.body.style.cursor = '';
+  boardDrag = null;
+  markUnsaved();
+});
+
+// ── PLACE / REMOVE / TURN ITEMS ───────────────────────────────────────
+function placeCurrent(sid, tier) {
+  if (!S.selected) return;
+  const cd  = CONT_DEFS.find(d => d.id === S.selected);
+  const def = SHELF_DEFS[sid];
+  const plan = S.plans[sid];
+
+  // Check if it fits height-wise
+  const tierH = plan.tierH[tier];
+  if (cd.h > tierH + 0.5) { // allow 0.5" tolerance for labels
+    showToast(`${cd.name} is ${cd.h}" tall — tier is ${Math.round(tierH)}" (tight fit)`);
+  }
+
+  const item = { id: S.seq++, defId: S.selected, tier, turned: false };
+  plan.items.push(item);
+  rerenderShelf(sid);
+  markUnsaved();
+  showToast(`${cd.name} placed on ${def.shortName} tier ${plan.tierH.length - tier}`);
+}
+
+function removeItem(sid, itemId) {
+  S.plans[sid].items = S.plans[sid].items.filter(it => it.id !== itemId);
+  rerenderShelf(sid);
+  markUnsaved();
+}
+
+function turnItem(sid, itemId) {
+  const item = S.plans[sid].items.find(it => it.id === itemId);
+  if (!item) return;
+  item.turned = !item.turned;
+  rerenderShelf(sid);
+  markUnsaved();
+  const cd = CONT_DEFS.find(d => d.id === item.defId);
+  showToast(`${cd.name} ${item.turned ? 'turned sideways' : 'restored'}`);
+}
+
+// ── LABELS ────────────────────────────────────────────────────────────
+function setLabels(on) {
+  S.labels = on;
+  document.getElementById('btn-lon').classList.toggle('active', on);
+  document.getElementById('btn-loff').classList.toggle('active', !on);
+  buildAllShelves();
+}
+
+// ── RESET TIERS ───────────────────────────────────────────────────────
+function resetAll() {
+  if (!confirm('Reset all tier heights to defaults? Items stay.')) return;
+  SHELF_ORDER.forEach(sid => {
+    S.plans[sid].tierH = [...SHELF_DEFS[sid].defaultH];
+  });
+  buildAllShelves();
+  markUnsaved();
+  showToast('Tier heights reset to defaults');
+}
+
+// ── SUPABASE SAVE/LOAD ────────────────────────────────────────────────
+async function sbSave(name, data) {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts`, {
+    method:'POST',
+    headers: { ...SB_HDR, 'Prefer':'resolution=merge-duplicates' },
+    body: JSON.stringify({ name:'shelf:'+name, data, updated_at:new Date().toISOString() }),
+  });
+  if (!res.ok) throw new Error('HTTP '+res.status);
+}
+async function sbLoad(name) {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts?name=eq.shelf:${encodeURIComponent(name)}&select=data`, { headers:SB_HDR });
+  if (!res.ok) throw new Error('HTTP '+res.status);
+  const rows = await res.json();
+  return rows?.length ? rows[0].data : null;
+}
+async function sbList() {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts?name=like.shelf:*&select=name,updated_at&order=updated_at.desc`, { headers:SB_HDR });
+  if (!res.ok) throw new Error('HTTP '+res.status);
+  const rows = await res.json();
+  return rows.map(r => ({ ...r, name: r.name.replace(/^shelf:/,'') }));
+}
+async function sbDelete(name) {
+  const res = await fetch(`${SB_URL}/rest/v1/layouts?name=eq.shelf:${encodeURIComponent(name)}`, { method:'DELETE', headers:SB_HDR });
+  if (!res.ok) throw new Error('HTTP '+res.status);
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────
+function closeModal() { document.getElementById('modal-root').innerHTML = ''; }
+function showModal(html) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `<div class="modal-backdrop" id="modal-bd">${html}</div>`;
+  root.querySelector('#modal-bd').addEventListener('click', e => { if (e.target.id==='modal-bd') closeModal(); });
+}
+
+function openSaveModal() {
+  showModal(`
+    <div class="modal">
+      <div class="modal-title">↓ Save Shelf Plan</div>
+      <input type="text" id="save-name-inp" placeholder="Plan name…" maxlength="60" autocomplete="off"/>
+      <div class="modal-btns">
+        <button class="modal-btn" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="doSave()">Save</button>
+      </div>
+    </div>`);
+  const inp = document.getElementById('save-name-inp');
+  inp.value = S.currentName || '';
+  inp.focus();
+  inp.addEventListener('keydown', e => { if(e.key==='Enter') doSave(); if(e.key==='Escape') closeModal(); });
+}
+
+async function doSave() {
+  const name = document.getElementById('save-name-inp').value.trim();
+  if (!name) return;
+  closeModal();
+  document.getElementById('sb-save').textContent = 'saving…';
+  const payload = { plans:S.plans, labels:S.labels, seq:S.seq, ts:Date.now() };
+  try {
+    await sbSave(name, payload);
+    localStorage.setItem(STORAGE_KEY+':'+name, JSON.stringify(payload));
+  } catch(e) {
+    console.warn('Supabase save failed, localStorage only:', e.message);
+    localStorage.setItem(STORAGE_KEY+':'+name, JSON.stringify(payload));
+  }
+  S.currentName = name;
+  const t = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('sb-save').textContent = `"${name}" saved ${t}`;
+  showToast(`Saved: ${name}`);
+}
+
+async function openLoadModal() {
+  showModal(`<div class="modal"><div class="modal-title">↑ Load Plan</div><div class="modal-empty">Loading…</div></div>`);
+  let rows = [];
+  try { rows = await sbList(); } catch(e) {
+    for(let i=0;i<localStorage.length;i++){
+      const k=localStorage.key(i);
+      if(k?.startsWith(STORAGE_KEY+':')){ const n=k.slice((STORAGE_KEY+':').length); try{const d=JSON.parse(localStorage.getItem(k)); rows.push({name:n,updated_at:d.ts?new Date(d.ts).toISOString():''});}catch(ex){} }
+    }
+  }
+  const listHtml = rows.length
+    ? rows.map(r=>{const ts=r.updated_at?new Date(r.updated_at).toLocaleDateString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';const n=r.name.replace(/"/g,'&quot;');return`<div class="save-row" onclick="doLoad('${n}')"><div class="save-row-name">${r.name}</div><div class="save-row-ts">${ts}</div><div class="save-row-del" onclick="event.stopPropagation();doDelete('${n}')">×</div></div>`;}).join('')
+    : `<div class="modal-empty">No saved plans yet</div>`;
+  showModal(`<div class="modal"><div class="modal-title">↑ Load Plan</div><div class="save-list">${listHtml}</div><div class="modal-btns"><button class="modal-btn" onclick="closeModal()">Cancel</button></div></div>`);
+}
+
+async function doLoad(name) {
+  closeModal();
+  document.getElementById('sb-save').textContent = 'loading…';
+  let d=null;
+  try{d=await sbLoad(name);}catch(e){}
+  if(!d){try{d=JSON.parse(localStorage.getItem(STORAGE_KEY+':'+name));}catch(ex){}}
+  if(!d){showToast('Plan not found'); document.getElementById('sb-save').textContent='unsaved'; return;}
+  if(d.plans) SHELF_ORDER.forEach(sid=>{ if(d.plans[sid]) S.plans[sid]=d.plans[sid]; });
+  if(d.labels!==undefined) S.labels=d.labels;
+  if(d.seq) S.seq=d.seq;
+  S.currentName=name;
+  document.getElementById('btn-lon').classList.toggle('active', S.labels);
+  document.getElementById('btn-loff').classList.toggle('active', !S.labels);
+  buildAllShelves();
+  const ts=d.ts?new Date(d.ts).toLocaleDateString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+  document.getElementById('sb-save').textContent=`"${name}" · ${ts}`;
+  showToast(`Loaded: ${name}`);
+}
+
+async function doDelete(name) {
+  if(!confirm(`Delete "${name}"?`)) return;
+  try{await sbDelete(name);}catch(e){}
+  localStorage.removeItem(STORAGE_KEY+':'+name);
+  showToast(`Deleted: ${name}`);
+  openLoadModal();
+}
+
+// ── STATUS ────────────────────────────────────────────────────────────
+function updateStatus() {
+  const total = SHELF_ORDER.reduce((n,sid)=>n+S.plans[sid].items.length,0);
+  document.getElementById('sb-items').textContent = total + ' item'+(total!==1?'s':'')+' placed';
+}
+function markUnsaved() { document.getElementById('sb-save').textContent='unsaved'; }
+
+// ── TOAST ─────────────────────────────────────────────────────────────
+let _tt;
+function showToast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),2400);
+}
+</script>
+</body>
+</html>
