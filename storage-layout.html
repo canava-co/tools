@@ -459,31 +459,45 @@ const UNITS = {
 
 // Item definitions — w/h in grid cells (1 cell = 6 in)
 const DEFS = [
-  // ── ART ───────────────────────────────────────────────────────────
-  { id:'art-roll9-up',  cat:'ART',    name:'Rolled canvas 9×9',    sub:'upright · 6in diam',  warn:'⚠ 9ft ceiling needed', w:1,  h:1,  color:'#c94f2a' },
-  { id:'art-roll9-hz',  cat:'ART',    name:'Rolled canvas 9×9',    sub:'horizontal · on shelf',warn:null,                   w:18, h:2,  color:'#c94f2a' },
-  { id:'art-c7',        cat:'ART',    name:'Canvas 7×7 stretched',  sub:'boxed · 7ft × 2ft',   warn:null,                   w:14, h:4,  color:'#b44520' },
-  { id:'art-c4',        cat:'ART',    name:'Canvas 4×5 stretched',  sub:'boxed · 5ft × 2ft',   warn:null,                   w:10, h:4,  color:'#9e3b1c' },
-  { id:'art-roll-sm',   cat:'ART',    name:'Rolled painting',        sub:'~4ft long',            warn:null,                   w:8,  h:1,  color:'#8a3118' },
-  { id:'art-box-sm',    cat:'ART',    name:'Small works box',        sub:'3 × 2ft footprint',    warn:null,                   w:6,  h:4,  color:'#762914' },
-  // ── BINS + SHELVING ───────────────────────────────────────────────
-  { id:'bin-stack',     cat:'BINS',   name:'Bin stack column',       sub:'2 × 2ft · stacked 5×', warn:null,                   w:4,  h:4,  color:'#2a6b9c' },
-  { id:'metro-shelf',   cat:'BINS',   name:'Metro shelving',         sub:'2ft × 18in · casters', warn:null,                   w:4,  h:3,  color:'#215882' },
-  // ── ROLLING ──────────────────────────────────────────────────────
-  { id:'rack-a',        cat:'ROLL',   name:'Rolling rack A',         sub:'3 × 2ft footprint',    warn:null,                   w:6,  h:4,  color:'#2d7d4f' },
-  { id:'rack-b',        cat:'ROLL',   name:'Rolling rack B',         sub:'3 × 2ft footprint',    warn:null,                   w:6,  h:4,  color:'#246641' },
-  { id:'hm-chair',      cat:'ROLL',   name:'Herman Miller chair',    sub:'2 × 2ft footprint',    warn:null,                   w:4,  h:4,  color:'#1e5535' },
-  { id:'fold-table',    cat:'ROLL',   name:'Folding table',          sub:'4 × 2ft footprint',    warn:null,                   w:8,  h:4,  color:'#184428' },
-  // ── CORNER + MISC ────────────────────────────────────────────────
-  { id:'backdrop',      cat:'CORNER', name:'Backdrop tube',          sub:'5ft × 6in · wall',     warn:null,                   w:10, h:1,  color:'#363675' },
-  { id:'steamer',       cat:'CORNER', name:'Steamer',                sub:'1 × 1ft footprint',    warn:null,                   w:2,  h:2,  color:'#2d2d62' },
-  { id:'sewing',        cat:'CORNER', name:'Sewing machine',         sub:'2 × 1ft footprint',    warn:null,                   w:4,  h:2,  color:'#24244e' },
-  { id:'appl-box',      cat:'CORNER', name:'Small appliances box',   sub:'2 × 2ft footprint',    warn:null,                   w:4,  h:4,  color:'#1c1c3d' },
+  // ── ART ─────────────────────────────────────────────────────────────
+  // Rolled canvas: 24"×24" diameter tube, 9ft long
+  { id:'art-roll9-up',  cat:'ART',    name:'Rolled canvas (9ft)',   sub:'upright · 24in diam',   warn:'⚠ 9ft ceiling needed', w:4,  h:4,  color:'#c94f2a' },
+  { id:'art-roll9-hz',  cat:'ART',    name:'Rolled canvas (9ft)',   sub:'horizontal · on shelf',  warn:null,                   w:18, h:4,  color:'#c94f2a' },
+  // Stretched canvases on 4×4 runners — ~5in deep
+  { id:'art-c7',        cat:'ART',    name:'Canvas 7×7 stretched',  sub:'on runners · 7ft × 5in', warn:null,                   w:14, h:1,  color:'#b44520' },
+  { id:'art-c4',        cat:'ART',    name:'Canvas 4×5 stretched',  sub:'on runners · 4ft × 5in', warn:null,                   w:8,  h:1,  color:'#9e3b1c' },
+  { id:'art-roll-sm',   cat:'ART',    name:'Rolled painting',        sub:'~4ft long',               warn:null,                   w:8,  h:1,  color:'#8a3118' },
+  { id:'art-box-wrap',  cat:'ART',    name:'Wrapped art box',        sub:'4 × 2.5ft footprint',     warn:null,                   w:8,  h:5,  color:'#762914' },
+  // ── BINS ─────────────────────────────────────────────────────────────
+  // Global Industrial tote 21-7/8"×15-1/4" → 4×3 cells
+  { id:'bin-lt-grey',   cat:'BINS',   name:'Bin · Light Grey',       sub:'22 × 15in footprint',    warn:null,                   w:4,  h:3,  color:'#a8a8a8' },
+  { id:'bin-dk-grey',   cat:'BINS',   name:'Bin · Dark Grey',        sub:'22 × 15in footprint',    warn:null,                   w:4,  h:3,  color:'#2e2e2e' },
+  { id:'bin-white',     cat:'BINS',   name:'Bin · White',            sub:'22 × 15in footprint',    warn:null,                   w:4,  h:3,  color:'#c8c4bc', isBorderBin:true },
+  { id:'bin-clear',     cat:'BINS',   name:'Bin · Clear',            sub:'22 × 15in footprint',    warn:null,                   w:4,  h:3,  color:'#4a9cc4', isClear:true },
+  // Open boxes for rolls/stands: 18"×30" → 3×5 cells
+  { id:'box-open',      cat:'BINS',   name:'Open box (fabric/stands)', sub:'18 × 30in · open top', warn:null,                   w:3,  h:5,  color:'#2a6b9c' },
+  // ── SHELVING ─────────────────────────────────────────────────────────
+  // All shelves use half-shaded floor plan style
+  { id:'shelf-seville', cat:'SHELF',  name:'Chrome shelf · Seville', sub:'30 × 14in · 5-tier · rollers', warn:null,            w:5,  h:2,  color:'#7a8a8a', isShelf:true },
+  { id:'shelf-metro',   cat:'SHELF',  name:'Metro shelf · Black',    sub:'36 × 13in · rollers',          warn:null,            w:6,  h:2,  color:'#2a2a2a', isShelf:true },
+  { id:'shelf-hdx6',    cat:'SHELF',  name:'Chrome shelf · HDX 6-tier', sub:'48 × 18in · 6-tier',       warn:null,            w:8,  h:3,  color:'#6a7a7a', isShelf:true },
+  { id:'shelf-hdx5',    cat:'SHELF',  name:'Chrome shelf · HDX 5-tier', sub:'72 × 24in · 5-tier',       warn:null,            w:12, h:4,  color:'#5a6a6a', isShelf:true },
+  // ── ROLLING ──────────────────────────────────────────────────────────
+  { id:'rack-a',        cat:'ROLL',   name:'Rolling rack A',         sub:'3 × 2ft footprint',      warn:null,                   w:6,  h:4,  color:'#2d7d4f' },
+  { id:'rack-b',        cat:'ROLL',   name:'Rolling rack B',         sub:'3 × 2ft footprint',      warn:null,                   w:6,  h:4,  color:'#246641' },
+  { id:'hm-chair',      cat:'ROLL',   name:'Herman Miller chair',    sub:'2 × 2ft footprint',      warn:null,                   w:4,  h:4,  color:'#1e5535' },
+  { id:'fold-table',    cat:'ROLL',   name:'Folding table',          sub:'4 × 2ft footprint',      warn:null,                   w:8,  h:4,  color:'#184428' },
+  // ── CORNER + MISC ────────────────────────────────────────────────────
+  { id:'backdrop',      cat:'CORNER', name:'Backdrop tube',          sub:'5ft × 6in · wall',       warn:null,                   w:10, h:1,  color:'#363675' },
+  { id:'steamer',       cat:'CORNER', name:'Steamer',                sub:'1 × 1ft footprint',      warn:null,                   w:2,  h:2,  color:'#2d2d62' },
+  { id:'sewing',        cat:'CORNER', name:'Sewing machine',         sub:'2 × 1ft footprint',      warn:null,                   w:4,  h:2,  color:'#24244e' },
+  { id:'appl-box',      cat:'CORNER', name:'Small appliances box',   sub:'2 × 2ft footprint',      warn:null,                   w:4,  h:4,  color:'#1c1c3d' },
 ];
 
 const CAT_META = {
   ART:    { label:'Art' },
-  BINS:   { label:'Bins + Shelving' },
+  BINS:   { label:'Bins + Open boxes' },
+  SHELF:  { label:'Shelving' },
   ROLL:   { label:'Rolling items' },
   CORNER: { label:'Corner + misc' },
 };
@@ -508,7 +522,7 @@ window.addEventListener('DOMContentLoaded', () => {
 function buildPalette() {
   const el = document.getElementById('palette');
   el.innerHTML = '';
-  ['ART','BINS','ROLL','CORNER'].forEach(cat => {
+  ['ART','BINS','SHELF','ROLL','CORNER'].forEach(cat => {
     const h = document.createElement('div');
     h.className = 'pal-cat';
     h.textContent = CAT_META[cat].label;
@@ -516,8 +530,12 @@ function buildPalette() {
     DEFS.filter(d => d.cat === cat).forEach(def => {
       const row = document.createElement('div');
       row.className = 'pal-item';
+      let swatchStyle = `background:${def.color}`;
+      if (def.isShelf) swatchStyle = `background:${def.color};background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.22) 0px,rgba(255,255,255,.22) 3px,transparent 3px,transparent 8px);border:1.5px solid ${def.color}`;
+      if (def.isClear) swatchStyle = `background:rgba(74,156,196,.2);border:1.5px dashed #4a9cc4`;
+      if (def.isBorderBin) swatchStyle = `background:${def.color};border:1.5px solid rgba(54,54,117,.3)`;
       row.innerHTML = `
-        <div class="pal-swatch" style="background:${def.color}"></div>
+        <div class="pal-swatch" style="${swatchStyle}"></div>
         <div class="pal-info">
           <div class="pal-name">${def.name}</div>
           <div class="pal-dim">${def.sub}</div>
@@ -583,6 +601,21 @@ function renderItem(item) {
     background-color:${def.color};
     z-index:${item.iid};
   `;
+
+  // Visual treatment overrides
+  if (def.isShelf) {
+    el.style.backgroundColor = def.color.replace(/^#/, '') ? def.color : '#888';
+    el.style.backgroundImage = `repeating-linear-gradient(45deg, rgba(255,255,255,.18) 0px, rgba(255,255,255,.18) 3px, transparent 3px, transparent 9px)`;
+    el.style.opacity = '0.72';
+    el.style.border = `2px solid ${def.color}`;
+  }
+  if (def.isClear) {
+    el.style.backgroundColor = 'rgba(74,156,196,0.18)';
+    el.style.border = '1.5px dashed #4a9cc4';
+  }
+  if (def.isBorderBin) {
+    el.style.border = '1.5px solid rgba(54,54,117,0.35)';
+  }
 
   const lbl = document.createElement('div');
   lbl.className = 'fi-lbl';
