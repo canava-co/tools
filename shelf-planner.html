@@ -101,6 +101,7 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;h
 .si-stk-up{bottom:18px;right:2px;}
 .si-stk-dn{bottom:2px;right:18px;}
 .si:hover .si-stk,.si.selected .si-stk{opacity:1;}
+.si:hover .si-rm,.si.selected .si-rm{opacity:1;}
 .si-stacked-layer { border-top:1px solid rgba(255,255,255,.25); cursor:default; }
 .si-stacked-layer .si-rm { opacity:0; }
 .si-stacked-layer:hover .si-rm { opacity:1; }
@@ -362,7 +363,13 @@ function buildTierEl(tier, sh, wPx) {
 
   wrap.addEventListener('click', e => {
     if (e.target.closest('.si')) return;
-    setFocus(tier.id);
+    if (S_palSelected) {
+      // Place the selected palette item on this tier
+      S.focusTier = tier.id;
+      addItemToTier(S_palSelected);
+    } else {
+      setFocus(tier.id);
+    }
   });
 
   // tier number label
@@ -763,10 +770,17 @@ function buildPalette() {
         <div class="pal-plus">+</div>
       `;
       row.addEventListener('click', () => {
+        // Toggle selection — does NOT place. Use tier click to place, or + to stack.
         S_palSelected = (S_palSelected === id) ? null : id;
-        document.querySelectorAll('.pal-item').forEach(r=>r.classList.remove('pal-selected'));
-        if (S_palSelected) row.classList.add('pal-selected');
-        addItemToTier(id);
+        document.querySelectorAll('.pal-item').forEach(r => r.classList.remove('pal-selected'));
+        if (S_palSelected) {
+          row.classList.add('pal-selected');
+          const note = document.querySelector('.pal-focus-note');
+          if (note) { note.textContent = S.focusTier ? `click tier to place · + to stack` : `↓ click tier to place`; }
+        } else {
+          const note = document.querySelector('.pal-focus-note');
+          if (note) note.textContent = '↓ click tier · then click item to place';
+        }
       });
       pal.appendChild(row);
     });

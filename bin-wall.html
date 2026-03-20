@@ -386,8 +386,11 @@ function render() {
 
     const lbl = document.createElement('div');
     lbl.className = 'bin-col-label';
-    const t = BIN_TYPES[col.type];
-    lbl.textContent = t.name.toLowerCase();
+    const colTypeId = col.defaultType || col.type || 'lt-grey';
+    const t = BIN_TYPES[colTypeId] || BIN_TYPES['lt-grey'];
+    // Show "mixed" if column has multiple bin types
+    const types = new Set(col.bins.filter(Boolean).map(b => b.type || colTypeId));
+    lbl.textContent = types.size > 1 ? 'mixed' : t.name.toLowerCase();
     colEl.appendChild(lbl);
 
     wall.appendChild(colEl);
