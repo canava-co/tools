@@ -398,7 +398,9 @@ function render() {
 }
 
 function buildBinCell(col, slotIdx, bin) {
-  const t   = BIN_TYPES[col.type];
+  // Per-slot type — falls back to col.defaultType then col.type for old saves
+  const typeId = bin?.type || col.defaultType || col.type || 'lt-grey';
+  const t   = BIN_TYPES[typeId] || BIN_TYPES['lt-grey'];
   const wpx = BIN_W * SCALE;
   const hpx = BIN_H * SCALE;
 
@@ -450,8 +452,9 @@ function buildBinCell(col, slotIdx, bin) {
 // ── COLUMNS ───────────────────────────────────────────────────────────
 function addColumn() {
   const t = BIN_TYPES[S.selected];
-  const bins = new Array(S.maxStack).fill(null).map(() => ({ code:'', invLink:'' }));
-  S.cols.push({ id: S.seq++, type: S.selected, bins });
+  // Each slot gets its own type (default = currently selected)
+  const bins = new Array(S.maxStack).fill(null).map(() => ({ type: S.selected, code:'', invLink:'' }));
+  S.cols.push({ id: S.seq++, defaultType: S.selected, bins });
   render(); markUnsaved();
   showToast(t.name + ' column added');
 }
@@ -470,19 +473,17 @@ function clearAll() {
 
 function setMaxStack(n) {
   S.maxStack = n;
-  // Trim or extend bins arrays
   S.cols.forEach(col => {
     while (col.bins.length > n) col.bins.pop();
-    while (col.bins.length < n) col.bins.push({ code:'', invLink:'' });
+    while (col.bins.length < n) col.bins.push({ type: col.defaultType || S.selected, code:'', invLink:'' });
   });
   render(); markUnsaved();
 }
 
-// ── SLOT OPERATIONS ───────────────────────────────────────────────────
 function fillSlot(colId, idx) {
   const col = S.cols.find(c=>c.id===colId);
   if (!col) return;
-  col.bins[idx] = { code:'', invLink:'' };
+  col.bins[idx] = { type: S.selected, code:'', invLink:'' };
   render(); markUnsaved();
 }
 

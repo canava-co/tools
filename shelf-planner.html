@@ -101,6 +101,12 @@ body{background:var(--paper);color:var(--ink);font-family:'DM Sans',sans-serif;h
 .si-stk-up{bottom:18px;right:2px;}
 .si-stk-dn{bottom:2px;right:18px;}
 .si:hover .si-stk,.si.selected .si-stk{opacity:1;}
+.si-stacked-layer { border-top:1px solid rgba(255,255,255,.25); cursor:default; }
+.si-stacked-layer .si-rm { opacity:0; }
+.si-stacked-layer:hover .si-rm { opacity:1; }
+.pal-selected { background:rgba(54,54,117,.1) !important; border-left:3px solid var(--accent); }
+.pal-item .pal-plus { transition:color .1s; }
+.pal-selected .pal-plus { color:var(--accent); }
 
 /* overflow indicator */
 .tier-overflow-marker{position:absolute;right:-20px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:11px;font-family:'Share Tech Mono',monospace;pointer-events:none;}
@@ -251,11 +257,11 @@ const BDEFS = {
   'ikea-sm':     { cat:'IKEA', name:'IKEA box SM',        ew:7,      eh:3.25,   ewR:10.25,  color:'#5a7fa8' },
   'ikea-lg':     { cat:'IKEA', name:'IKEA box LG',        ew:10.25,  eh:6,      ewR:13.75,  color:'#4a6f98' },
   'ikea-lg-flat':{ cat:'IKEA', name:'IKEA box LG flat',   ew:10.25,  eh:3,      ewR:13.75,  color:'#3d5f82', border:true },
-  'dwr-sm':      { cat:'DWR',  name:'DWR crate SM',       ew:6.75,   eh:4.125,  ewR:10.5,   color:'#c17f3a' },
-  'dwr-md':      { cat:'DWR',  name:'DWR crate MD',       ew:10.5,   eh:5.5,    ewR:13.625, color:'#b06a28' },
-  'dwr-lg':      { cat:'DWR',  name:'DWR crate LG',       ew:13.625, eh:7.375,  ewR:21,     color:'#9a5818' },
+  'hay-sm':      { cat:'HAY',  name:'HAY crate SM',       ew:6.75,   eh:4.125,  ewR:10.5,   color:'#c17f3a' },
+  'hay-md':      { cat:'HAY',  name:'HAY crate MD',       ew:10.5,   eh:5.5,    ewR:13.625, color:'#b06a28' },
+  'hay-lg':      { cat:'HAY',  name:'HAY crate LG',       ew:13.625, eh:7.375,  ewR:21,     color:'#9a5818' },
 };
-const CAT_LABELS = { BINS:'Global Industrial + Open', IKEA:'IKEA Boxes', DWR:'DWR Crates' };
+const CAT_LABELS = { BINS:'Global Industrial + Open', IKEA:'IKEA Boxes', HAY:'HAY / DWR Crates' };
 
 // ── STATE ─────────────────────────────────────────────────────────────
 const S = {
@@ -393,56 +399,100 @@ function buildTierEl(tier, sh, wPx) {
 }
 
 function buildItemEl(item, def, fw, fh, xOff, tierId) {
-  const stack = item.stack || 1;
+  const stackItems = item.stackItems || [];
+  // Total height = base item + all stacked items
+  const totalH = fh + stackItems.reduce((sum, si) => {
+    const sd = BDEFS[si.defId]; if (!sd) return sum;
+    return sum + Math.round((si.rot ? sd.ewR : sd.ew) === sd.ewR ? sd.eh * PPI : sd.eh * PPI);
+  }, 0);
+  // Actually compute correctly: stacked item height doesn't change with rot
+  const totalHPx = fh + stackItems.reduce((sum, si) => {
+    const sd = BDEFS[si.defId]; if (!sd) return sum;
+    return sum + Math.round(sd.eh * PPI);
+  }, 0);
+
   const sEl = el('div','si');
   sEl.id = 'si-' + item.iid;
   sEl.style.left   = xOff + 'px';
   sEl.style.width  = fw + 'px';
-  sEl.style.height = Math.round(fh * stack) + 'px';
+  sEl.style.height = totalHPx + 'px';
   sEl.style.backgroundColor = def.color;
+  sEl.style.position = 'absolute';
   if (def.border) sEl.style.border = '1.5px solid rgba(54,54,117,.3)';
   if (def.clear)  { sEl.style.backgroundColor='rgba(74,156,196,.18)'; sEl.style.border='1.5px dashed #4a9cc4'; }
 
+  // Base item label at bottom
   if (item.rot) {
-    const rot = el('div','si-rot');
-    rot.textContent = '↺';
-    sEl.appendChild(rot);
+    const rot = el('div','si-rot'); rot.textContent='↺'; sEl.appendChild(rot);
   }
-
-  if (stack > 1) {
-    const stk = el('div','si-stack-badge');
-    stk.textContent = '×' + stack;
-    sEl.appendChild(stk);
-  }
-
   const lbl = el('div','si-lbl');
   lbl.textContent = def.name;
+  lbl.style.position='absolute'; lbl.style.bottom='2px'; lbl.style.left='0'; lbl.style.right='0';
+  lbl.style.height = fh + 'px'; lbl.style.display='flex'; lbl.style.alignItems='flex-end'; lbl.style.justifyContent='center';
   if (!S.labels) lbl.style.display='none';
   sEl.appendChild(lbl);
+
+  // Stacked items rendered on top (as absolute overlays within the container)
+  let yOff = 0;
+  stackItems.forEach((si, idx) => {
+    const sd = BDEFS[si.defId]; if (!sd) return;
+    const sh = Math.round(sd.eh * PPI);
+    yOff += sh;
+    const siEl = el('div','si-stacked-layer');
+    siEl.style.cssText = `position:absolute;left:0;right:0;height:${sh}px;bottom:${fh + (yOff - sh)}px;background:${sd.color};border-radius:1px;overflow:hidden;`;
+    if (sd.border) siEl.style.border='1px solid rgba(54,54,117,.25)';
+    if (sd.clear)  { siEl.style.background='rgba(74,156,196,.18)'; siEl.style.border='1px dashed #4a9cc4'; }
+
+    const slbl = el('div','si-lbl');
+    slbl.textContent = sd.name + (si.rot ? ' ↺' : '');
+    slbl.style.fontSize = '6px';
+    if (!S.labels) slbl.style.display='none';
+    siEl.appendChild(slbl);
+
+    // Remove this stacked layer
+    const srm = el('div','si-rm');
+    srm.textContent='×';
+    srm.addEventListener('mousedown', e=>e.stopPropagation());
+    srm.addEventListener('click', e=>{ e.stopPropagation(); removeStackLayer(tierId, item.iid, idx); });
+    siEl.appendChild(srm);
+
+    sEl.appendChild(siEl);
+  });
 
   if (item.code) {
     const cod = el('div','si-code');
     cod.textContent = item.code;
+    cod.style.position='absolute'; cod.style.bottom='0'; cod.style.left='2px';
     if (!S.labels) cod.style.display='none';
     sEl.appendChild(cod);
   }
 
-  // Stack +/− buttons
+  // + button: adds selected palette item on top; falls back to same type
   const stkUp = el('div','si-stk si-stk-up');
   stkUp.textContent = '+';
+  stkUp.title = 'Stack item on top (select from palette first)';
   stkUp.addEventListener('mousedown', e => e.stopPropagation());
-  stkUp.addEventListener('click', e => { e.stopPropagation(); stackItem(tierId, item.iid, 1); });
+  stkUp.addEventListener('click', e => {
+    e.stopPropagation();
+    const addId = S_palSelected || item.defId;
+    pushStackLayer(tierId, item.iid, addId);
+  });
   sEl.appendChild(stkUp);
 
+  // − button: removes top stacked item
   const stkDn = el('div','si-stk si-stk-dn');
   stkDn.textContent = '−';
+  stkDn.title = 'Remove top stacked item';
   stkDn.addEventListener('mousedown', e => e.stopPropagation());
-  stkDn.addEventListener('click', e => { e.stopPropagation(); stackItem(tierId, item.iid, -1); });
+  stkDn.addEventListener('click', e => {
+    e.stopPropagation();
+    removeStackLayer(tierId, item.iid, (item.stackItems||[]).length - 1);
+  });
   sEl.appendChild(stkDn);
 
   const rm = el('div','si-rm');
   rm.textContent = '×';
-  rm.addEventListener('mousedown', e => e.stopPropagation()); // ← fix: prevent drag eating the click
+  rm.addEventListener('mousedown', e => e.stopPropagation());
   rm.addEventListener('click', e => { e.stopPropagation(); removeItem(tierId, item.iid); });
   sEl.appendChild(rm);
 
@@ -522,7 +572,7 @@ function addItemToTier(defId) {
   }
   const tier = S.tiers.find(t => t.id === S.focusTier);
   if (!tier) return;
-  tier.items.push({ iid:S.seq++, defId, rot:0, stack:1, code:'' });
+  tier.items.push({ iid:S.seq++, defId, rot:0, stackItems:[], code:'' });
   render();
   markUnsaved();
   showToast(BDEFS[defId]?.name + ' → T' + S.focusTier);
@@ -544,19 +594,24 @@ function flipItem(tierId, iid) {
   showToast(`Flipped → ${face}" face forward`);
 }
 
-function stackItem(tierId, iid, delta) {
+function pushStackLayer(tierId, iid, defId) {
   const t    = S.tiers.find(t=>t.id===tierId);
   const item = t?.items.find(i=>i.iid===iid);
   if (!item) return;
-  item.stack = Math.max(1, (item.stack||1) + delta);
-  const d = BDEFS[item.defId];
-  const tier = t;
-  const maxStack = Math.floor(tier.heightIn / d.eh);
-  if (item.stack > maxStack && maxStack > 0) {
-    showToast(`Stack of ${item.stack} — tier is ${Math.round(tier.heightIn)}" (${maxStack} fit cleanly)`);
-  }
+  if (!item.stackItems) item.stackItems = [];
+  item.stackItems.push({ defId, rot:0 });
+  const d = BDEFS[defId];
   render(); markUnsaved();
-  showToast(`${d.name} × ${item.stack}`);
+  showToast(`${d?.name} stacked on top`);
+}
+
+function removeStackLayer(tierId, iid, layerIdx) {
+  const t    = S.tiers.find(t=>t.id===tierId);
+  const item = t?.items.find(i=>i.iid===iid);
+  if (!item || !item.stackItems || layerIdx < 0) return;
+  item.stackItems.splice(layerIdx, 1);
+  render(); markUnsaved();
+  showToast('Layer removed');
 }
 function addTier() {
   const sh = SHELVES[S.shelfId];
@@ -678,20 +733,23 @@ function updateInfo() {
 function markUnsaved() { document.getElementById('sb-save').textContent='unsaved'; }
 
 // ── PALETTE ───────────────────────────────────────────────────────────
+let S_palSelected = null; // currently selected palette defId
+
 function buildPalette() {
   const pal = document.getElementById('palette');
   pal.innerHTML = '';
 
   const note = el('div','pal-focus-note');
-  note.textContent = '↓ click tier first';
+  note.textContent = '↓ click tier · then click item to place';
   pal.appendChild(note);
 
-  ['BINS','IKEA','DWR'].forEach(cat => {
+  ['BINS','IKEA','HAY'].forEach(cat => {
     const h = el('div','pal-cat');
     h.textContent = CAT_LABELS[cat];
     pal.appendChild(h);
     Object.entries(BDEFS).filter(([,d])=>d.cat===cat).forEach(([id,def]) => {
       const row = el('div','pal-item');
+      row.id = 'palrow-' + id;
       let sw = `background:${def.color}`;
       if (def.border) sw+=';border:1.5px solid rgba(54,54,117,.3)';
       if (def.clear)  sw='background:rgba(74,156,196,.18);border:1.5px dashed #4a9cc4';
@@ -704,7 +762,12 @@ function buildPalette() {
         </div>
         <div class="pal-plus">+</div>
       `;
-      row.addEventListener('click', () => addItemToTier(id));
+      row.addEventListener('click', () => {
+        S_palSelected = (S_palSelected === id) ? null : id;
+        document.querySelectorAll('.pal-item').forEach(r=>r.classList.remove('pal-selected'));
+        if (S_palSelected) row.classList.add('pal-selected');
+        addItemToTier(id);
+      });
       pal.appendChild(row);
     });
   });
