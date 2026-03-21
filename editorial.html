@@ -45,6 +45,8 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 .af.by-f{flex:0 0 115px;}
 .af.spark-f{flex:0 0 130px;}
 .af.url-f{flex:0 0 148px;}
+.af.tags-f{flex:0 0 140px;}
+.af.refurl-f{flex:0 0 155px;}
 .af.act-f{flex:0 0 auto;padding-right:0;align-items:flex-end;padding-top:2px;gap:7px;}
 .af label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
 .af input,.af select,.af textarea{font-family:var(--f);font-size:12px;color:var(--navy);background:transparent;border:none;outline:none;-webkit-appearance:none;appearance:none;padding:0;width:100%;}
@@ -256,6 +258,8 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
     <div class="af date-f"><label>Target Publish</label><input id="a-date" type="date"/></div>
     <div class="af by-f"><label>Initiated By</label><input id="a-by" type="text" placeholder="Your name..."/></div>
     <div class="af spark-f"><label>Spark / Source</label><input id="a-spark" type="text" placeholder="What prompted this..."/></div>
+    <div class="af refurl-f"><label>Source URL</label><input id="a-refurl" type="url" placeholder="https://..."/></div>
+    <div class="af tags-f"><label>Tags</label><input id="a-tags" type="text" placeholder="pantry, recipe, q2..."/></div>
     <div class="af url-f"><label>Claude Chat URL</label><input id="a-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
     <div class="af act-f">
       <button class="btn ghost sm" onclick="clearAdd()">Clear</button>
@@ -363,6 +367,11 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 
       <div class="msec">Source</div>
       <div class="fg"><label>Spark / Source</label><input id="e-spark" type="text" placeholder="What prompted this idea..."/></div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Source URLs</div>
+        <div class="chat-list" id="ref-url-list"></div>
+        <button class="btn ghost sm" onclick="addRefUrlRow()" style="font-size:8px;">+ Add URL</button>
+      </div>
       <div class="fg"><label>Claude Chat URL</label><input id="e-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
       <div style="margin-bottom:14px;">
         <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Claude Chat URLs</div>
@@ -417,7 +426,7 @@ const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 const TABLE='editorial_items';
 const BUCKET='canava-images';
 
-let allItems=[],currentTab='pipeline',editingId=null,editingImages=[],editingChats=[];
+let allItems=[],currentTab='pipeline',editingId=null,editingImages=[],editingChats=[],editingRefUrls=[];
 
 const TL={idea:'Idea',feature:'Feature',quick:'Quick',social:'Social','brand-review':'Brand Review',recipe:'Recipe',ff:'FF',tool:'Tool',media:'Media'};
 const CL={travel:'Travel',food:'Food','home-design':'Home Design',housekeeping:'Housekeeping',wellbeing:'Wellbeing',move:'Move',pet:'Pet',style:'Style','media-diet':'Media Diet',tech:'Tech'};
@@ -510,8 +519,9 @@ function ri(i){
     dh=`<span class="${cls}">→ ${fmtDate(i.target_date)}</span>`;
   }
   const tags=(i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
-  const hasL=parseChatUrls(i.chat_url).length||i.dropbox_url||i.figma_url;
+  const hasL=parseChatUrls(i.chat_url).length||parseRefUrls(i.reference_urls).length||i.dropbox_url||i.figma_url;
   const chatUrls=parseChatUrls(i.chat_url);
+  const refUrls=parseRefUrls(i.reference_urls);
   const imgs=parseImgs(i.images);
   return `<div class="item"><div class="pip ${i.priority||'medium'} pip-${i.status||'idea'}"></div><div class="ibody">
     <div class="ititle">${esc(i.title||'Untitled')}</div>
@@ -525,7 +535,7 @@ function ri(i){
     </div>
     ${i.concept?`<div class="iconcept">${esc(i.concept)}</div>`:''}
     ${i.spark_source?`<div class="ispark">Sparked by: <span>${esc(i.spark_source)}</span></div>`:''}
-    ${hasL?`<div class="ilinks">${chatUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
+    ${hasL?`<div class="ilinks">${chatUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${refUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">⤷ Ref${refUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
     ${i.assets_note?`<div class="iassets">${esc(i.assets_note)}</div>`:''}
     ${imgs.length?`<div class="ithumb-row">${imgs.map(url=>`<img class="ithumb" src="${esc(url)}" onclick="openLightbox('${esc(url)}')" alt=""/>`).join('')}</div>`:''}
     ${tags.length?`<div class="itags">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div>`:''}
@@ -550,7 +560,7 @@ async function doAdd(){
   if(!title){setAddSt('Title is required.','err');return;}
   const btn=document.getElementById('add-btn');btn.disabled=true;setAddSt('<span class="spin"></span>Saving...','');
   try{
-    const p={title,concept:v('a-concept'),content_type:v('a-type'),category:v('a-cat')||null,sub_category:v('a-subcat')||null,priority:v('a-pri'),target_date:v('a-date')||null,initiated_by:v('a-by')||null,spark_source:v('a-spark')||null,chat_url:v('a-url')||null,status:'idea',updated_at:new Date().toISOString()};
+    const p={title,concept:v('a-concept'),content_type:v('a-type'),category:v('a-cat')||null,sub_category:v('a-subcat')||null,priority:v('a-pri'),target_date:v('a-date')||null,initiated_by:v('a-by')||null,spark_source:v('a-spark')||null,tags:v('a-tags')||null,reference_urls:(()=>{const u=v('a-refurl');return u?JSON.stringify([u]):null;})(),chat_url:v('a-url')||null,status:'idea',updated_at:new Date().toISOString()};
     const res=await api(TABLE,'POST',p);
     const cr=Array.isArray(res)?res[0]:res;
     if(cr)allItems.unshift(cr);
@@ -560,7 +570,7 @@ async function doAdd(){
 }
 
 function clearAdd(){
-  ['a-title','a-concept','a-spark','a-url','a-by','a-subcat'].forEach(id=>document.getElementById(id).value='');
+  ['a-title','a-concept','a-spark','a-url','a-by','a-subcat','a-tags','a-refurl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('a-date').value='';document.getElementById('a-type').value='idea';
   document.getElementById('a-pri').value='medium';document.getElementById('a-cat').value='';
   document.getElementById('a-title').style.height='auto';setAddSt('','');
@@ -572,6 +582,11 @@ function parseImgs(raw){
   try{return JSON.parse(raw);}catch(e){return[];}
 }
 function parseChatUrls(raw){
+  if(!raw)return[];
+  if(raw.trim().startsWith('['))try{return JSON.parse(raw).filter(Boolean);}catch(e){}
+  return raw.trim()?[raw.trim()]:[];
+}
+function parseRefUrls(raw){
   if(!raw)return[];
   if(raw.trim().startsWith('['))try{return JSON.parse(raw).filter(Boolean);}catch(e){}
   return raw.trim()?[raw.trim()]:[];
@@ -588,6 +603,18 @@ function renderChatList(){
 }
 function addChatRow(){editingChats.push('');renderChatList();}
 function removeChatRow(idx){editingChats.splice(idx,1);renderChatList();}
+function renderRefUrlList(){
+  const list=document.getElementById('ref-url-list');
+  if(!list)return;
+  list.innerHTML=editingRefUrls.map((url,idx)=>`
+    <div class="chat-row">
+      <span class="chat-row-label">URL ${idx+1}</span>
+      <input type="url" value="${esc(url)}" placeholder="https://..." oninput="editingRefUrls[${idx}]=this.value"/>
+      <button class="chat-rm" onclick="removeRefUrlRow(${idx})" title="Remove">×</button>
+    </div>`).join('');
+}
+function addRefUrlRow(){editingRefUrls.push('');renderRefUrlList();}
+function removeRefUrlRow(idx){editingRefUrls.splice(idx,1);renderRefUrlList();}
 
 function renderImgGrid(){
   const grid=document.getElementById('img-grid');
@@ -645,6 +672,9 @@ function openEdit(id){
   editingChats=parseChatUrls(i.chat_url);
   if(editingChats.length===0)editingChats=[''];
   renderChatList();
+  editingRefUrls=parseRefUrls(i.reference_urls);
+  if(editingRefUrls.length===0)editingRefUrls=[''];
+  renderRefUrlList();
   sv('e-dropbox',i.dropbox_url||'');sv('e-figma',i.figma_url||'');sv('e-assets',i.assets_note||'');
   updateSubCatLabel('e-subcat-label',i.category||'');
   renderImgGrid();
@@ -652,13 +682,13 @@ function openEdit(id){
   document.body.style.overflow='hidden';
 }
 
-function closeModal(){document.getElementById('modal-ov').style.display='none';document.body.style.overflow='';editingId=null;editingImages=[];editingChats=[];}
+function closeModal(){document.getElementById('modal-ov').style.display='none';document.body.style.overflow='';editingId=null;editingImages=[];editingChats=[];editingRefUrls=[];}
 
 async function doSave(){
   if(!editingId)return;
   const btn=document.getElementById('save-btn');btn.disabled=true;btn.textContent='Saving...';
   try{
-    const p={title:v('e-title'),concept:v('e-concept')||null,status:v('e-status'),content_type:v('e-type'),category:v('e-cat')||null,sub_category:v('e-subcat')||null,priority:v('e-pri'),tags:v('e-tags')||null,target_date:v('e-date')||null,published_date:v('e-pub')||null,initiated_by:v('e-by')||null,spark_source:v('e-spark')||null,chat_url:(()=>{const urls=editingChats.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),notes:v('e-notes')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,images:editingImages.length?JSON.stringify(editingImages):null,updated_at:new Date().toISOString()};
+    const p={title:v('e-title'),concept:v('e-concept')||null,status:v('e-status'),content_type:v('e-type'),category:v('e-cat')||null,sub_category:v('e-subcat')||null,priority:v('e-pri'),tags:v('e-tags')||null,target_date:v('e-date')||null,published_date:v('e-pub')||null,initiated_by:v('e-by')||null,spark_source:v('e-spark')||null,chat_url:(()=>{const urls=editingChats.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),reference_urls:(()=>{const urls=editingRefUrls.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),notes:v('e-notes')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,images:editingImages.length?JSON.stringify(editingImages):null,updated_at:new Date().toISOString()};
     await api(TABLE+'?id=eq.'+editingId,'PATCH',p);
     const idx=allItems.findIndex(x=>x.id===editingId);
     if(idx>-1)allItems[idx]={...allItems[idx],...p};
