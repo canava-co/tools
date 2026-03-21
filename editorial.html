@@ -49,6 +49,7 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 .af.url-f{flex:0 0 148px;}
 .af.tags-f{flex:0 0 140px;}
 .af.refurl-f{flex:0 0 155px;}
+.af.status-f{flex:0 0 118px;}
 .af.act-f{flex:0 0 auto;padding-right:0;align-items:flex-end;padding-top:2px;gap:7px;}
 .af label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
 .af input,.af select,.af textarea{font-family:var(--f);font-size:12px;color:var(--navy);background:transparent;border:none;outline:none;-webkit-appearance:none;appearance:none;padding:0;width:100%;}
@@ -289,6 +290,18 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
       </div>
     </div>
     <div class="add-row">
+      <div class="af status-f"><label>Status</label>
+        <select id="a-status">
+          <option value="idea">Idea</option>
+          <option value="developing">Developing</option>
+          <option value="review">In Review</option>
+          <option value="in-work">In Work</option>
+          <option value="ready">Ready</option>
+          <option value="needs-audit">Needs Audit</option>
+          <option value="audited">Audited</option>
+          <option value="hold">On Hold</option>
+        </select>
+      </div>
       <div class="af date-f"><label>Target Publish</label><input id="a-date" type="date"/></div>
       <div class="af by-f"><label>Initiated By</label><input id="a-by" type="text" placeholder="Your name..."/></div>
       <div class="af spark-f"><label>Spark / Source</label><input id="a-spark" type="text" placeholder="What prompted this..."/></div>
@@ -612,7 +625,7 @@ async function doAdd(){
   if(!title){setAddSt('Title is required.','err');return;}
   const btn=document.getElementById('add-btn');btn.disabled=true;setAddSt('<span class="spin"></span>Saving...','');
   try{
-    const p={title,concept:v('a-concept'),content_type:v('a-type'),category:v('a-cat')||null,sub_category:v('a-subcat')||null,priority:v('a-pri'),target_date:v('a-date')||null,initiated_by:v('a-by')||null,spark_source:v('a-spark')||null,tags:v('a-tags')||null,reference_urls:(()=>{const u=v('a-refurl');return u?JSON.stringify([u]):null;})(),chat_url:v('a-url')||null,status:'idea',updated_at:new Date().toISOString()};
+    const p={title,concept:v('a-concept'),content_type:v('a-type'),category:v('a-cat')||null,sub_category:v('a-subcat')||null,priority:v('a-pri'),status:v('a-status')||'idea',target_date:v('a-date')||null,initiated_by:v('a-by')||null,spark_source:v('a-spark')||null,tags:v('a-tags')||null,reference_urls:(()=>{const u=v('a-refurl');return u?JSON.stringify([u]):null;})(),chat_url:v('a-url')||null,updated_at:new Date().toISOString()};
     const res=await api(TABLE,'POST',p);
     const cr=Array.isArray(res)?res[0]:res;
     if(cr)allItems.unshift(cr);
@@ -625,6 +638,7 @@ function clearAdd(){
   ['a-title','a-concept','a-spark','a-url','a-by','a-subcat','a-tags','a-refurl'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('a-date').value='';document.getElementById('a-type').value='idea';
   document.getElementById('a-pri').value='medium';document.getElementById('a-cat').value='';
+  document.getElementById('a-status').value='idea';
   document.getElementById('a-title').style.height='auto';setAddSt('','');
 }
 
