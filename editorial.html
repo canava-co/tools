@@ -35,7 +35,9 @@ textarea#a-title{font-family:var(--fs);font-size:20px;font-style:italic;color:va
 textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 
 /* desktop add fields */
-.add-fields{display:flex;align-items:flex-start;margin-top:12px;border-top:0.5px solid var(--br);padding-top:12px;gap:0;}
+.add-fields{display:flex;flex-direction:column;margin-top:12px;border-top:0.5px solid var(--br);}
+.add-row{display:flex;align-items:flex-start;padding:10px 0 0;}
+.add-row+.add-row{border-top:0.5px solid var(--br);padding-bottom:2px;}
 .af{display:flex;flex-direction:column;gap:4px;padding:0 14px 0 0;flex-shrink:0;}
 .af+.af{padding-left:14px;border-left:0.5px solid var(--br);}
 .af.concept-f{flex:1;min-width:80px;}
@@ -181,7 +183,9 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 
   .add-outer{padding:14px 16px 12px;}
   textarea#a-title{font-size:18px;}
-  .add-fields{flex-direction:column;gap:0;}
+  .add-fields{flex-direction:column;}
+  .add-row{flex-direction:column;padding-bottom:0;}
+  .add-row+.add-row{border-top:0.5px solid var(--br);}
   .af{flex:none!important;width:100%!important;padding:11px 0!important;border-left:none!important;border-bottom:0.5px solid var(--br);}
   .af label{font-size:10px;}
   .af input,.af select,.af textarea{font-size:14px;}
@@ -208,6 +212,30 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
   .mhd,.mbody,.mft{padding-left:16px;padding-right:16px;}
   .fg input,.fg select,.fg textarea{font-size:15px;padding:10px;}
 }
+/* ── PROJECT VIEW ── */
+.pv-ov{position:fixed;inset:0;background:rgba(26,26,46,.45);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.pv{background:var(--bg);width:100%;max-width:720px;max-height:92vh;overflow-y:auto;border:0.5px solid var(--brs);}
+.pv-hd{padding:18px 28px 14px;border-bottom:0.5px solid var(--br);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:sticky;top:0;background:var(--bg);z-index:10;}
+.pv-title{font-family:var(--fs);font-size:26px;font-style:italic;color:var(--navy);line-height:1.25;flex:1;}
+.pv-hd-r{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:4px;}
+.pv-body{padding:20px 28px 24px;display:grid;grid-template-columns:1fr 1fr;gap:0 40px;}
+.pv-full{grid-column:1/-1;}
+.pv-sect{margin-bottom:20px;}
+.pv-sect-label{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--br);}
+.pv-field{margin-bottom:12px;}
+.pv-fl{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.pv-fv{font-size:14px;color:var(--ink);line-height:1.5;}
+.pv-fv.italic{font-family:var(--fs);font-style:italic;font-size:15px;}
+.pv-fv a{color:var(--blue);text-decoration:none;}.pv-fv a:hover{text-decoration:underline;}
+.pv-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.pv-img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.pv-img{width:90px;height:90px;object-fit:cover;border:0.5px solid var(--br);cursor:pointer;}
+@media(max-width:768px){
+  .pv-ov{padding:0;align-items:flex-end;}
+  .pv{max-width:100%;max-height:96vh;border-left:none;border-right:none;border-bottom:none;}
+  .pv-body{grid-template-columns:1fr;gap:0;}
+  .pv-hd,.pv-body{padding-left:16px;padding-right:16px;}
+}
 </style>
 </head>
 <body>
@@ -228,42 +256,46 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
   <div class="add-label">New Idea or Project</div>
   <textarea id="a-title" rows="1" placeholder="Title or working headline..."></textarea>
   <div class="add-fields">
-    <div class="af concept-f"><label>Concept / Angle</label><textarea id="a-concept" rows="2" placeholder="The hook, angle, or brief..."></textarea></div>
-    <div class="af type-f"><label>What It Is</label>
-      <select id="a-type">
-        <option value="idea">Idea</option><option value="feature">Feature</option>
-        <option value="quick">Quick</option><option value="social">Social</option>
-        <option value="brand-review">Brand Review</option><option value="recipe">Recipe</option>
-        <option value="ff">FF — Founder Finds</option>
-        <option value="tool">Tool</option><option value="media">Media</option>
-      </select>
+    <div class="add-row">
+      <div class="af concept-f"><label>Concept / Angle</label><textarea id="a-concept" rows="2" placeholder="The hook, angle, or brief..."></textarea></div>
+      <div class="af type-f"><label>What It Is</label>
+        <select id="a-type">
+          <option value="idea">Idea</option><option value="feature">Feature</option>
+          <option value="quick">Quick</option><option value="social">Social</option>
+          <option value="brand-review">Brand Review</option><option value="recipe">Recipe</option>
+          <option value="ff">FF — Founder Finds</option>
+          <option value="tool">Tool</option><option value="media">Media</option>
+        </select>
+      </div>
+      <div class="af cat-f"><label>What It's For</label>
+        <select id="a-cat" onchange="updateSubCatLabel('a-subcat-label',this.value)">
+          <option value="">—</option><option value="travel">Travel</option>
+          <option value="food">Food</option><option value="home-design">Home Design</option>
+          <option value="housekeeping">Housekeeping</option><option value="wellbeing">Wellbeing</option>
+          <option value="move">Move</option><option value="pet">Pet</option>
+          <option value="style">Style</option><option value="media-diet">Media Diet</option>
+          <option value="tech">Tech</option>
+        </select>
+      </div>
+      <div class="af subcat-f"><label id="a-subcat-label">Sub-category</label><input id="a-subcat" type="text" placeholder="e.g. Ingredient, Hotel..."/></div>
+      <div class="af pri-f"><label>Priority</label>
+        <select id="a-pri">
+          <option value="medium">Medium</option><option value="urgent">Urgent</option>
+          <option value="high">High</option><option value="low">Low</option><option value="someday">Someday</option>
+        </select>
+      </div>
     </div>
-    <div class="af cat-f"><label>What It's For</label>
-      <select id="a-cat" onchange="updateSubCatLabel('a-subcat-label',this.value)">
-        <option value="">—</option><option value="travel">Travel</option>
-        <option value="food">Food</option><option value="home-design">Home Design</option>
-        <option value="housekeeping">Housekeeping</option><option value="wellbeing">Wellbeing</option>
-        <option value="move">Move</option><option value="pet">Pet</option>
-        <option value="style">Style</option><option value="media-diet">Media Diet</option>
-        <option value="tech">Tech</option>
-      </select>
-    </div>
-    <div class="af subcat-f"><label id="a-subcat-label">Sub-category</label><input id="a-subcat" type="text" placeholder="e.g. Ingredient, Hotel..."/></div>
-    <div class="af pri-f"><label>Priority</label>
-      <select id="a-pri">
-        <option value="medium">Medium</option><option value="urgent">Urgent</option>
-        <option value="high">High</option><option value="low">Low</option><option value="someday">Someday</option>
-      </select>
-    </div>
-    <div class="af date-f"><label>Target Publish</label><input id="a-date" type="date"/></div>
-    <div class="af by-f"><label>Initiated By</label><input id="a-by" type="text" placeholder="Your name..."/></div>
-    <div class="af spark-f"><label>Spark / Source</label><input id="a-spark" type="text" placeholder="What prompted this..."/></div>
-    <div class="af refurl-f"><label>Source URL</label><input id="a-refurl" type="url" placeholder="https://..."/></div>
-    <div class="af tags-f"><label>Tags</label><input id="a-tags" type="text" placeholder="pantry, recipe, q2..."/></div>
-    <div class="af url-f"><label>Claude Chat URL</label><input id="a-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
-    <div class="af act-f">
-      <button class="btn ghost sm" onclick="clearAdd()">Clear</button>
-      <button class="btn blue" id="add-btn" onclick="doAdd()">Add</button>
+    <div class="add-row">
+      <div class="af date-f"><label>Target Publish</label><input id="a-date" type="date"/></div>
+      <div class="af by-f"><label>Initiated By</label><input id="a-by" type="text" placeholder="Your name..."/></div>
+      <div class="af spark-f"><label>Spark / Source</label><input id="a-spark" type="text" placeholder="What prompted this..."/></div>
+      <div class="af refurl-f"><label>Source URL</label><input id="a-refurl" type="url" placeholder="https://..."/></div>
+      <div class="af tags-f"><label>Tags</label><input id="a-tags" type="text" placeholder="pantry, recipe, q2..."/></div>
+      <div class="af url-f"><label>Claude Chat URL</label><input id="a-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
+      <div class="af act-f">
+        <button class="btn ghost sm" onclick="clearAdd()">Clear</button>
+        <button class="btn blue" id="add-btn" onclick="doAdd()">Add</button>
+      </div>
     </div>
   </div>
   <div class="add-st" id="add-st"></div>
@@ -420,6 +452,20 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
   <img id="lbox-img" src="" alt=""/>
 </div>
 
+<!-- PROJECT VIEW -->
+<div class="pv-ov" id="pv-ov" style="display:none" onclick="if(event.target===this)closePV()">
+  <div class="pv">
+    <div class="pv-hd">
+      <div class="pv-title" id="pv-title"></div>
+      <div class="pv-hd-r">
+        <button class="btn ghost sm" id="pv-edit-btn" onclick="pvToEdit()">Edit</button>
+        <button class="mclose" onclick="closePV()" style="font-size:22px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;line-height:1;">×</button>
+      </div>
+    </div>
+    <div class="pv-body" id="pv-body"></div>
+  </div>
+</div>
+
 <script>
 const SURL='https://miokgyffvhhylsfmsmmb.supabase.co';
 const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb2tneWZmdmhoeWxzZm1zbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNjUxOTMsImV4cCI6MjA4ODc0MTE5M30.D10ZE_U4sCoG3_G2XyvVUxa-2UNilLFMDkRrqw55C7s';
@@ -524,7 +570,7 @@ function ri(i){
   const refUrls=parseRefUrls(i.reference_urls);
   const imgs=parseImgs(i.images);
   return `<div class="item"><div class="pip ${i.priority||'medium'} pip-${i.status||'idea'}"></div><div class="ibody">
-    <div class="ititle">${esc(i.title||'Untitled')}</div>
+    <div class="ititle" onclick="openPV('${i.id}')" style="cursor:pointer;" title="View project">${esc(i.title||'Untitled')}</div>
     <div class="imeta">
       <span class="status-badge ${stCls}">${SL[i.status]||i.status}</span>
       ${tl?`<span class="itype">${tl}</span>`:''}
@@ -539,7 +585,7 @@ function ri(i){
     ${i.assets_note?`<div class="iassets">${esc(i.assets_note)}</div>`:''}
     ${imgs.length?`<div class="ithumb-row">${imgs.map(url=>`<img class="ithumb" src="${esc(url)}" onclick="openLightbox('${esc(url)}')" alt=""/>`).join('')}</div>`:''}
     ${tags.length?`<div class="itags">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div>`:''}
-  </div><div class="iacts"><button class="btn ghost sm" style="font-size:9px;padding:7px 12px" onclick="openEdit('${i.id}')">Edit</button></div></div>`;
+  </div><div class="iacts"><button class="btn ghost sm" style="font-size:9px;padding:7px 12px" onclick="openPV('${i.id}')">View</button><button class="btn ghost sm" style="font-size:9px;padding:7px 12px" onclick="openEdit('${i.id}')">Edit</button></div></div>`;
 }
 
 function updateSummary(){
@@ -717,6 +763,76 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function setAddSt(msg,cls){const el=document.getElementById('add-st');el.innerHTML=msg;el.className='add-st'+(cls?' '+cls:'');}
 function setGSt(msg){document.getElementById('global-st').innerHTML=msg;}
 function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-'),months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return months[parseInt(m)-1]+' '+parseInt(day)+', '+y;}
+
+let pvId=null;
+function openPV(id){
+  const i=allItems.find(x=>x.id===id);if(!i)return;
+  pvId=id;
+  document.getElementById('pv-title').textContent=i.title||'Untitled';
+  const stLabel=SL[i.status]||i.status;
+  const stCls='st-'+(i.status||'idea');
+  const tl=TL[i.content_type]||i.content_type||'';
+  const cl=CL[i.category]||'';
+  const priLabel={urgent:'Urgent',high:'High',medium:'Medium',low:'Low',someday:'Someday'}[i.priority]||i.priority||'';
+  const chatUrls=parseChatUrls(i.chat_url);
+  const refUrls=parseRefUrls(i.reference_urls);
+  const imgs=parseImgs(i.images);
+  const tags=(i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+
+  let html='';
+
+  // Row 1: status/classification left, dates right
+  html+=`<div class="pv-sect pv-full" style="margin-bottom:14px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span class="status-badge ${stCls}">${stLabel}</span>
+      ${tl?`<span class="itype">${tl}</span>`:''}
+      ${cl?`<span class="icat">${cl}</span>`:''}
+      ${i.sub_category?`<span class="isubcat">· ${esc(i.sub_category)}</span>`:''}
+      ${priLabel?`<span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">${priLabel}</span>`:''}
+      ${i.initiated_by?`<span class="iby">— ${esc(i.initiated_by)}</span>`:''}
+    </div>
+  </div>`;
+
+  // Concept (full width)
+  if(i.concept)html+=`<div class="pv-full pv-field"><div class="pv-fl">Concept</div><div class="pv-fv italic">${esc(i.concept)}</div></div>`;
+
+  // Left column
+  let left='';
+  if(i.target_date||i.published_date){
+    left+=`<div class="pv-field"><div class="pv-fl">Dates</div>`;
+    if(i.target_date)left+=`<div class="pv-fv">Target: ${fmtDate(i.target_date)}</div>`;
+    if(i.published_date)left+=`<div class="pv-fv">Published: ${fmtDate(i.published_date)}</div>`;
+    left+=`</div>`;
+  }
+  if(i.spark_source)left+=`<div class="pv-field"><div class="pv-fl">Spark / Source</div><div class="pv-fv">${esc(i.spark_source)}</div></div>`;
+  if(chatUrls.length)left+=`<div class="pv-field"><div class="pv-fl">Claude Chats</div><div class="pv-fv">${chatUrls.map((u,n)=>`<a href="${esc(u)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(n+1):''}</a>`).join('<br>')}</div></div>`;
+  if(refUrls.length)left+=`<div class="pv-field"><div class="pv-fl">Source URLs</div><div class="pv-fv">${refUrls.map((u,n)=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').slice(0,42)+(u.length>52?'…':''))}</a>`).join('<br>')}</div></div>`;
+
+  // Right column
+  let right='';
+  if(i.notes)right+=`<div class="pv-field"><div class="pv-fl">Notes</div><div class="pv-fv italic">${esc(i.notes)}</div></div>`;
+  if(i.dropbox_url||i.figma_url||i.assets_note){
+    right+=`<div class="pv-field"><div class="pv-fl">Project Links</div><div class="pv-fv">`;
+    if(i.dropbox_url)right+=`<a href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a><br>`;
+    if(i.figma_url)right+=`<a href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a><br>`;
+    if(i.assets_note)right+=`<span style="color:var(--muted);font-style:italic;">${esc(i.assets_note)}</span>`;
+    right+=`</div></div>`;
+  }
+
+  html+=`<div>${left}</div><div>${right}</div>`;
+
+  // Tags full width
+  if(tags.length)html+=`<div class="pv-full pv-field"><div class="pv-fl">Tags</div><div class="pv-chips">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div></div>`;
+
+  // Images full width
+  if(imgs.length)html+=`<div class="pv-full pv-field"><div class="pv-fl">Images</div><div class="pv-img-grid">${imgs.map(u=>`<img class="pv-img" src="${esc(u)}" onclick="openLightbox('${esc(u)}')" alt=""/>`).join('')}</div></div>`;
+
+  document.getElementById('pv-body').innerHTML=html;
+  document.getElementById('pv-ov').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closePV(){document.getElementById('pv-ov').style.display='none';document.body.style.overflow='';pvId=null;}
+function pvToEdit(){if(!pvId)return;closePV();openEdit(pvId);}
 </script>
 </body>
 </html>
