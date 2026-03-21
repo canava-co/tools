@@ -107,6 +107,9 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 .st-ready{color:var(--green);border-color:rgba(42,94,62,.22);background:rgba(42,94,62,.04);}
 .st-published{color:var(--navy);border-color:rgba(54,54,117,.2);background:rgba(54,54,117,.04);}
 .st-hold{color:var(--muted);border-color:rgba(137,139,143,.22);background:transparent;}
+.st-in-work{color:#4a2a7a;border-color:rgba(74,42,122,.28);background:rgba(74,42,122,.05);}
+.st-needs-audit{color:#7a4a00;border-color:rgba(122,74,0,.28);background:rgba(255,165,0,.06);}
+.st-audited{color:var(--green);border-color:rgba(42,94,62,.28);background:rgba(42,94,62,.06);}
 .st-killed{color:var(--red);border-color:rgba(136,8,8,.18);background:transparent;opacity:.5;}
 .itype{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--navy);color:var(--navy);background:rgba(54,54,117,.06);font-weight:500;}
 .icat{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--brs);color:var(--navy);background:rgba(54,54,117,.04);}
@@ -315,7 +318,8 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
     </select>
     <select class="c-select" id="c-status" onchange="render()">
       <option value="">All Status</option><option value="idea">Idea</option><option value="developing">Developing</option>
-      <option value="review">In Review</option><option value="ready">Ready</option><option value="hold">On Hold</option>
+      <option value="review">In Review</option><option value="in-work">In Work</option><option value="ready">Ready</option>
+      <option value="needs-audit">Needs Audit</option><option value="audited">Audited</option><option value="hold">On Hold</option>
     </select>
     <select class="c-select" id="c-type" onchange="render()">
       <option value="">All Types</option><option value="idea">Idea</option><option value="feature">Feature</option>
@@ -354,8 +358,10 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
         <div class="fg"><label>Status</label>
           <select id="e-status">
             <option value="idea">Idea</option><option value="developing">Developing</option>
-            <option value="review">In Review</option><option value="ready">Ready</option>
-            <option value="published">Published</option><option value="hold">On Hold</option><option value="killed">Killed</option>
+            <option value="review">In Review</option><option value="in-work">In Work</option>
+            <option value="ready">Ready</option><option value="needs-audit">Needs Audit</option>
+            <option value="audited">Audited</option><option value="published">Published</option>
+            <option value="hold">On Hold</option><option value="killed">Killed</option>
           </select>
         </div>
         <div class="fg"><label>What It Is</label>
@@ -477,9 +483,9 @@ let allItems=[],currentTab='pipeline',editingId=null,editingImages=[],editingCha
 const TL={idea:'Idea',feature:'Feature',quick:'Quick',social:'Social','brand-review':'Brand Review',recipe:'Recipe',ff:'FF',tool:'Tool',media:'Media'};
 const CL={travel:'Travel',food:'Food','home-design':'Home Design',housekeeping:'Housekeeping',wellbeing:'Wellbeing',move:'Move',pet:'Pet',style:'Style','media-diet':'Media Diet',tech:'Tech'};
 const SUBCAT_HINTS={travel:'e.g. Hotel, Destination, Itinerary',food:'e.g. Ingredient, Recipe Type, Occasion',style:'e.g. Brand, Category, Season','home-design':'e.g. Room, Material, Style',wellbeing:'e.g. Practice, Product, Modality',tech:'e.g. App, Platform, Category','media-diet':'e.g. Platform, Format, Genre',housekeeping:'e.g. Room, Product, System',move:'e.g. Workout, Discipline',pet:'e.g. Species, Product'};
-const SL={idea:'Idea',developing:'Developing',review:'In Review',ready:'Ready',published:'Published',hold:'On Hold',killed:'Killed'};
+const SL={idea:'Idea',developing:'Developing',review:'In Review','in-work':'In Work',ready:'Ready','needs-audit':'Needs Audit',audited:'Audited',published:'Published',hold:'On Hold',killed:'Killed'};
 const PO={urgent:0,high:1,medium:2,low:3,someday:4};
-const SO={idea:0,developing:1,review:2,ready:3,hold:4,published:5,killed:6};
+const SO={idea:0,developing:1,review:2,'in-work':3,ready:4,'needs-audit':5,audited:6,published:7,hold:8,killed:9};
 
 document.addEventListener('DOMContentLoaded',()=>{
   setDate();
@@ -521,7 +527,7 @@ async function loadItems(){
 }
 
 function getTab(tab){
-  if(tab==='pipeline')return allItems.filter(i=>['idea','developing','review','ready','hold'].includes(i.status));
+  if(tab==='pipeline')return allItems.filter(i=>['idea','developing','review','in-work','ready','needs-audit','audited','hold'].includes(i.status));
   if(tab==='published')return allItems.filter(i=>i.status==='published');
   if(tab==='archive')return allItems.filter(i=>i.status==='killed');
   return allItems;
