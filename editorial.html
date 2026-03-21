@@ -93,7 +93,8 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 .item{display:grid;grid-template-columns:4px 1fr auto;gap:0 22px;align-items:start;padding:18px 0;border-bottom:0.5px solid var(--br);animation:up .15s ease both;}
 @keyframes up{from{opacity:0;transform:translateY(2px);}to{opacity:1;transform:none;}}
 .pip{width:4px;border-radius:0;margin-top:7px;flex-shrink:0;}
-.pip.urgent{background:var(--red);height:46px;}.pip.high{background:#7a3a00;height:32px;}
+.pip.urgent{background:#39ff14;height:46px;box-shadow:0 0 7px rgba(57,255,20,.75);}.pip.high{background:#7a3a00;height:32px;}
+.item:has(.pip.urgent){background:rgba(57,255,20,.025);}
 .pip.medium{background:var(--navy);height:20px;}.pip.low{background:var(--muted);height:12px;opacity:.5;}
 .pip.someday{background:var(--muted);height:6px;opacity:.25;}
 .pip-idea{opacity:.5;}.pip-developing{opacity:.9;}.pip-review{opacity:.8;}
