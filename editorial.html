@@ -251,8 +251,8 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 
 <div class="summary">
   <div class="sc" onclick="filterByStatus('idea')"><div class="sn" id="s-ideas">—</div><div class="sl">Ideas</div></div>
-  <div class="sc" onclick="filterByStatus('developing')"><div class="sn" id="s-dev">—</div><div class="sl">In Progress</div></div>
-  <div class="sc" onclick="filterByStatus('ready')"><div class="sn" id="s-ready">—</div><div class="sl">Ready</div></div>
+  <div class="sc" onclick="filterByStatuses(['developing','review','in-work'])"><div class="sn" id="s-dev">—</div><div class="sl">In Progress</div></div>
+  <div class="sc" onclick="filterByStatuses(['ready','needs-audit','audited'])"><div class="sn" id="s-ready">—</div><div class="sl">Near Done</div></div>
   <div class="sc"><div class="sn" id="s-pub">—</div><div class="sl">Published</div></div>
 </div>
 
@@ -548,8 +548,10 @@ function getTab(tab){
 
 function render(){
   const sort=v2('c-sort'),sf=v2('c-status'),tf=v2('c-type'),cf=v2('c-cat'),pf=v2('c-pri'),srch=v2('c-srch').toLowerCase();
+  if(sf&&window._statusGroup)window._statusGroup=null;
   let items=getTab(currentTab);
-  if(sf)items=items.filter(i=>i.status===sf);
+  if(window._statusGroup)items=items.filter(i=>window._statusGroup.includes(i.status));
+  else if(sf)items=items.filter(i=>i.status===sf);
   if(tf)items=items.filter(i=>i.content_type===tf);
   if(cf)items=items.filter(i=>i.category===cf);
   if(pf)items=items.filter(i=>i.priority===pf);
@@ -609,8 +611,8 @@ function ri(i){
 
 function updateSummary(){
   document.getElementById('s-ideas').textContent=allItems.filter(i=>i.status==='idea').length;
-  document.getElementById('s-dev').textContent=allItems.filter(i=>['developing','review'].includes(i.status)).length;
-  document.getElementById('s-ready').textContent=allItems.filter(i=>i.status==='ready').length;
+  document.getElementById('s-dev').textContent=allItems.filter(i=>['developing','review','in-work'].includes(i.status)).length;
+  document.getElementById('s-ready').textContent=allItems.filter(i=>['ready','needs-audit','audited'].includes(i.status)).length;
   document.getElementById('s-pub').textContent=allItems.filter(i=>i.status==='published').length;
 }
 
@@ -774,8 +776,14 @@ async function doDelete(){
   btn.disabled=false;
 }
 
-function setTab(tab,el){currentTab=tab;document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('on'));if(el)el.classList.add('on');document.getElementById('c-status').value='';render();}
+function setTab(tab,el){currentTab=tab;document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('on'));if(el)el.classList.add('on');document.getElementById('c-status').value='';window._statusGroup=null;render();}
 function filterByStatus(s){setTab('pipeline',document.querySelector('.c-tab'));document.getElementById('c-status').value=s;render();}
+function filterByStatuses(statuses){
+  setTab('pipeline',document.querySelector('.c-tab'));
+  document.getElementById('c-status').value='';
+  window._statusGroup=statuses;
+  render();
+}
 function v(id){return(document.getElementById(id)?.value||'').trim();}
 function v2(id){return document.getElementById(id)?.value||'';}
 function sv(id,val){const el=document.getElementById(id);if(el)el.value=val;}
