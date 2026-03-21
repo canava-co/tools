@@ -8,253 +8,173 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --navy:#363657;--navy-l:#4B4B72;--blue:#3885E3;
-  --cream:#F4EEE0;--cream-light:#F9F6F6;
-  --red:#880808;--ink:#1A1A2E;--muted:#898B8F;
-  --green:#2a5e3e;--amber:#7a4a00;
-  --br:rgba(54,54,87,0.12);--brs:rgba(54,54,87,0.22);
-  --f:'DM Sans',Helvetica,sans-serif;
-  --fs:'EB Garamond',Georgia,serif;
+  --bg:#f4f1ec;--card:#ffffff;--navy:#363675;--blue:#3885E3;
+  --ink:#1A1A2E;--muted:#898B8F;--red:#880808;--green:#2a5e3e;--amber:#7a4a00;
+  --br:rgba(54,54,117,0.13);--brs:rgba(54,54,117,0.22);
+  --f:'DM Sans',Helvetica,sans-serif;--fs:'EB Garamond',Georgia,serif;
 }
-html,body{background:var(--cream-light);color:var(--ink);font-family:var(--f);min-height:100vh;font-size:13px;}
-
-/* ── HEADER ─────────────────────────────────────────── */
-.hdr{background:var(--cream-light);border-bottom:0.5px solid var(--br);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--f);min-height:100vh;font-size:13px;}
+.hdr{background:var(--bg);border-bottom:0.5px solid var(--brs);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;}
 .hdr-logo{height:18px;width:auto;display:block;}
-.hdr-r{display:flex;align-items:center;gap:10px;}
 .hdr-date{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
-
-/* ── SUMMARY BAR ─────────────────────────────────────── */
-.summary{display:flex;border-bottom:0.5px solid var(--br);}
-.sc{flex:1;padding:14px 14px 12px;border-right:0.5px solid var(--br);text-align:center;cursor:default;}
+.summary{display:flex;border-bottom:0.5px solid var(--br);background:var(--bg);}
+.sc{flex:1;padding:14px 14px 12px;border-right:0.5px solid var(--br);text-align:center;cursor:pointer;transition:background .12s;}
 .sc:last-child{border-right:none;}
+.sc:hover{background:rgba(54,54,117,0.04);}
 .sn{font-family:var(--fs);font-size:28px;color:var(--navy);line-height:1;}
 .sl{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px;}
-
-/* ── QUICK ADD ───────────────────────────────────────── */
-.add-outer{padding:14px 28px;border-bottom:0.5px solid var(--brs);background:var(--cream);}
+.add-outer{padding:16px 28px 14px;border-bottom:0.5px solid var(--brs);background:var(--bg);}
 .add-label{font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);margin-bottom:9px;}
-.add-title-wrap{position:relative;}
 textarea#a-title{font-family:var(--fs);font-size:16px;font-style:italic;color:var(--navy);background:transparent;border:none;outline:none;resize:none;width:100%;line-height:1.35;min-height:22px;padding:0;display:block;}
-textarea#a-title::placeholder{color:var(--muted);opacity:.5;}
-.add-fields{display:flex;align-items:flex-start;margin-top:10px;border-top:0.5px solid var(--br);padding-top:10px;gap:0;}
+textarea#a-title::placeholder{color:var(--muted);opacity:.45;}
+.add-fields{display:flex;align-items:flex-start;margin-top:10px;border-top:0.5px solid var(--br);padding-top:10px;}
 .af{display:flex;flex-direction:column;gap:3px;padding:0 14px 0 0;flex-shrink:0;}
 .af+.af{padding-left:14px;border-left:0.5px solid var(--br);}
-.af.concept-f{flex:1;min-width:100px;}
-.af.type-f{flex:0 0 120px;}
-.af.pri-f{flex:0 0 80px;}
-.af.chan-f{flex:0 0 100px;}
-.af.date-f{flex:0 0 130px;}
-.af.spark-f{flex:0 0 140px;}
-.af.url-f{flex:0 0 160px;}
-.af.act-f{flex:0 0 auto;padding-right:0;align-items:flex-end;justify-content:flex-end;padding-top:2px;gap:6px;}
+.af.concept-f{flex:1;min-width:80px;}
+.af.type-f,.af.cat-f{flex:0 0 115px;}
+.af.pri-f{flex:0 0 85px;}
+.af.date-f{flex:0 0 125px;}
+.af.spark-f{flex:0 0 138px;}
+.af.url-f{flex:0 0 150px;}
+.af.act-f{flex:0 0 auto;padding-right:0;align-items:flex-end;padding-top:2px;gap:6px;}
 .af label{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
 .af input,.af select,.af textarea{font-family:var(--f);font-size:11px;color:var(--navy);background:transparent;border:none;outline:none;-webkit-appearance:none;appearance:none;padding:0;width:100%;}
 .af input[type="date"]{-webkit-appearance:auto;appearance:auto;}
-.af input::placeholder,.af textarea::placeholder{color:var(--muted);opacity:.6;}
-.af select option{background:var(--cream-light);color:var(--navy);}
-.af textarea{resize:none;min-height:28px;font-size:11px;font-style:italic;}
+.af input::placeholder,.af textarea::placeholder{color:var(--muted);opacity:.5;}
+.af select option{background:var(--bg);color:var(--navy);}
+.af textarea{resize:none;min-height:28px;font-style:italic;}
 .add-st{font-size:9px;font-style:italic;color:var(--muted);min-height:14px;margin-top:6px;}
-.add-st.ok{color:var(--green);}
-.add-st.err{color:var(--red);}
-
-/* ── BUTTONS ─────────────────────────────────────────── */
-.btn{font-family:var(--f);font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--navy);background:transparent;border:0.5px solid var(--brs);border-radius:1px;padding:6px 14px;cursor:pointer;transition:background .13s,color .13s;white-space:nowrap;line-height:1;display:inline-block;flex-shrink:0;}
-.btn:hover{background:var(--navy);color:var(--cream-light);}
-.btn:disabled{opacity:.3;cursor:not-allowed;}
-.btn.blue{color:var(--blue);border-color:var(--blue);}
-.btn.blue:hover{background:var(--blue);color:var(--cream-light);}
-.btn.ghost{color:var(--muted);border-color:rgba(54,54,87,.18);}
-.btn.ghost:hover{border-color:var(--muted);color:var(--navy);}
-.btn.danger{color:var(--red);border-color:rgba(136,8,8,.3);}
-.btn.danger:hover{background:var(--red);color:white;}
-.btn.xs{font-size:8px;padding:4px 9px;}
-.btn.sm{font-size:8px;padding:5px 11px;}
-
-/* ── CONTROLS ────────────────────────────────────────── */
-.ctrl-outer{border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);background:var(--cream-light);position:sticky;top:56px;z-index:40;}
+.add-st.ok{color:var(--green);}.add-st.err{color:var(--red);}
+.btn{font-family:var(--f);font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--navy);background:transparent;border:0.5px solid var(--brs);border-radius:1px;padding:6px 14px;cursor:pointer;transition:background .13s,color .13s;white-space:nowrap;line-height:1;display:inline-flex;align-items:center;gap:4px;flex-shrink:0;}
+.btn:hover{background:var(--navy);color:var(--bg);}.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn.blue{color:var(--blue);border-color:var(--blue);}.btn.blue:hover{background:var(--blue);color:var(--bg);}
+.btn.ghost{color:var(--muted);border-color:rgba(54,54,117,.18);}.btn.ghost:hover{border-color:var(--muted);color:var(--navy);}
+.btn.danger{color:var(--red);border-color:rgba(136,8,8,.3);}.btn.danger:hover{background:var(--red);color:white;}
+.btn.xs{font-size:8px;padding:4px 9px;}.btn.sm{font-size:8px;padding:5px 11px;}
+.ctrl-outer{border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);background:var(--bg);position:sticky;top:56px;z-index:40;}
 .ctrl-tabs{display:flex;align-items:stretch;border-bottom:0.5px solid var(--br);min-height:38px;}
 .c-tab{font-family:var(--f);font-size:9px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 18px;border:none;border-bottom:1.5px solid transparent;background:transparent;cursor:pointer;transition:all .14s;white-space:nowrap;display:flex;align-items:center;gap:5px;margin-bottom:-0.5px;}
-.c-tab:first-child{padding-left:28px;}
-.c-tab.on{color:var(--navy);border-bottom-color:var(--navy);}
-.c-tab:hover:not(.on){color:var(--navy);opacity:.7;}
-.tab-n{font-size:7px;font-weight:normal;opacity:.6;}
+.c-tab:first-child{padding-left:28px;}.c-tab.on{color:var(--navy);border-bottom-color:var(--navy);}
+.c-tab:hover:not(.on){color:var(--navy);opacity:.7;}.tab-n{font-size:7px;font-weight:normal;opacity:.6;}
 .ctrl-filters{display:flex;align-items:center;min-height:34px;overflow-x:auto;}
-.c-select{font-family:var(--f);font-size:8px;letter-spacing:.09em;text-transform:uppercase;color:var(--navy);background:transparent;border:none;border-right:0.5px solid var(--br);outline:none;padding:0 16px;cursor:pointer;-webkit-appearance:none;appearance:none;height:34px;flex-shrink:0;}
-.c-select:hover{color:var(--blue);}
-.c-select option{background:var(--cream-light);color:var(--navy);}
-.c-search{font-family:var(--f);font-size:10px;color:var(--navy);background:rgba(249,246,246,0.6);border:none;border-left:0.5px solid var(--br);outline:none;padding:0 16px;width:180px;height:34px;flex-shrink:0;}
-.c-search::placeholder{color:var(--navy);opacity:.35;}
-
-/* ── LIST ────────────────────────────────────────────── */
+.c-select{font-family:var(--f);font-size:8px;letter-spacing:.09em;text-transform:uppercase;color:var(--navy);background:transparent;border:none;border-right:0.5px solid var(--br);outline:none;padding:0 14px;cursor:pointer;-webkit-appearance:none;appearance:none;height:34px;flex-shrink:0;}
+.c-select:hover{color:var(--blue);}.c-select option{background:var(--bg);color:var(--navy);}
+.c-search{font-family:var(--f);font-size:10px;color:var(--navy);background:transparent;border:none;border-left:0.5px solid var(--br);outline:none;padding:0 16px;width:180px;height:34px;flex-shrink:0;}
+.c-search::placeholder{color:var(--navy);opacity:.3;}
 .list-wrap{padding:0 28px 80px;}
 .empty{padding:70px 0;text-align:center;}
-.empty-t{font-family:var(--fs);font-size:24px;font-style:italic;color:var(--muted);opacity:.5;margin-bottom:8px;}
-.empty-s{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);opacity:.4;}
-
-/* ── ITEM ROW ────────────────────────────────────────── */
+.empty-t{font-family:var(--fs);font-size:24px;font-style:italic;color:var(--muted);opacity:.4;margin-bottom:8px;}
+.empty-s{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);opacity:.35;}
 .item{display:grid;grid-template-columns:3px 1fr auto;gap:0 20px;align-items:start;padding:15px 0;border-bottom:0.5px solid var(--br);animation:up .15s ease both;}
 @keyframes up{from{opacity:0;transform:translateY(2px);}to{opacity:1;transform:none;}}
-.pip{width:3px;border-radius:0;margin-top:6px;}
-.pip.high{background:var(--red);height:32px;}
-.pip.medium{background:var(--navy-l);height:20px;}
-.pip.low{background:var(--muted);height:12px;opacity:.5;}
+.pip{width:3px;border-radius:0;margin-top:6px;flex-shrink:0;}
+.pip.urgent{background:var(--red);height:40px;}.pip.high{background:#7a3a00;height:28px;}
+.pip.medium{background:var(--navy);height:18px;}.pip.low{background:var(--muted);height:10px;opacity:.6;}
+.pip.someday{background:var(--muted);height:5px;opacity:.3;}
 .ibody{min-width:0;}
 .ititle{font-family:var(--fs);font-size:17px;font-style:italic;color:var(--navy);line-height:1.3;margin-bottom:5px;}
-.imeta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+.imeta{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:4px;}
 .status-badge{font-size:7px;letter-spacing:.14em;text-transform:uppercase;padding:2px 6px;border:0.5px solid;}
-.st-idea{color:#5a4a00;border-color:rgba(90,74,0,.25);background:rgba(244,238,0,.07);}
-.st-developing{color:var(--blue);border-color:rgba(56,133,227,.25);background:rgba(56,133,227,.05);}
-.st-review{color:#5a2e00;border-color:rgba(90,46,0,.25);background:rgba(200,100,0,.05);}
-.st-ready{color:var(--green);border-color:rgba(42,94,62,.25);background:rgba(42,94,62,.05);}
-.st-published{color:var(--navy);border-color:rgba(54,54,87,.25);background:rgba(54,54,87,.05);}
-.st-hold{color:var(--muted);border-color:rgba(137,139,143,.25);background:transparent;}
-.st-killed{color:var(--red);border-color:rgba(136,8,8,.2);background:transparent;opacity:.6;}
-.itype{font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.st-idea{color:#5a4a00;border-color:rgba(90,74,0,.22);background:rgba(244,238,0,.05);}
+.st-developing{color:var(--blue);border-color:rgba(56,133,227,.22);background:rgba(56,133,227,.04);}
+.st-review{color:#5a2e00;border-color:rgba(90,46,0,.22);background:rgba(200,100,0,.04);}
+.st-ready{color:var(--green);border-color:rgba(42,94,62,.22);background:rgba(42,94,62,.04);}
+.st-published{color:var(--navy);border-color:rgba(54,54,117,.2);background:rgba(54,54,117,.04);}
+.st-hold{color:var(--muted);border-color:rgba(137,139,143,.22);background:transparent;}
+.st-killed{color:var(--red);border-color:rgba(136,8,8,.18);background:transparent;opacity:.55;}
+.itype{font-size:7px;letter-spacing:.13em;text-transform:uppercase;padding:2px 6px;border:0.5px solid var(--br);color:var(--navy);}
+.icat{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
 .idate{font-size:8px;color:var(--muted);}
-.idate.soon{color:var(--amber);font-weight:500;}
-.idate.overdue{color:var(--red);font-weight:500;}
-.ichan{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);opacity:.65;}
+.idate.soon{color:var(--amber);font-weight:500;}.idate.overdue{color:var(--red);font-weight:500;}
 .iconcept{font-size:11px;font-style:italic;color:var(--muted);margin-top:3px;line-height:1.4;}
-.ispark{font-size:8px;color:var(--muted);opacity:.6;margin-top:3px;}
-.ispark span{color:var(--blue);opacity:.8;}
-.ichat{display:inline-flex;align-items:center;gap:3px;margin-top:4px;font-size:8px;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);text-decoration:none;opacity:.7;}
-.ichat:hover{opacity:1;}
+.ispark{font-size:8px;color:var(--muted);opacity:.6;margin-top:3px;}.ispark span{color:var(--blue);opacity:.9;}
+.ilinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;align-items:center;}
+.ilink{display:inline-flex;align-items:center;gap:3px;font-size:8px;letter-spacing:.07em;text-transform:uppercase;color:var(--blue);text-decoration:none;opacity:.7;border:0.5px solid rgba(56,133,227,.22);padding:2px 7px;}
+.ilink:hover{opacity:1;background:rgba(56,133,227,.05);}
 .itags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px;}
-.itag{font-size:8px;letter-spacing:.07em;text-transform:uppercase;padding:2px 6px;border:0.5px solid var(--br);color:var(--navy);opacity:.7;}
+.itag{font-size:8px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border:0.5px solid var(--br);color:var(--navy);opacity:.6;}
+.iassets{font-size:9px;color:var(--muted);margin-top:4px;font-style:italic;opacity:.65;}
 .iacts{display:flex;flex-direction:column;gap:4px;align-items:flex-end;padding-top:2px;flex-shrink:0;}
-
-/* ── STATUS LINE ─────────────────────────────────────── */
-#global-st{font-size:9px;font-style:italic;color:var(--green);padding:5px 28px;min-height:20px;}
-
-/* ── MODAL ───────────────────────────────────────────── */
-.ov{position:fixed;inset:0;background:rgba(26,26,46,.48);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
-.modal{background:var(--cream-light);width:100%;max-width:560px;max-height:92vh;overflow-y:auto;border:0.5px solid var(--brs);}
-.mhd{padding:14px 22px 12px;border-bottom:0.5px solid var(--br);display:flex;align-items:baseline;justify-content:space-between;position:sticky;top:0;background:var(--cream-light);z-index:10;}
+#global-st{font-size:9px;font-style:italic;color:var(--green);padding:5px 28px;min-height:20px;background:var(--bg);}
+.ov{position:fixed;inset:0;background:rgba(26,26,46,.45);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
+.modal{background:var(--bg);width:100%;max-width:580px;max-height:92vh;overflow-y:auto;border:0.5px solid var(--brs);}
+.mhd{padding:14px 22px 12px;border-bottom:0.5px solid var(--br);display:flex;align-items:baseline;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:10;}
 .mhd-label{font-size:7px;letter-spacing:.22em;text-transform:uppercase;color:var(--blue);}
-.mclose{background:none;border:none;font-size:19px;cursor:pointer;color:var(--muted);padding:0;line-height:1;font-family:var(--f);}
+.mclose{background:none;border:none;font-size:19px;cursor:pointer;color:var(--muted);padding:0;line-height:1;}
 .mbody{padding:16px 22px;}
 .fg{margin-bottom:12px;}
 .fg label{display:block;font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
-.fg input,.fg select,.fg textarea{width:100%;font-family:var(--f);font-size:13px;padding:7px 9px;border:0.5px solid var(--brs);background:white;color:var(--ink);outline:none;border-radius:1px;}
+.fg input,.fg select,.fg textarea{width:100%;font-family:var(--f);font-size:13px;padding:7px 9px;border:0.5px solid var(--brs);background:var(--card);color:var(--ink);outline:none;border-radius:1px;}
 .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--navy);}
 .fg textarea{resize:vertical;min-height:52px;}
-.fg input[type="date"]{cursor:pointer;}
 .fg.title-fg input{font-family:var(--fs);font-size:16px;font-style:italic;}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-.mft{padding:12px 22px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--cream-light);}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.msec{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding-bottom:8px;border-bottom:0.5px solid var(--br);margin:4px 0 12px;}
+.mft{padding:12px 22px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--bg);}
 .mft-r{display:flex;gap:8px;}
-
-/* ── DELETE CONFIRM ──────────────────────────────────── */
-.del-wrap{display:none;margin-top:4px;}
-.del-box{border:0.5px solid rgba(136,8,8,.3);padding:9px 11px;background:rgba(244,238,230,.6);}
-.del-box p{font-size:9px;color:var(--navy);margin-bottom:7px;font-style:italic;}
-.del-btns{display:flex;gap:6px;}
-
-/* ── SPINNER ─────────────────────────────────────────── */
 .spin{display:inline-block;width:8px;height:8px;border:1px solid var(--br);border-top-color:var(--blue);border-radius:50%;animation:ro .7s linear infinite;vertical-align:middle;margin-right:4px;}
 @keyframes ro{to{transform:rotate(360deg);}}
-
-/* ── MOBILE ──────────────────────────────────────────── */
 @media(max-width:768px){
-  .hdr{padding:0 16px;height:50px;}
-  .hdr-logo{height:15px;}
-  .summary{flex-wrap:wrap;}
-  .sc{flex:1 0 50%;border-bottom:0.5px solid var(--br);}
-  .sc:nth-child(2){border-right:none;}
+  .hdr{padding:0 16px;height:50px;}.hdr-logo{height:15px;}
+  .summary{flex-wrap:wrap;}.sc{flex:1 0 50%;border-bottom:0.5px solid var(--br);}.sc:nth-child(2){border-right:none;}
   .add-outer{padding:12px 16px;}
   .add-fields{flex-direction:column;}
   .af{flex:none!important;width:100%!important;padding:8px 0!important;border-left:none!important;border-bottom:0.5px solid var(--br);}
   .af:last-child{border-bottom:none;}
   .af.act-f{flex-direction:row!important;justify-content:flex-end;gap:7px;padding-top:8px!important;}
-  .ctrl-outer{top:50px;}
-  .c-tab:first-child{padding-left:16px;}
-  .c-tab{padding:0 12px;}
+  .ctrl-outer{top:50px;}.c-tab:first-child{padding-left:16px;}.c-tab{padding:0 12px;}
   .ctrl-filters{display:grid;grid-template-columns:1fr 1fr;}
   .c-select{border:none;border-bottom:0.5px solid var(--br);border-right:0.5px solid var(--br);padding:9px 12px;height:auto;width:100%;}
   .c-select:nth-child(even){border-right:none;}
   .c-search{grid-column:1/-1;width:100%;border:none;border-top:0.5px solid var(--br);padding:9px 12px;height:auto;}
   .list-wrap{padding:0 16px 60px;}
-  .item{grid-template-columns:3px 1fr;grid-template-rows:auto auto;}
-  .pip{grid-row:1/3;}
+  .item{grid-template-columns:3px 1fr;}
   .iacts{grid-column:2;flex-direction:row;flex-wrap:wrap;justify-content:flex-start;padding-top:7px;gap:4px;}
   .r2,.r3{grid-template-columns:1fr;}
-  .modal{max-width:100%;max-height:95vh;}
+  .modal{max-width:100%;max-height:96vh;}
   .mhd,.mbody,.mft{padding-left:16px;padding-right:16px;}
 }
 </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <div class="hdr">
   <img class="hdr-logo" src="NO_BORDER.png" alt="CANAVA"/>
-  <div class="hdr-r">
-    <span class="hdr-date" id="hdr-date"></span>
-  </div>
+  <div class="hdr-date" id="hdr-date"></div>
 </div>
-
-<!-- SUMMARY -->
 <div class="summary">
-  <div class="sc" onclick="filterByStatus('idea')" style="cursor:pointer" title="Click to filter">
-    <div class="sn" id="s-ideas">—</div>
-    <div class="sl">Ideas</div>
-  </div>
-  <div class="sc" onclick="filterByStatus('developing')" style="cursor:pointer" title="Click to filter">
-    <div class="sn" id="s-dev">—</div>
-    <div class="sl">Developing</div>
-  </div>
-  <div class="sc" onclick="filterByStatus('ready')" style="cursor:pointer" title="Click to filter">
-    <div class="sn" id="s-ready">—</div>
-    <div class="sl">Ready</div>
-  </div>
-  <div class="sc">
-    <div class="sn" id="s-pub">—</div>
-    <div class="sl">Published</div>
-  </div>
+  <div class="sc" onclick="filterByStatus('idea')" title="Filter: Ideas"><div class="sn" id="s-ideas">—</div><div class="sl">Ideas</div></div>
+  <div class="sc" onclick="filterByStatus('developing')" title="Filter: In Progress"><div class="sn" id="s-dev">—</div><div class="sl">In Progress</div></div>
+  <div class="sc" onclick="filterByStatus('ready')" title="Filter: Ready"><div class="sn" id="s-ready">—</div><div class="sl">Ready</div></div>
+  <div class="sc"><div class="sn" id="s-pub">—</div><div class="sl">Published</div></div>
 </div>
-
-<!-- QUICK ADD -->
 <div class="add-outer">
   <div class="add-label">New Idea or Project</div>
   <textarea id="a-title" rows="1" placeholder="Title or working headline..."></textarea>
   <div class="add-fields">
-    <div class="af concept-f"><label>Concept / Angle</label><textarea id="a-concept" rows="2" placeholder="The angle, hook, or brief..."></textarea></div>
-    <div class="af type-f"><label>Content Type</label>
+    <div class="af concept-f"><label>Concept / Angle</label><textarea id="a-concept" rows="2" placeholder="The hook, angle, or brief..."></textarea></div>
+    <div class="af type-f"><label>What It Is</label>
       <select id="a-type">
-        <option value="article">Article</option>
-        <option value="campaign">Campaign</option>
-        <option value="email">Email</option>
-        <option value="social">Social Post</option>
-        <option value="newsletter">Newsletter</option>
-        <option value="collab">Collaboration</option>
-        <option value="product-story">Product Story</option>
-        <option value="brand-moment">Brand Moment</option>
-        <option value="interview">Interview</option>
-        <option value="other">Other</option>
+        <option value="idea">Idea</option><option value="feature">Feature</option>
+        <option value="quick">Quick</option><option value="social">Social</option>
+        <option value="brand-review">Brand Review</option><option value="recipe">Recipe</option>
+        <option value="ff">FF — Founder Finds</option>
+      </select>
+    </div>
+    <div class="af cat-f"><label>What It's For</label>
+      <select id="a-cat">
+        <option value="">—</option><option value="travel">Travel</option>
+        <option value="food">Food</option><option value="home-design">Home Design</option>
+        <option value="housekeeping">Housekeeping</option><option value="wellbeing">Wellbeing</option>
+        <option value="move">Move</option><option value="pet">Pet</option><option value="style">Style</option>
       </select>
     </div>
     <div class="af pri-f"><label>Priority</label>
       <select id="a-pri">
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-        <option value="low">Low</option>
+        <option value="medium">Medium</option><option value="urgent">Urgent</option>
+        <option value="high">High</option><option value="low">Low</option><option value="someday">Someday</option>
       </select>
     </div>
-    <div class="af chan-f"><label>Channel</label>
-      <select id="a-chan">
-        <option value="">—</option>
-        <option value="web">Web</option>
-        <option value="email">Email</option>
-        <option value="instagram">Instagram</option>
-        <option value="newsletter">Newsletter</option>
-        <option value="multi">Multi-channel</option>
-        <option value="partnership">Partnership</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-    <div class="af date-f"><label>Target Date</label><input id="a-date" type="date"/></div>
+    <div class="af date-f"><label>Target Publish</label><input id="a-date" type="date"/></div>
     <div class="af spark-f"><label>Spark / Source</label><input id="a-spark" type="text" placeholder="What prompted this..."/></div>
     <div class="af url-f"><label>Claude Chat URL</label><input id="a-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
     <div class="af act-f">
@@ -264,8 +184,6 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.5;}
   </div>
   <div class="add-st" id="add-st"></div>
 </div>
-
-<!-- CONTROLS -->
 <div class="ctrl-outer">
   <div class="ctrl-tabs">
     <button class="c-tab on" onclick="setTab('pipeline',this)">Pipeline <span class="tab-n" id="n-pipeline">0</span></button>
@@ -274,527 +192,269 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.5;}
   </div>
   <div class="ctrl-filters">
     <select class="c-select" id="c-sort" onchange="render()">
-      <option value="target">Sort: Target Date</option>
-      <option value="priority">Sort: Priority</option>
-      <option value="status">Sort: Status</option>
-      <option value="type">Sort: Type</option>
-      <option value="new">Sort: Newest</option>
-      <option value="alpha">Sort: A–Z</option>
+      <option value="target">Sort: Target Date</option><option value="priority">Sort: Priority</option>
+      <option value="status">Sort: Status</option><option value="type">Sort: Type</option>
+      <option value="cat">Sort: Category</option><option value="new">Sort: Newest</option><option value="alpha">Sort: A–Z</option>
     </select>
     <select class="c-select" id="c-status" onchange="render()">
-      <option value="">All Status</option>
-      <option value="idea">Idea</option>
-      <option value="developing">Developing</option>
-      <option value="review">In Review</option>
-      <option value="ready">Ready</option>
-      <option value="hold">On Hold</option>
+      <option value="">All Status</option><option value="idea">Idea</option><option value="developing">Developing</option>
+      <option value="review">In Review</option><option value="ready">Ready</option><option value="hold">On Hold</option>
     </select>
     <select class="c-select" id="c-type" onchange="render()">
-      <option value="">All Types</option>
-      <option value="article">Article</option>
-      <option value="campaign">Campaign</option>
-      <option value="email">Email</option>
-      <option value="social">Social</option>
-      <option value="newsletter">Newsletter</option>
-      <option value="collab">Collab</option>
-      <option value="product-story">Product Story</option>
-      <option value="brand-moment">Brand Moment</option>
-      <option value="interview">Interview</option>
-      <option value="other">Other</option>
+      <option value="">All Types</option><option value="idea">Idea</option><option value="feature">Feature</option>
+      <option value="quick">Quick</option><option value="social">Social</option>
+      <option value="brand-review">Brand Review</option><option value="recipe">Recipe</option><option value="ff">FF</option>
+    </select>
+    <select class="c-select" id="c-cat" onchange="render()">
+      <option value="">All Categories</option><option value="travel">Travel</option><option value="food">Food</option>
+      <option value="home-design">Home Design</option><option value="housekeeping">Housekeeping</option>
+      <option value="wellbeing">Wellbeing</option><option value="move">Move</option>
+      <option value="pet">Pet</option><option value="style">Style</option>
     </select>
     <select class="c-select" id="c-pri" onchange="render()">
-      <option value="">All Priority</option>
-      <option value="high">High</option>
-      <option value="medium">Medium</option>
-      <option value="low">Low</option>
+      <option value="">All Priority</option><option value="urgent">Urgent</option><option value="high">High</option>
+      <option value="medium">Medium</option><option value="low">Low</option><option value="someday">Someday</option>
     </select>
     <input class="c-search" id="c-srch" placeholder="Search..." oninput="render()"/>
   </div>
 </div>
-
 <div id="global-st"></div>
-<div class="list-wrap" id="list">
-  <div class="empty"><div class="empty-t">Loading...</div></div>
-</div>
-
-<!-- EDIT MODAL -->
+<div class="list-wrap" id="list"><div class="empty"><div class="empty-t">Loading...</div></div></div>
 <div class="ov" id="modal-ov" style="display:none" onclick="if(event.target===this)closeModal()">
   <div class="modal">
-    <div class="mhd">
-      <span class="mhd-label" id="modal-mode">Edit</span>
-      <button class="mclose" onclick="closeModal()">×</button>
-    </div>
+    <div class="mhd"><span class="mhd-label">Edit</span><button class="mclose" onclick="closeModal()">×</button></div>
     <div class="mbody">
       <div class="fg title-fg"><label>Title</label><input id="e-title" type="text"/></div>
       <div class="fg"><label>Concept / Angle</label><textarea id="e-concept" rows="3"></textarea></div>
+      <div class="msec">Classification</div>
       <div class="r3">
         <div class="fg"><label>Status</label>
           <select id="e-status">
-            <option value="idea">Idea</option>
-            <option value="developing">Developing</option>
-            <option value="review">In Review</option>
-            <option value="ready">Ready</option>
-            <option value="published">Published</option>
-            <option value="hold">On Hold</option>
-            <option value="killed">Killed</option>
+            <option value="idea">Idea</option><option value="developing">Developing</option>
+            <option value="review">In Review</option><option value="ready">Ready</option>
+            <option value="published">Published</option><option value="hold">On Hold</option><option value="killed">Killed</option>
           </select>
         </div>
+        <div class="fg"><label>What It Is</label>
+          <select id="e-type">
+            <option value="idea">Idea</option><option value="feature">Feature</option>
+            <option value="quick">Quick</option><option value="social">Social</option>
+            <option value="brand-review">Brand Review</option><option value="recipe">Recipe</option>
+            <option value="ff">FF — Founder Finds</option>
+          </select>
+        </div>
+        <div class="fg"><label>What It's For</label>
+          <select id="e-cat">
+            <option value="">—</option><option value="travel">Travel</option><option value="food">Food</option>
+            <option value="home-design">Home Design</option><option value="housekeeping">Housekeeping</option>
+            <option value="wellbeing">Wellbeing</option><option value="move">Move</option>
+            <option value="pet">Pet</option><option value="style">Style</option>
+          </select>
+        </div>
+      </div>
+      <div class="r2">
         <div class="fg"><label>Priority</label>
           <select id="e-pri">
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="low">Low</option>
+            <option value="urgent">Urgent</option><option value="high">High</option>
+            <option value="medium">Medium</option><option value="low">Low</option><option value="someday">Someday</option>
           </select>
         </div>
-        <div class="fg"><label>Content Type</label>
-          <select id="e-type">
-            <option value="article">Article</option>
-            <option value="campaign">Campaign</option>
-            <option value="email">Email</option>
-            <option value="social">Social Post</option>
-            <option value="newsletter">Newsletter</option>
-            <option value="collab">Collaboration</option>
-            <option value="product-story">Product Story</option>
-            <option value="brand-moment">Brand Moment</option>
-            <option value="interview">Interview</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
+        <div class="fg"><label>Tags (comma separated)</label><input id="e-tags" type="text" placeholder="nut butters, q2, wellness"/></div>
       </div>
+      <div class="msec">Dates</div>
       <div class="r2">
-        <div class="fg"><label>Channel</label>
-          <select id="e-chan">
-            <option value="">—</option>
-            <option value="web">Web</option>
-            <option value="email">Email</option>
-            <option value="instagram">Instagram</option>
-            <option value="newsletter">Newsletter</option>
-            <option value="multi">Multi-channel</option>
-            <option value="partnership">Partnership</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="fg"><label>Tags (comma separated)</label><input id="e-tags" type="text" placeholder="nut butters, wellness, q2"/></div>
-      </div>
-      <div class="r2">
-        <div class="fg"><label>Target Date</label><input id="e-date" type="date"/></div>
+        <div class="fg"><label>Target Publish Date</label><input id="e-date" type="date"/></div>
         <div class="fg"><label>Published Date</label><input id="e-pub" type="date"/></div>
       </div>
-      <div class="fg"><label>Spark / Source</label><input id="e-spark" type="text" placeholder="What prompted this idea..."/></div>
+      <div class="msec">Source</div>
+      <div class="fg"><label>Spark / Source</label><input id="e-spark" type="text" placeholder="What prompted this..."/></div>
       <div class="fg"><label>Claude Chat URL</label><input id="e-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
-      <div class="fg"><label>Notes</label><textarea id="e-notes" rows="3" placeholder="Context, references, next steps..."></textarea></div>
+      <div class="fg"><label>Notes</label><textarea id="e-notes" rows="3" placeholder="Context, direction, next steps..."></textarea></div>
+      <div class="msec">Project Links & Assets</div>
+      <div class="r2">
+        <div class="fg"><label>Dropbox Folder URL</label><input id="e-dropbox" type="url" placeholder="https://www.dropbox.com/..."/></div>
+        <div class="fg"><label>Figma Link</label><input id="e-figma" type="url" placeholder="https://www.figma.com/..."/></div>
+      </div>
+      <div class="fg"><label>Assets Note</label><textarea id="e-assets" rows="2" placeholder="Asset status, folder names, what's been collected..."></textarea></div>
     </div>
     <div class="mft">
       <button class="btn danger sm" onclick="triggerDelete()">Delete</button>
-      <div class="mft-r">
-        <button class="btn ghost sm" onclick="closeModal()">Cancel</button>
-        <button class="btn blue sm" id="save-btn" onclick="doSave()">Save</button>
-      </div>
+      <div class="mft-r"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn blue sm" id="save-btn" onclick="doSave()">Save</button></div>
     </div>
   </div>
 </div>
-
-<!-- DELETE CONFIRM MODAL -->
 <div class="ov" id="del-ov" style="display:none">
   <div class="modal" style="max-width:360px">
-    <div class="mhd">
-      <span class="mhd-label">Confirm Delete</span>
-      <button class="mclose" onclick="closeDelModal()">×</button>
-    </div>
+    <div class="mhd"><span class="mhd-label">Confirm Delete</span><button class="mclose" onclick="closeDelModal()">×</button></div>
     <div class="mbody">
-      <p style="font-family:var(--fs);font-size:14px;font-style:italic;color:var(--navy);margin-bottom:6px;" id="del-title-preview"></p>
-      <p style="font-size:11px;color:var(--muted);">This will permanently remove this editorial item. This cannot be undone.</p>
+      <p style="font-family:var(--fs);font-size:15px;font-style:italic;color:var(--navy);margin-bottom:8px;" id="del-title-preview"></p>
+      <p style="font-size:11px;color:var(--muted);">This will permanently remove this editorial item and cannot be undone.</p>
     </div>
-    <div class="mft">
-      <button class="btn ghost sm" onclick="closeDelModal()">Cancel</button>
-      <button class="btn danger sm" id="del-confirm-btn" onclick="doDelete()">Delete</button>
-    </div>
+    <div class="mft"><button class="btn ghost sm" onclick="closeDelModal()">Cancel</button><button class="btn danger sm" id="del-confirm-btn" onclick="doDelete()">Delete</button></div>
   </div>
 </div>
-
 <script>
-const SURL = 'https://miokgyffvhhylsfmsmmb.supabase.co';
-const SKEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb2tneWZmdmhoeWxzZm1zbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNjUxOTMsImV4cCI6MjA4ODc0MTE5M30.D10ZE_U4sCoG3_G2XyvVUxa-2UNilLFMDkRrqw55C7s';
-const TABLE = 'editorial_items';
-
-let allItems = [];
-let currentTab = 'pipeline';
-let editingId = null;
-
-// ── INIT ────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+const SURL='https://miokgyffvhhylsfmsmmb.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb2tneWZmdmhoeWxzZm1zbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNjUxOTMsImV4cCI6MjA4ODc0MTE5M30.D10ZE_U4sCoG3_G2XyvVUxa-2UNilLFMDkRrqw55C7s';
+const TABLE='editorial_items';
+let allItems=[],currentTab='pipeline',editingId=null;
+const TL={idea:'Idea',feature:'Feature',quick:'Quick',social:'Social','brand-review':'Brand Review',recipe:'Recipe',ff:'FF'};
+const CL={travel:'Travel',food:'Food','home-design':'Home Design',housekeeping:'Housekeeping',wellbeing:'Wellbeing',move:'Move',pet:'Pet',style:'Style'};
+const SL={idea:'Idea',developing:'Developing',review:'In Review',ready:'Ready',published:'Published',hold:'On Hold',killed:'Killed'};
+const PO={urgent:0,high:1,medium:2,low:3,someday:4};
+const SO={idea:0,developing:1,review:2,ready:3,hold:4,published:5,killed:6};
+document.addEventListener('DOMContentLoaded',()=>{
   setDate();
-  autoGrow(document.getElementById('a-title'));
+  const ta=document.getElementById('a-title');
+  ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
   loadItems();
 });
-
-function setDate() {
-  const d = new Date();
-  const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('hdr-date').textContent =
-    days[d.getDay()] + ' · ' + months[d.getMonth()] + ' ' + d.getDate() + ' · ' + d.getFullYear();
+function setDate(){
+  const d=new Date(),days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+  months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('hdr-date').textContent=days[d.getDay()]+' · '+months[d.getMonth()]+' '+d.getDate()+' · '+d.getFullYear();
 }
-
-function autoGrow(el) {
-  if (!el) return;
-  el.style.height = 'auto';
-  el.style.height = el.scrollHeight + 'px';
-  el.addEventListener('input', () => {
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
-  });
+function hdr2(ex={}){return{'apikey':SKEY,'Authorization':'Bearer '+SKEY,'Content-Type':'application/json',...ex};}
+async function api(path,method,body){
+  const opts={method:method||'GET',headers:hdr2(method==='POST'?{'Prefer':'return=representation'}:{})};
+  if(body)opts.body=JSON.stringify(body);
+  const r=await fetch(SURL+'/rest/v1/'+path,opts);
+  if(!r.ok){const e=await r.text();throw new Error(e);}
+  if(r.status===204)return null;return r.json();
 }
-
-// ── API HELPERS ─────────────────────────────────────────
-function headers(extra) {
-  return { 'apikey': SKEY, 'Authorization': 'Bearer ' + SKEY, 'Content-Type': 'application/json', ...extra };
-}
-
-async function api(path, method, body) {
-  const opts = { method: method || 'GET', headers: headers(method === 'POST' ? {'Prefer':'return=representation'} : {}) };
-  if (body) opts.body = JSON.stringify(body);
-  const r = await fetch(SURL + '/rest/v1/' + path, opts);
-  if (!r.ok) {
-    const e = await r.text();
-    throw new Error(e);
-  }
-  if (r.status === 204) return null;
-  return r.json();
-}
-
-// ── LOAD ────────────────────────────────────────────────
-async function loadItems() {
-  setGlobalSt('<span class="spin"></span>Loading...');
-  try {
-    const data = await api(TABLE + '?order=created_at.desc&select=*');
-    allItems = data || [];
-    updateSummary();
-    render();
-    setGlobalSt('');
-  } catch (e) {
-    setGlobalSt('');
-    const msg = e.message.includes('relation') || e.message.includes('42P01')
-      ? 'Table not found — run the SQL setup in Supabase first.'
-      : 'Error loading: ' + e.message;
-    document.getElementById('list').innerHTML =
-      '<div class="empty"><div class="empty-t" style="color:#880808;opacity:1;font-size:15px">' + msg + '</div>' +
-      (e.message.includes('relation') || e.message.includes('42P01') ? '<div class="empty-s" style="margin-top:8px">See setup SQL in the tool source</div>' : '') + '</div>';
+async function loadItems(){
+  setGSt('<span class="spin"></span>Loading...');
+  try{
+    allItems=await api(TABLE+'?order=created_at.desc&select=*')||[];
+    updateSummary();render();setGSt('');
+  }catch(e){
+    setGSt('');
+    document.getElementById('list').innerHTML='<div class="empty"><div class="empty-t" style="color:var(--red);opacity:1;font-size:15px;">Error loading: '+esc(e.message)+'</div></div>';
   }
 }
-
-// ── RENDER ──────────────────────────────────────────────
-function getTabItems(tab) {
-  if (tab === 'pipeline') return allItems.filter(i => ['idea','developing','review','ready','hold'].includes(i.status));
-  if (tab === 'published') return allItems.filter(i => i.status === 'published');
-  if (tab === 'archive') return allItems.filter(i => i.status === 'killed');
+function getTab(tab){
+  if(tab==='pipeline')return allItems.filter(i=>['idea','developing','review','ready','hold'].includes(i.status));
+  if(tab==='published')return allItems.filter(i=>i.status==='published');
+  if(tab==='archive')return allItems.filter(i=>i.status==='killed');
   return allItems;
 }
-
-function render() {
-  const sort = document.getElementById('c-sort').value;
-  const statusF = document.getElementById('c-status').value;
-  const typeF = document.getElementById('c-type').value;
-  const priF = document.getElementById('c-pri').value;
-  const srch = document.getElementById('c-srch').value.toLowerCase().trim();
-
-  let items = getTabItems(currentTab);
-  if (statusF) items = items.filter(i => i.status === statusF);
-  if (typeF) items = items.filter(i => i.content_type === typeF);
-  if (priF) items = items.filter(i => i.priority === priF);
-  if (srch) items = items.filter(i =>
-    (i.title||'').toLowerCase().includes(srch) ||
-    (i.concept||'').toLowerCase().includes(srch) ||
-    (i.spark_source||'').toLowerCase().includes(srch) ||
-    (i.notes||'').toLowerCase().includes(srch) ||
-    (i.tags||'').toLowerCase().includes(srch)
-  );
-
-  const priOrd = {high:0,medium:1,low:2};
-  const stOrd = {idea:0,developing:1,review:2,ready:3,hold:4,published:5,killed:6};
-
-  items.sort((a, b) => {
-    if (sort === 'target') {
-      if (!a.target_date && !b.target_date) return 0;
-      if (!a.target_date) return 1;
-      if (!b.target_date) return -1;
-      return a.target_date.localeCompare(b.target_date);
-    }
-    if (sort === 'priority') return (priOrd[a.priority]??1) - (priOrd[b.priority]??1);
-    if (sort === 'status') return (stOrd[a.status]??9) - (stOrd[b.status]??9);
-    if (sort === 'type') return (a.content_type||'').localeCompare(b.content_type||'');
-    if (sort === 'new') return new Date(b.created_at) - new Date(a.created_at);
-    if (sort === 'alpha') return (a.title||'').localeCompare(b.title||'');
+function render(){
+  const sort=v2('c-sort'),sf=v2('c-status'),tf=v2('c-type'),cf=v2('c-cat'),pf=v2('c-pri'),srch=v2('c-srch').toLowerCase();
+  let items=getTab(currentTab);
+  if(sf)items=items.filter(i=>i.status===sf);
+  if(tf)items=items.filter(i=>i.content_type===tf);
+  if(cf)items=items.filter(i=>i.category===cf);
+  if(pf)items=items.filter(i=>i.priority===pf);
+  if(srch)items=items.filter(i=>(i.title||'').toLowerCase().includes(srch)||(i.concept||'').toLowerCase().includes(srch)||(i.spark_source||'').toLowerCase().includes(srch)||(i.notes||'').toLowerCase().includes(srch)||(i.tags||'').toLowerCase().includes(srch)||(i.category||'').toLowerCase().includes(srch));
+  items.sort((a,b)=>{
+    if(sort==='target'){if(!a.target_date&&!b.target_date)return 0;if(!a.target_date)return 1;if(!b.target_date)return -1;return a.target_date.localeCompare(b.target_date);}
+    if(sort==='priority')return(PO[a.priority]??2)-(PO[b.priority]??2);
+    if(sort==='status')return(SO[a.status]??9)-(SO[b.status]??9);
+    if(sort==='type')return(a.content_type||'').localeCompare(b.content_type||'');
+    if(sort==='cat')return(a.category||'').localeCompare(b.category||'');
+    if(sort==='new')return new Date(b.created_at)-new Date(a.created_at);
+    if(sort==='alpha')return(a.title||'').localeCompare(b.title||'');
     return 0;
   });
-
   updateTabCounts();
-
-  const list = document.getElementById('list');
-  if (!items.length) {
-    list.innerHTML = '<div class="empty"><div class="empty-t">Nothing here yet.</div><div class="empty-s">Add an idea above to start building the pipeline.</div></div>';
-    return;
+  const list=document.getElementById('list');
+  if(!items.length){list.innerHTML='<div class="empty"><div class="empty-t">Nothing here yet.</div><div class="empty-s">Add an idea above to start the pipeline.</div></div>';return;}
+  list.innerHTML=items.map(ri).join('');
+}
+function ri(i){
+  const stCls='st-'+(i.status||'idea'),tl=TL[i.content_type]||i.content_type||'',cl=CL[i.category]||'';
+  let dh='';
+  if(i.target_date){
+    const today=new Date();today.setHours(0,0,0,0);
+    const td=new Date(i.target_date+'T00:00:00'),diff=Math.round((td-today)/86400000);
+    let cls='idate';
+    if(diff<0&&i.status!=='published')cls='idate overdue';
+    else if(diff>=0&&diff<=7&&i.status!=='published')cls='idate soon';
+    dh=`<span class="${cls}">→ ${fmtDate(i.target_date)}</span>`;
   }
-  list.innerHTML = items.map(renderItem).join('');
+  const tags=(i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+  const hasL=i.chat_url||i.dropbox_url||i.figma_url;
+  return `<div class="item"><div class="pip ${i.priority||'medium'}"></div><div class="ibody">
+    <div class="ititle">${esc(i.title||'Untitled')}</div>
+    <div class="imeta"><span class="status-badge ${stCls}">${SL[i.status]||i.status}</span>${tl?`<span class="itype">${tl}</span>`:''}${cl?`<span class="icat">${cl}</span>`:''}${dh}</div>
+    ${i.concept?`<div class="iconcept">${esc(i.concept)}</div>`:''}
+    ${i.spark_source?`<div class="ispark">Sparked by: <span>${esc(i.spark_source)}</span></div>`:''}
+    ${hasL?`<div class="ilinks">${i.chat_url?`<a class="ilink" href="${esc(i.chat_url)}" target="_blank" rel="noopener">↗ Chat</a>`:''} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
+    ${i.assets_note?`<div class="iassets">${esc(i.assets_note)}</div>`:''}
+    ${tags.length?`<div class="itags">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div>`:''}
+  </div><div class="iacts"><button class="btn ghost xs" onclick="openEdit('${i.id}')">Edit</button></div></div>`;
 }
-
-function renderItem(i) {
-  const statusLabel = {idea:'Idea',developing:'Developing',review:'In Review',ready:'Ready',published:'Published',hold:'On Hold',killed:'Killed'}[i.status] || i.status;
-  const statusClass = 'st-' + (i.status || 'idea');
-  const typeLabel = {article:'Article',campaign:'Campaign',email:'Email',social:'Social',newsletter:'Newsletter',collab:'Collab',
-    'product-story':'Product Story','brand-moment':'Brand Moment',interview:'Interview',other:'Other'}[i.content_type] || i.content_type || '';
-
-  let dateHtml = '';
-  if (i.target_date) {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const td = new Date(i.target_date + 'T00:00:00');
-    const diff = Math.round((td - today)/(1000*60*60*24));
-    let cls = 'idate';
-    let label = fmtDate(i.target_date);
-    if (diff < 0 && i.status !== 'published') { cls = 'idate overdue'; label += ' (overdue)'; }
-    else if (diff >= 0 && diff <= 7 && i.status !== 'published') { cls = 'idate soon'; }
-    dateHtml = `<span class="${cls}">→ ${label}</span>`;
-  }
-
-  const chanLabel = {web:'Web',email:'Email',instagram:'Instagram',newsletter:'Newsletter',multi:'Multi-channel',partnership:'Partnership',other:'Other'}[i.channel] || '';
-  const tags = (i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
-
-  return `<div class="item" id="item-${i.id}">
-    <div class="pip ${i.priority||'medium'}"></div>
-    <div class="ibody">
-      <div class="ititle">${esc(i.title||'Untitled')}</div>
-      <div class="imeta">
-        <span class="status-badge ${statusClass}">${statusLabel}</span>
-        ${typeLabel ? `<span class="itype">${typeLabel}</span>` : ''}
-        ${dateHtml}
-        ${chanLabel ? `<span class="ichan">${chanLabel}</span>` : ''}
-      </div>
-      ${i.concept ? `<div class="iconcept">${esc(i.concept)}</div>` : ''}
-      ${i.spark_source ? `<div class="ispark">Sparked by: <span>${esc(i.spark_source)}</span></div>` : ''}
-      ${i.chat_url ? `<a class="ichat" href="${esc(i.chat_url)}" target="_blank" rel="noopener">↗ Claude chat</a>` : ''}
-      ${tags.length ? `<div class="itags">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div>` : ''}
-    </div>
-    <div class="iacts">
-      <button class="btn ghost xs" onclick="openEdit('${i.id}')">Edit</button>
-    </div>
-  </div>`;
+function updateSummary(){
+  document.getElementById('s-ideas').textContent=allItems.filter(i=>i.status==='idea').length;
+  document.getElementById('s-dev').textContent=allItems.filter(i=>['developing','review'].includes(i.status)).length;
+  document.getElementById('s-ready').textContent=allItems.filter(i=>i.status==='ready').length;
+  document.getElementById('s-pub').textContent=allItems.filter(i=>i.status==='published').length;
 }
-
-function updateSummary() {
-  document.getElementById('s-ideas').textContent = allItems.filter(i=>i.status==='idea').length;
-  document.getElementById('s-dev').textContent = allItems.filter(i=>i.status==='developing').length;
-  document.getElementById('s-ready').textContent = allItems.filter(i=>i.status==='ready').length;
-  document.getElementById('s-pub').textContent = allItems.filter(i=>i.status==='published').length;
+function updateTabCounts(){
+  document.getElementById('n-pipeline').textContent=getTab('pipeline').length;
+  document.getElementById('n-published').textContent=getTab('published').length;
+  document.getElementById('n-archive').textContent=getTab('archive').length;
 }
-
-function updateTabCounts() {
-  document.getElementById('n-pipeline').textContent = getTabItems('pipeline').length;
-  document.getElementById('n-published').textContent = getTabItems('published').length;
-  document.getElementById('n-archive').textContent = getTabItems('archive').length;
+async function doAdd(){
+  const title=document.getElementById('a-title').value.trim();
+  if(!title){setAddSt('Title is required.','err');return;}
+  const btn=document.getElementById('add-btn');btn.disabled=true;setAddSt('<span class="spin"></span>Saving...','');
+  try{
+    const p={title,concept:v('a-concept'),content_type:v('a-type'),category:v('a-cat')||null,priority:v('a-pri'),target_date:v('a-date')||null,spark_source:v('a-spark')||null,chat_url:v('a-url')||null,status:'idea',updated_at:new Date().toISOString()};
+    const res=await api(TABLE,'POST',p);
+    const cr=Array.isArray(res)?res[0]:res;
+    if(cr)allItems.unshift(cr);
+    clearAdd();updateSummary();render();setAddSt('Added — '+title,'ok');setTimeout(()=>setAddSt('',''),3000);
+  }catch(e){setAddSt('Error: '+e.message,'err');}
+  btn.disabled=false;
 }
-
-// ── ADD ─────────────────────────────────────────────────
-async function doAdd() {
-  const title = document.getElementById('a-title').value.trim();
-  if (!title) { setAddSt('Title is required.','err'); return; }
-  const btn = document.getElementById('add-btn');
-  btn.disabled = true;
-  setAddSt('<span class="spin"></span>Saving...','');
-  try {
-    const payload = {
-      title,
-      concept: v('a-concept'),
-      content_type: v('a-type'),
-      priority: v('a-pri'),
-      channel: v('a-chan') || null,
-      target_date: v('a-date') || null,
-      spark_source: v('a-spark') || null,
-      chat_url: v('a-url') || null,
-      status: 'idea',
-      updated_at: new Date().toISOString()
-    };
-    const result = await api(TABLE, 'POST', payload);
-    const created = Array.isArray(result) ? result[0] : result;
-    if (created) allItems.unshift(created);
-    clearAdd();
-    updateSummary();
-    render();
-    setAddSt('Added — ' + title, 'ok');
-    setTimeout(()=>setAddSt('',''), 3000);
-  } catch (e) {
-    setAddSt('Error: ' + e.message, 'err');
-  }
-  btn.disabled = false;
+function clearAdd(){
+  ['a-title','a-concept','a-spark','a-url'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-date').value='';document.getElementById('a-type').value='idea';
+  document.getElementById('a-pri').value='medium';document.getElementById('a-cat').value='';
+  document.getElementById('a-title').style.height='auto';setAddSt('','');
 }
-
-function clearAdd() {
-  ['a-title','a-concept','a-spark','a-url'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('a-date').value = '';
-  document.getElementById('a-type').value = 'article';
-  document.getElementById('a-pri').value = 'medium';
-  document.getElementById('a-chan').value = '';
-  const ta = document.getElementById('a-title');
-  ta.style.height = 'auto';
-  setAddSt('','');
+function openEdit(id){
+  const i=allItems.find(x=>x.id===id);if(!i)return;editingId=id;
+  sv('e-title',i.title||'');sv('e-concept',i.concept||'');sv('e-status',i.status||'idea');
+  sv('e-type',i.content_type||'idea');sv('e-cat',i.category||'');sv('e-pri',i.priority||'medium');
+  sv('e-tags',i.tags||'');sv('e-date',i.target_date||'');sv('e-pub',i.published_date||'');
+  sv('e-spark',i.spark_source||'');sv('e-url',i.chat_url||'');sv('e-notes',i.notes||'');
+  sv('e-dropbox',i.dropbox_url||'');sv('e-figma',i.figma_url||'');sv('e-assets',i.assets_note||'');
+  document.getElementById('modal-ov').style.display='flex';document.body.style.overflow='hidden';
 }
-
-// ── EDIT/SAVE ───────────────────────────────────────────
-function openEdit(id) {
-  const i = allItems.find(x => x.id === id);
-  if (!i) return;
-  editingId = id;
-  sv('e-title', i.title || '');
-  sv('e-concept', i.concept || '');
-  sv('e-status', i.status || 'idea');
-  sv('e-pri', i.priority || 'medium');
-  sv('e-type', i.content_type || 'article');
-  sv('e-chan', i.channel || '');
-  sv('e-tags', i.tags || '');
-  sv('e-date', i.target_date || '');
-  sv('e-pub', i.published_date || '');
-  sv('e-spark', i.spark_source || '');
-  sv('e-url', i.chat_url || '');
-  sv('e-notes', i.notes || '');
-  document.getElementById('modal-ov').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
+function closeModal(){document.getElementById('modal-ov').style.display='none';document.body.style.overflow='';editingId=null;}
+async function doSave(){
+  if(!editingId)return;
+  const btn=document.getElementById('save-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const p={title:v('e-title'),concept:v('e-concept')||null,status:v('e-status'),content_type:v('e-type'),category:v('e-cat')||null,priority:v('e-pri'),tags:v('e-tags')||null,target_date:v('e-date')||null,published_date:v('e-pub')||null,spark_source:v('e-spark')||null,chat_url:v('e-url')||null,notes:v('e-notes')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,updated_at:new Date().toISOString()};
+    await api(TABLE+'?id=eq.'+editingId,'PATCH',p);
+    const idx=allItems.findIndex(x=>x.id===editingId);
+    if(idx>-1)allItems[idx]={...allItems[idx],...p};
+    updateSummary();render();closeModal();setGSt('Saved.');setTimeout(()=>setGSt(''),2500);
+  }catch(e){setGSt('Error: '+e.message);}
+  btn.disabled=false;btn.textContent='Save';
 }
-
-function closeModal() {
-  document.getElementById('modal-ov').style.display = 'none';
-  document.body.style.overflow = '';
-  editingId = null;
+function triggerDelete(){if(!editingId)return;const i=allItems.find(x=>x.id===editingId);document.getElementById('del-title-preview').textContent=i?i.title:'';document.getElementById('del-ov').style.display='flex';}
+function closeDelModal(){document.getElementById('del-ov').style.display='none';}
+async function doDelete(){
+  if(!editingId)return;const btn=document.getElementById('del-confirm-btn');btn.disabled=true;
+  try{
+    await api(TABLE+'?id=eq.'+editingId,'DELETE');
+    allItems=allItems.filter(x=>x.id!==editingId);updateSummary();render();closeDelModal();closeModal();setGSt('Deleted.');setTimeout(()=>setGSt(''),2500);
+  }catch(e){setGSt('Error: '+e.message);}
+  btn.disabled=false;
 }
-
-async function doSave() {
-  if (!editingId) return;
-  const btn = document.getElementById('save-btn');
-  btn.disabled = true;
-  btn.textContent = 'Saving...';
-  try {
-    const payload = {
-      title: v('e-title'),
-      concept: v('e-concept') || null,
-      status: v('e-status'),
-      priority: v('e-pri'),
-      content_type: v('e-type'),
-      channel: v('e-chan') || null,
-      tags: v('e-tags') || null,
-      target_date: v('e-date') || null,
-      published_date: v('e-pub') || null,
-      spark_source: v('e-spark') || null,
-      chat_url: v('e-url') || null,
-      notes: v('e-notes') || null,
-      updated_at: new Date().toISOString()
-    };
-    await api(TABLE + '?id=eq.' + editingId, 'PATCH', payload);
-    const idx = allItems.findIndex(x => x.id === editingId);
-    if (idx > -1) allItems[idx] = { ...allItems[idx], ...payload };
-    updateSummary();
-    render();
-    closeModal();
-    setGlobalSt('Saved.'); setTimeout(()=>setGlobalSt(''), 2500);
-  } catch (e) {
-    setGlobalSt('Error saving: ' + e.message);
-  }
-  btn.disabled = false;
-  btn.textContent = 'Save';
-}
-
-// ── DELETE ──────────────────────────────────────────────
-function triggerDelete() {
-  if (!editingId) return;
-  const i = allItems.find(x => x.id === editingId);
-  document.getElementById('del-title-preview').textContent = i ? i.title : '';
-  document.getElementById('del-ov').style.display = 'flex';
-}
-
-function closeDelModal() {
-  document.getElementById('del-ov').style.display = 'none';
-}
-
-async function doDelete() {
-  if (!editingId) return;
-  const btn = document.getElementById('del-confirm-btn');
-  btn.disabled = true;
-  try {
-    await api(TABLE + '?id=eq.' + editingId, 'DELETE');
-    allItems = allItems.filter(x => x.id !== editingId);
-    updateSummary();
-    render();
-    closeDelModal();
-    closeModal();
-    setGlobalSt('Deleted.'); setTimeout(()=>setGlobalSt(''), 2500);
-  } catch (e) {
-    setGlobalSt('Error deleting: ' + e.message);
-  }
-  btn.disabled = false;
-}
-
-// ── TABS ────────────────────────────────────────────────
-function setTab(tab, el) {
-  currentTab = tab;
-  document.querySelectorAll('.c-tab').forEach(t => t.classList.remove('on'));
-  if (el) el.classList.add('on');
-  // reset status filter on tab change
-  document.getElementById('c-status').value = '';
-  render();
-}
-
-function filterByStatus(status) {
-  // switch to pipeline tab if needed
-  if (['idea','developing','review','ready','hold'].includes(status)) {
-    setTab('pipeline', document.querySelector('.c-tab'));
-  }
-  document.getElementById('c-status').value = status;
-  render();
-}
-
-// ── HELPERS ─────────────────────────────────────────────
-function v(id) { return (document.getElementById(id)?.value || '').trim(); }
-function sv(id, val) { const el = document.getElementById(id); if (el) el.value = val; }
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function setAddSt(msg, cls) {
-  const el = document.getElementById('add-st');
-  el.innerHTML = msg; el.className = 'add-st' + (cls ? ' ' + cls : '');
-}
-function setGlobalSt(msg) { document.getElementById('global-st').innerHTML = msg; }
-function fmtDate(d) {
-  if (!d) return '';
-  const [y,m,day] = d.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return months[parseInt(m)-1] + ' ' + parseInt(day) + ', ' + y;
-}
+function setTab(tab,el){currentTab=tab;document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('on'));if(el)el.classList.add('on');document.getElementById('c-status').value='';render();}
+function filterByStatus(status){setTab('pipeline',document.querySelector('.c-tab'));document.getElementById('c-status').value=status;render();}
+function v(id){return(document.getElementById(id)?.value||'').trim();}
+function v2(id){return document.getElementById(id)?.value||'';}
+function sv(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setAddSt(msg,cls){const el=document.getElementById('add-st');el.innerHTML=msg;el.className='add-st'+(cls?' '+cls:'');}
+function setGSt(msg){document.getElementById('global-st').innerHTML=msg;}
+function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-'),months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return months[parseInt(m)-1]+' '+parseInt(day)+', '+y;}
 </script>
-
-<!--
-╔══════════════════════════════════════════════════════════════╗
-║  SUPABASE SETUP — run once in Supabase SQL Editor            ║
-║  Dashboard → SQL Editor → New query → paste → Run           ║
-╠══════════════════════════════════════════════════════════════╣
-
-CREATE TABLE editorial_items (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title         TEXT NOT NULL,
-  concept       TEXT,
-  status        TEXT NOT NULL DEFAULT 'idea',
-  content_type  TEXT DEFAULT 'article',
-  channel       TEXT,
-  priority      TEXT DEFAULT 'medium',
-  spark_source  TEXT,
-  chat_url      TEXT,
-  notes         TEXT,
-  tags          TEXT,
-  target_date   DATE,
-  published_date DATE,
-  created_at    TIMESTAMPTZ DEFAULT NOW(),
-  updated_at    TIMESTAMPTZ DEFAULT NOW()
-);
-
-ALTER TABLE editorial_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "allow_all" ON editorial_items FOR ALL USING (true) WITH CHECK (true);
-
-╚══════════════════════════════════════════════════════════════╝
--->
-
 </body>
 </html>
