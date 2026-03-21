@@ -104,9 +104,9 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 .st-published{color:var(--navy);border-color:rgba(54,54,117,.2);background:rgba(54,54,117,.04);}
 .st-hold{color:var(--muted);border-color:rgba(137,139,143,.22);background:transparent;}
 .st-killed{color:var(--red);border-color:rgba(136,8,8,.18);background:transparent;opacity:.5;}
-.itype{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 7px;border:0.5px solid var(--br);color:var(--navy);}
-.icat{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);}
-.isubcat{font-size:10px;color:var(--muted);opacity:.7;}
+.itype{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--navy);color:var(--navy);background:rgba(54,54,117,.06);font-weight:500;}
+.icat{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--brs);color:var(--navy);background:rgba(54,54,117,.04);}
+.isubcat{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:3px 6px;border:0.5px solid var(--br);}
 .idate{font-size:10px;color:var(--muted);}
 .idate.soon{color:var(--amber);font-weight:500;}.idate.overdue{color:var(--red);font-weight:500;}
 .iby{font-size:10px;color:var(--muted);font-style:italic;}
@@ -115,8 +115,14 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 .ilinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center;}
 .ilink{display:inline-flex;align-items:center;gap:3px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);text-decoration:none;opacity:.7;border:0.5px solid rgba(56,133,227,.22);padding:3px 8px;}
 .ilink:hover{opacity:1;background:rgba(56,133,227,.05);}
+.chat-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px;}
+.chat-row{display:flex;align-items:center;gap:8px;}
+.chat-row input{flex:1;font-family:var(--f);font-size:13px;padding:7px 10px;border:0.5px solid var(--brs);background:var(--card);color:var(--ink);outline:none;border-radius:1px;}
+.chat-row input:focus{border-color:var(--navy);}
+.chat-row-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;min-width:44px;}
+.chat-rm{background:none;border:0.5px solid rgba(136,8,8,.3);color:var(--red);font-size:13px;width:24px;height:24px;cursor:pointer;border-radius:1px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
 .itags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
-.itag{font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border:0.5px solid var(--br);color:var(--navy);opacity:.6;}
+.itag{font-size:9px;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--brs);color:var(--navy);background:rgba(54,54,117,.04);font-weight:500;}
 .iassets{font-size:10px;color:var(--muted);margin-top:4px;font-style:italic;opacity:.65;}
 .ithumb-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
 .ithumb{width:56px;height:56px;object-fit:cover;border:0.5px solid var(--br);cursor:pointer;}
@@ -358,6 +364,11 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
       <div class="msec">Source</div>
       <div class="fg"><label>Spark / Source</label><input id="e-spark" type="text" placeholder="What prompted this idea..."/></div>
       <div class="fg"><label>Claude Chat URL</label><input id="e-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Claude Chat URLs</div>
+        <div class="chat-list" id="chat-list"></div>
+        <button class="btn ghost sm" onclick="addChatRow()" style="font-size:8px;">+ Add Chat</button>
+      </div>
       <div class="fg"><label>Notes</label><textarea id="e-notes" rows="3" placeholder="Context, direction, next steps..."></textarea></div>
 
       <div class="msec">Project Links & Assets</div>
@@ -406,7 +417,7 @@ const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 const TABLE='editorial_items';
 const BUCKET='canava-images';
 
-let allItems=[],currentTab='pipeline',editingId=null,editingImages=[];
+let allItems=[],currentTab='pipeline',editingId=null,editingImages=[],editingChats=[];
 
 const TL={idea:'Idea',feature:'Feature',quick:'Quick',social:'Social','brand-review':'Brand Review',recipe:'Recipe',ff:'FF',tool:'Tool',media:'Media'};
 const CL={travel:'Travel',food:'Food','home-design':'Home Design',housekeeping:'Housekeeping',wellbeing:'Wellbeing',move:'Move',pet:'Pet',style:'Style','media-diet':'Media Diet',tech:'Tech'};
@@ -499,7 +510,8 @@ function ri(i){
     dh=`<span class="${cls}">→ ${fmtDate(i.target_date)}</span>`;
   }
   const tags=(i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
-  const hasL=i.chat_url||i.dropbox_url||i.figma_url;
+  const hasL=parseChatUrls(i.chat_url).length||i.dropbox_url||i.figma_url;
+  const chatUrls=parseChatUrls(i.chat_url);
   const imgs=parseImgs(i.images);
   return `<div class="item"><div class="pip ${i.priority||'medium'} pip-${i.status||'idea'}"></div><div class="ibody">
     <div class="ititle">${esc(i.title||'Untitled')}</div>
@@ -513,7 +525,7 @@ function ri(i){
     </div>
     ${i.concept?`<div class="iconcept">${esc(i.concept)}</div>`:''}
     ${i.spark_source?`<div class="ispark">Sparked by: <span>${esc(i.spark_source)}</span></div>`:''}
-    ${hasL?`<div class="ilinks">${i.chat_url?`<a class="ilink" href="${esc(i.chat_url)}" target="_blank" rel="noopener">↗ Chat</a>`:''} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
+    ${hasL?`<div class="ilinks">${chatUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
     ${i.assets_note?`<div class="iassets">${esc(i.assets_note)}</div>`:''}
     ${imgs.length?`<div class="ithumb-row">${imgs.map(url=>`<img class="ithumb" src="${esc(url)}" onclick="openLightbox('${esc(url)}')" alt=""/>`).join('')}</div>`:''}
     ${tags.length?`<div class="itags">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div>`:''}
@@ -559,6 +571,23 @@ function parseImgs(raw){
   if(!raw)return[];
   try{return JSON.parse(raw);}catch(e){return[];}
 }
+function parseChatUrls(raw){
+  if(!raw)return[];
+  if(raw.trim().startsWith('['))try{return JSON.parse(raw).filter(Boolean);}catch(e){}
+  return raw.trim()?[raw.trim()]:[];
+}
+function renderChatList(){
+  const list=document.getElementById('chat-list');
+  if(!list)return;
+  list.innerHTML=editingChats.map((url,idx)=>`
+    <div class="chat-row">
+      <span class="chat-row-label">Chat ${idx+1}</span>
+      <input type="url" value="${esc(url)}" placeholder="https://claude.ai/chat/..." oninput="editingChats[${idx}]=this.value"/>
+      <button class="chat-rm" onclick="removeChatRow(${idx})" title="Remove">×</button>
+    </div>`).join('');
+}
+function addChatRow(){editingChats.push('');renderChatList();}
+function removeChatRow(idx){editingChats.splice(idx,1);renderChatList();}
 
 function renderImgGrid(){
   const grid=document.getElementById('img-grid');
@@ -612,7 +641,10 @@ function openEdit(id){
   sv('e-type',i.content_type||'idea');sv('e-cat',i.category||'');sv('e-subcat',i.sub_category||'');
   sv('e-pri',i.priority||'medium');sv('e-tags',i.tags||'');sv('e-date',i.target_date||'');
   sv('e-pub',i.published_date||'');sv('e-by',i.initiated_by||'');
-  sv('e-spark',i.spark_source||'');sv('e-url',i.chat_url||'');sv('e-notes',i.notes||'');
+  sv('e-spark',i.spark_source||'');sv('e-notes',i.notes||'');
+  editingChats=parseChatUrls(i.chat_url);
+  if(editingChats.length===0)editingChats=[''];
+  renderChatList();
   sv('e-dropbox',i.dropbox_url||'');sv('e-figma',i.figma_url||'');sv('e-assets',i.assets_note||'');
   updateSubCatLabel('e-subcat-label',i.category||'');
   renderImgGrid();
@@ -620,13 +652,13 @@ function openEdit(id){
   document.body.style.overflow='hidden';
 }
 
-function closeModal(){document.getElementById('modal-ov').style.display='none';document.body.style.overflow='';editingId=null;editingImages=[];}
+function closeModal(){document.getElementById('modal-ov').style.display='none';document.body.style.overflow='';editingId=null;editingImages=[];editingChats=[];}
 
 async function doSave(){
   if(!editingId)return;
   const btn=document.getElementById('save-btn');btn.disabled=true;btn.textContent='Saving...';
   try{
-    const p={title:v('e-title'),concept:v('e-concept')||null,status:v('e-status'),content_type:v('e-type'),category:v('e-cat')||null,sub_category:v('e-subcat')||null,priority:v('e-pri'),tags:v('e-tags')||null,target_date:v('e-date')||null,published_date:v('e-pub')||null,initiated_by:v('e-by')||null,spark_source:v('e-spark')||null,chat_url:v('e-url')||null,notes:v('e-notes')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,images:editingImages.length?JSON.stringify(editingImages):null,updated_at:new Date().toISOString()};
+    const p={title:v('e-title'),concept:v('e-concept')||null,status:v('e-status'),content_type:v('e-type'),category:v('e-cat')||null,sub_category:v('e-subcat')||null,priority:v('e-pri'),tags:v('e-tags')||null,target_date:v('e-date')||null,published_date:v('e-pub')||null,initiated_by:v('e-by')||null,spark_source:v('e-spark')||null,chat_url:(()=>{const urls=editingChats.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),notes:v('e-notes')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,images:editingImages.length?JSON.stringify(editingImages):null,updated_at:new Date().toISOString()};
     await api(TABLE+'?id=eq.'+editingId,'PATCH',p);
     const idx=allItems.findIndex(x=>x.id===editingId);
     if(idx>-1)allItems[idx]={...allItems[idx],...p};
