@@ -248,10 +248,15 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 }
 /* ── PROJECT VIEW ── */
 .pv-ov{position:fixed;inset:0;background:rgba(26,26,46,.45);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
-.pv{background:var(--bg);width:100%;max-width:720px;max-height:92vh;overflow-y:auto;border:0.5px solid var(--brs);}
+.pv{background:var(--bg);width:100%;max-width:860px;max-height:92vh;overflow-y:auto;border:0.5px solid var(--brs);}
 .pv-hd{padding:18px 28px 14px;border-bottom:0.5px solid var(--br);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:sticky;top:0;background:var(--bg);z-index:10;}
 .pv-title{font-family:var(--fs);font-size:26px;font-style:italic;color:var(--navy);line-height:1.25;flex:1;}
 .pv-hd-r{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:4px;}
+.pv-tabs{display:flex;border-bottom:0.5px solid var(--br);background:var(--bg);position:sticky;top:52px;z-index:9;}
+.pv-tab{font-family:var(--f);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:12px 20px;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;transition:all .14s;}
+.pv-tab:first-child{padding-left:28px;}
+.pv-tab.on{color:var(--navy);border-bottom-color:var(--navy);}
+.pv-tab:hover:not(.on){color:var(--navy);opacity:.7;}
 .pv-body{padding:20px 28px 24px;display:grid;grid-template-columns:1fr 1fr;gap:0 40px;}
 .pv-full{grid-column:1/-1;}
 .pv-sect{margin-bottom:20px;}
@@ -264,11 +269,36 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
 .pv-chips{display:flex;gap:6px;flex-wrap:wrap;}
 .pv-img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
 .pv-img{width:90px;height:90px;object-fit:cover;border:0.5px solid var(--br);cursor:pointer;}
+/* published link on card */
+.ipub-link{display:inline-flex;align-items:center;gap:4px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);text-decoration:none;border:0.5px solid rgba(42,94,62,.25);padding:3px 9px;font-weight:500;background:rgba(42,94,62,.04);}
+.ipub-link:hover{background:rgba(42,94,62,.1);}
+/* recipe content rendered markdown */
+.pv-content{padding:20px 28px 28px;}
+.pv-content .recipe-md{font-family:var(--f);font-size:14px;line-height:1.7;color:var(--ink);}
+.pv-content .recipe-md h1{font-family:var(--fs);font-size:28px;font-style:italic;color:var(--navy);margin:0 0 10px;line-height:1.2;letter-spacing:-.01em;}
+.pv-content .recipe-md h2{font-family:var(--fs);font-size:20px;font-style:italic;color:var(--navy);margin:28px 0 10px;padding-bottom:6px;border-bottom:0.5px solid var(--br);line-height:1.3;}
+.pv-content .recipe-md h3{font-family:var(--f);font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);margin:20px 0 8px;}
+.pv-content .recipe-md h4{font-family:var(--f);font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px;}
+.pv-content .recipe-md p{margin:0 0 12px;}
+.pv-content .recipe-md ul,.pv-content .recipe-md ol{margin:0 0 14px;padding-left:22px;}
+.pv-content .recipe-md li{margin-bottom:4px;}
+.pv-content .recipe-md strong{font-weight:500;color:var(--navy);}
+.pv-content .recipe-md em{font-style:italic;}
+.pv-content .recipe-md hr{border:none;border-top:0.5px solid var(--br);margin:20px 0;}
+.pv-content .recipe-md blockquote{border-left:3px solid var(--navy);padding:8px 16px;margin:12px 0;background:rgba(54,54,117,.03);font-style:italic;color:var(--muted);}
+.pv-content .recipe-md code{font-family:monospace;font-size:12px;background:rgba(54,54,117,.06);padding:1px 5px;border-radius:2px;}
+.pv-content .recipe-md table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+.pv-content .recipe-md th,.pv-content .recipe-md td{text-align:left;padding:6px 10px;border-bottom:0.5px solid var(--br);}
+.pv-content .recipe-md th{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500;}
+.pv-no-content{padding:40px 28px;text-align:center;}
+.pv-no-content-t{font-family:var(--fs);font-size:18px;font-style:italic;color:var(--muted);opacity:.5;margin-bottom:6px;}
+.pv-no-content-s{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);opacity:.35;}
 @media(max-width:768px){
   .pv-ov{padding:0;align-items:flex-end;}
   .pv{max-width:100%;max-height:96vh;border-left:none;border-right:none;border-bottom:none;}
   .pv-body{grid-template-columns:1fr;gap:0;}
-  .pv-hd,.pv-body{padding-left:16px;padding-right:16px;}
+  .pv-hd,.pv-body,.pv-content,.pv-no-content{padding-left:16px;padding-right:16px;}
+  .pv-tab:first-child{padding-left:16px;}
 }
 </style>
 </head>
@@ -381,6 +411,7 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
     <div class="add-row">
       <div class="af tags-f" style="flex:0 0 180px;"><label>Tags</label><input id="a-tags" type="text" placeholder="seasonal, fruit..."/></div>
       <div class="af url-f"><label>Claude Chat URL</label><input id="a-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
+      <div class="af url-f"><label>Published URL</label><input id="a-pub-url" type="url" placeholder="https://canava.co/recipes/..."/></div>
       <div class="af act-f">
         <button class="btn ghost sm" onclick="clearAdd()">Clear</button>
         <button class="btn blue" id="add-btn" onclick="doAdd()">Add</button>
@@ -605,7 +636,8 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
       </div>
       <div class="fg"><label>Notes</label><textarea id="e-notes" rows="2" placeholder="Context, direction, next steps..."></textarea></div>
 
-      <div class="msec">Project Links & Assets</div>
+      <div class="msec">Published & Project Links</div>
+      <div class="fg"><label>Published URL</label><input id="e-pub-url" type="url" placeholder="https://canava.co/recipes/..."/></div>
       <div class="r2">
         <div class="fg"><label>Dropbox Folder</label><input id="e-dropbox" type="url" placeholder="https://www.dropbox.com/..."/></div>
         <div class="fg"><label>Figma Link</label><input id="e-figma" type="url" placeholder="https://www.figma.com/..."/></div>
@@ -655,7 +687,12 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
         <button class="mclose" onclick="closePV()" style="font-size:22px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;line-height:1;">×</button>
       </div>
     </div>
+    <div class="pv-tabs">
+      <button class="pv-tab on" id="pvt-overview" onclick="setPVTab('overview')">Overview</button>
+      <button class="pv-tab" id="pvt-recipe" onclick="setPVTab('recipe')">Recipe</button>
+    </div>
     <div class="pv-body" id="pv-body"></div>
+    <div id="pv-recipe-pane" style="display:none;"></div>
   </div>
 </div>
 
@@ -757,7 +794,7 @@ function ri(i){
     dh=`<span class="${cls}">→ ${fmtDate(i.target_date)}</span>`;
   }
   const tags=(i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
-  const hasL=parseChatUrls(i.chat_url).length||parseRefUrls(i.reference_urls).length||i.dropbox_url||i.figma_url;
+  const hasL=parseChatUrls(i.chat_url).length||parseRefUrls(i.reference_urls).length||i.dropbox_url||i.figma_url||i.published_url;
   const chatUrls=parseChatUrls(i.chat_url);
   const refUrls=parseRefUrls(i.reference_urls);
   const imgs=parseImgs(i.images);
@@ -787,7 +824,7 @@ function ri(i){
     ${i.concept?`<div class="iconcept">${esc(i.concept)}</div>`:''}
     ${secs.some(s=>s)?`<div class="isec-dots">${secs.map((s,idx)=>`<div class="sec-dot ${s?'yes':'no'}" title="${secLabels[idx]}">${secLabels[idx]}</div>`).join('')}</div>`:''}
     ${metricsStr?`<div class="imetrics">${metricsStr}</div>`:''}
-    ${hasL?`<div class="ilinks">${chatUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${refUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">⤷ Ref${refUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
+    ${hasL?`<div class="ilinks">${i.published_url?`<a class="ipub-link" href="${esc(i.published_url)}" target="_blank" rel="noopener">● Live</a>`:''} ${chatUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${refUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">⤷ Ref${refUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
     ${i.assets_note?`<div class="iassets">${esc(i.assets_note)}</div>`:''}
     ${imgs.length?`<div class="ithumb-row">${imgs.map(url=>`<img class="ithumb" src="${esc(url)}" onclick="openLightbox('${esc(url)}')" alt=""/>`).join('')}</div>`:''}
     ${tags.length?`<div class="itags">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div>`:''}
@@ -824,7 +861,7 @@ async function doAdd(){
       dietary_soy_free:document.getElementById('a-sf').checked,dietary_dairy_free:document.getElementById('a-df').checked,
       dietary_fodmap:document.getElementById('a-fm').checked,dietary_kosher:document.getElementById('a-ko').checked,
       dietary_halal:document.getElementById('a-ha').checked,
-      tags:v('a-tags')||null,chat_url:v('a-url')||null,updated_at:new Date().toISOString()
+      tags:v('a-tags')||null,chat_url:v('a-url')||null,published_url:v('a-pub-url')||null,updated_at:new Date().toISOString()
     };
     const res=await api(TABLE,'POST',p);
     const cr=Array.isArray(res)?res[0]:res;
@@ -835,7 +872,7 @@ async function doAdd(){
 }
 
 function clearAdd(){
-  ['a-title','a-concept','a-spark','a-url','a-by','a-subcat','a-ing','a-protein','a-fiber','a-tags'].forEach(id=>document.getElementById(id).value='');
+  ['a-title','a-concept','a-spark','a-url','a-pub-url','a-by','a-subcat','a-ing','a-protein','a-fiber','a-tags'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('a-plants').value='';document.getElementById('a-phase').value='idea';
   document.getElementById('a-status').value='idea';document.getElementById('a-pri').value='medium';
   document.getElementById('a-cat').value='';document.getElementById('a-cuisine').value='';document.getElementById('a-source').value='';
@@ -949,7 +986,7 @@ function openEdit(id){
   document.getElementById('e-seo').checked=i.has_seo||false;document.getElementById('e-social').checked=i.has_social_media||false;
   editingChats=parseChatUrls(i.chat_url);if(editingChats.length===0)editingChats=[''];renderChatList();
   editingRefUrls=parseRefUrls(i.reference_urls);if(editingRefUrls.length===0)editingRefUrls=[''];renderRefUrlList();
-  sv('e-dropbox',i.dropbox_url||'');sv('e-figma',i.figma_url||'');sv('e-assets',i.assets_note||'');
+  sv('e-pub-url',i.published_url||'');sv('e-dropbox',i.dropbox_url||'');sv('e-figma',i.figma_url||'');sv('e-assets',i.assets_note||'');
   renderImgGrid();document.getElementById('modal-ov').style.display='flex';document.body.style.overflow='hidden';
 }
 
@@ -976,7 +1013,7 @@ async function doSave(){
       has_seo:document.getElementById('e-seo').checked,has_social_media:document.getElementById('e-social').checked,
       chat_url:(()=>{const urls=editingChats.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),
       reference_urls:(()=>{const urls=editingRefUrls.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),
-      notes:v('e-notes')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,
+      notes:v('e-notes')||null,published_url:v('e-pub-url')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,
       images:editingImages.length?JSON.stringify(editingImages):null,updated_at:new Date().toISOString()
     };
     await api(TABLE+'?id=eq.'+editingId,'PATCH',p);
@@ -1021,10 +1058,77 @@ function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-'),months=['Jan','Fe
 const CL={};
 
 let pvId=null;
+let pvCurrentTab='overview';
+
+/* ── MARKDOWN RENDERER ── */
+function renderMd(md){
+  if(!md)return'';
+  let h=md;
+  // escape HTML
+  h=h.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // horizontal rules
+  h=h.replace(/^---+$/gm,'<hr>');
+  // headers
+  h=h.replace(/^#### (.+)$/gm,'<h4>$1</h4>');
+  h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  h=h.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  h=h.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  // bold & italic
+  h=h.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  // blockquotes
+  h=h.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+  // inline code
+  h=h.replace(/`([^`]+)`/g,'<code>$1</code>');
+  // unordered lists — collect consecutive lines
+  h=h.replace(/(^- .+$(\n- .+$)*)/gm,function(block){
+    const items=block.split('\n').map(l=>l.replace(/^- /,'')).map(l=>'<li>'+l+'</li>').join('');
+    return '<ul>'+items+'</ul>';
+  });
+  // ordered lists
+  h=h.replace(/(^\d+\. .+$(\n\d+\. .+$)*)/gm,function(block){
+    const items=block.split('\n').map(l=>l.replace(/^\d+\. /,'')).map(l=>'<li>'+l+'</li>').join('');
+    return '<ol>'+items+'</ol>';
+  });
+  // checkbox lists
+  h=h.replace(/<li>\[x\] /gi,'<li style="list-style:none;margin-left:-22px;">☑ ');
+  h=h.replace(/<li>\[ \] /g,'<li style="list-style:none;margin-left:-22px;">☐ ');
+  // links
+  h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // paragraphs — wrap remaining bare lines
+  h=h.split('\n\n').map(block=>{
+    block=block.trim();
+    if(!block)return'';
+    if(block.startsWith('<h')||block.startsWith('<ul')||block.startsWith('<ol')||block.startsWith('<hr')||block.startsWith('<blockquote')||block.startsWith('<table'))return block;
+    // don't wrap if it's already a block element
+    if(/^<(h[1-6]|ul|ol|hr|blockquote|table|div|p)/.test(block))return block;
+    return '<p>'+block.replace(/\n/g,'<br>')+'</p>';
+  }).join('\n');
+  return h;
+}
+
 function openPV(id){
   const i=allItems.find(x=>x.id===id);if(!i)return;
   pvId=id;
+  pvCurrentTab='overview';
   document.getElementById('pv-title').textContent=i.title||'Untitled';
+  buildPVOverview(i);
+  buildPVRecipe(i);
+  setPVTab('overview');
+  document.getElementById('pv-ov').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+
+function setPVTab(tab){
+  pvCurrentTab=tab;
+  document.getElementById('pvt-overview').classList.toggle('on',tab==='overview');
+  document.getElementById('pvt-recipe').classList.toggle('on',tab==='recipe');
+  document.getElementById('pv-body').style.display=tab==='overview'?'grid':'none';
+  document.getElementById('pv-recipe-pane').style.display=tab==='recipe'?'block':'none';
+}
+
+function buildPVOverview(i){
   const stLabel=SL[i.status]||i.status;
   const stCls='st-'+(i.status||'idea');
   const chatUrls=parseChatUrls(i.chat_url);
@@ -1049,6 +1153,7 @@ function openPV(id){
     </div>
   </div>`;
 
+  if(i.published_url)html+=`<div class="pv-full pv-field"><div class="pv-fl">Published</div><div class="pv-fv"><a class="ipub-link" href="${esc(i.published_url)}" target="_blank" rel="noopener">● ${esc(i.published_url.replace(/^https?:\/\/(www\.)?/,'').slice(0,60))}</a></div></div>`;
   if(i.concept)html+=`<div class="pv-full pv-field"><div class="pv-fl">Concept</div><div class="pv-fv italic">${esc(i.concept)}</div></div>`;
 
   let left='';
@@ -1101,9 +1206,17 @@ function openPV(id){
   if(imgs.length)html+=`<div class="pv-full pv-field"><div class="pv-fl">Images</div><div class="pv-img-grid">${imgs.map(u=>`<img class="pv-img" src="${esc(u)}" onclick="openLightbox('${esc(u)}')" alt=""/>`).join('')}</div></div>`;
 
   document.getElementById('pv-body').innerHTML=html;
-  document.getElementById('pv-ov').style.display='flex';
-  document.body.style.overflow='hidden';
 }
+
+function buildPVRecipe(i){
+  const pane=document.getElementById('pv-recipe-pane');
+  if(i.content_md){
+    pane.innerHTML=`<div class="pv-content"><div class="recipe-md">${renderMd(i.content_md)}</div></div>`;
+  } else {
+    pane.innerHTML=`<div class="pv-no-content"><div class="pv-no-content-t">No recipe content yet.</div><div class="pv-no-content-s">Content will appear here once the recipe is developed.</div></div>`;
+  }
+}
+
 function closePV(){document.getElementById('pv-ov').style.display='none';document.body.style.overflow='';pvId=null;}
 function pvToEdit(){if(!pvId)return;closePV();openEdit(pvId);}
 </script>
