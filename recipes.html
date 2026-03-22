@@ -452,11 +452,12 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
       <option value="cat">Sort: Category</option><option value="protein">Sort: Protein</option>
       <option value="fiber">Sort: Fiber</option><option value="plants">Sort: Plants</option>
       <option value="new">Sort: Newest</option><option value="alpha">Sort: A–Z</option>
+      <option value="live">Sort: Live First</option>
     </select>
     <select class="c-select" id="c-status" onchange="render()">
       <option value="">All Status</option><option value="idea">Idea</option><option value="developing">Developing</option>
       <option value="review">In Review</option><option value="in-work">In Work</option><option value="ready">Ready</option>
-      <option value="needs-audit">Needs Audit</option><option value="audited">Audited</option><option value="hold">On Hold</option>
+      <option value="needs-audit">Needs Audit</option><option value="audited">Audited</option><option value="published">Published</option><option value="hold">On Hold</option>
     </select>
     <select class="c-select" id="c-phase" onchange="render()">
       <option value="">All Phases</option><option value="idea">Idea</option><option value="phase-1">Phase 1</option>
@@ -486,6 +487,9 @@ textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
       <option value="">All Sources</option><option value="CA_RECIPES">CA_RECIPES</option>
       <option value="CA_FRUIT_RECIPES">CA_FRUIT_RECIPES</option><option value="CA_FOOD_SOURDOUGH_RECIPES">CA_FOOD_SOURDOUGH_RECIPES</option>
       <option value="CA_COOKIES">CA_COOKIES</option><option value="CA_2025_RECIPES_TO_PUBLISH">CA_2025_RECIPES_TO_PUBLISH</option>
+    </select>
+    <select class="c-select" id="c-live" onchange="render()">
+      <option value="">All Links</option><option value="live">Has Live Link</option><option value="nolive">No Live Link</option>
     </select>
     <input class="c-search" id="c-srch" placeholder="Search..." oninput="render()"/>
   </div>
@@ -742,7 +746,7 @@ async function loadItems(){
 }
 
 function getTab(tab){
-  if(tab==='pipeline')return allItems.filter(i=>['idea','developing','review','in-work','ready','needs-audit','audited','hold'].includes(i.status));
+  if(tab==='pipeline')return allItems.filter(i=>['idea','developing','review','in-work','ready','needs-audit','audited','published','hold'].includes(i.status));
   if(tab==='tested')return allItems.filter(i=>['ready','needs-audit','audited'].includes(i.status));
   if(tab==='published')return allItems.filter(i=>i.status==='published');
   if(tab==='archive')return allItems.filter(i=>i.status==='killed');
@@ -750,7 +754,7 @@ function getTab(tab){
 }
 
 function render(){
-  const sort=v2('c-sort'),sf=v2('c-status'),pf=v2('c-phase'),cf=v2('c-cat'),cuf=v2('c-cuisine'),pri=v2('c-pri'),src=v2('c-source'),srch=v2('c-srch').toLowerCase();
+  const sort=v2('c-sort'),sf=v2('c-status'),pf=v2('c-phase'),cf=v2('c-cat'),cuf=v2('c-cuisine'),pri=v2('c-pri'),src=v2('c-source'),liveF=v2('c-live'),srch=v2('c-srch').toLowerCase();
   if(sf&&window._statusGroup)window._statusGroup=null;
   let items=getTab(currentTab);
   if(window._statusGroup)items=items.filter(i=>window._statusGroup.includes(i.status));
@@ -760,6 +764,8 @@ function render(){
   if(cuf)items=items.filter(i=>i.cuisine===cuf);
   if(pri)items=items.filter(i=>i.priority===pri);
   if(src)items=items.filter(i=>i.source_folder===src);
+  if(liveF==='live')items=items.filter(i=>!!i.published_url);
+  if(liveF==='nolive')items=items.filter(i=>!i.published_url);
   if(srch)items=items.filter(i=>(i.title||'').toLowerCase().includes(srch)||(i.concept||'').toLowerCase().includes(srch)||(i.tags||'').toLowerCase().includes(srch)||(i.category||'').toLowerCase().includes(srch)||(i.cuisine||'').toLowerCase().includes(srch)||(i.hero_ingredients||'').toLowerCase().includes(srch)||(i.sub_category||'').toLowerCase().includes(srch));
   items.sort((a,b)=>{
     if(sort==='target'){if(!a.target_date&&!b.target_date)return 0;if(!a.target_date)return 1;if(!b.target_date)return -1;return a.target_date.localeCompare(b.target_date);}
@@ -772,6 +778,7 @@ function render(){
     if(sort==='plants'){const ap=parseInt(a.plants_count)||0,bp=parseInt(b.plants_count)||0;return bp-ap;}
     if(sort==='new')return new Date(b.created_at)-new Date(a.created_at);
     if(sort==='alpha')return(a.title||'').localeCompare(b.title||'');
+    if(sort==='live'){const al=a.published_url?0:1,bl=b.published_url?0:1;if(al!==bl)return al-bl;return(a.title||'').localeCompare(b.title||'');}
     return 0;
   });
   updateTabCounts();
