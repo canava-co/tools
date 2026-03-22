@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CANAVA — Recipes</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#f4f1ec;--card:#ffffff;--navy:#363675;--blue:#3885E3;
+  --ink:#1A1A2E;--muted:#7a7a8a;--red:#880808;--green:#2a5e3e;--amber:#7a4a00;
+  --br:rgba(54,54,117,0.13);--brs:rgba(54,54,117,0.22);
+  --f:'DM Sans',Helvetica,sans-serif;--fs:'EB Garamond',Georgia,serif;
+}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--f);min-height:100vh;font-size:15px;-webkit-text-size-adjust:100%;}
+
+/* ── HEADER ── */
+.hdr{background:var(--bg);border-bottom:0.5px solid var(--brs);padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:58px;position:sticky;top:0;z-index:50;}
+.hdr-logo{height:20px;width:auto;display:block;}
+.hdr-date{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+
+/* ── SUMMARY ── */
+.summary{display:flex;border-bottom:0.5px solid var(--br);background:var(--bg);}
+.sc{flex:1;padding:16px 14px 14px;border-right:0.5px solid var(--br);text-align:center;cursor:pointer;transition:background .12s;}
+.sc:last-child{border-right:none;}
+.sc:hover{background:rgba(54,54,117,0.04);}
+.sn{font-family:var(--fs);font-size:32px;color:var(--navy);line-height:1;}
+.sl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+
+/* ── QUICK ADD ── */
+.add-outer{padding:18px 28px 16px;border-bottom:0.5px solid var(--brs);background:var(--bg);}
+.add-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);margin-bottom:10px;}
+textarea#a-title{font-family:var(--fs);font-size:20px;font-style:italic;color:var(--navy);background:transparent;border:none;outline:none;resize:none;width:100%;line-height:1.3;min-height:26px;padding:0;display:block;}
+textarea#a-title::placeholder{color:var(--muted);opacity:.4;}
+
+/* desktop add fields */
+.add-fields{display:flex;flex-direction:column;margin-top:12px;border-top:0.5px solid var(--br);}
+.add-row{display:flex;align-items:flex-start;padding:10px 0 0;}
+.add-row+.add-row{border-top:0.5px solid var(--br);padding-bottom:2px;}
+.af{display:flex;flex-direction:column;gap:4px;padding:0 14px 0 0;flex-shrink:0;}
+.af+.af{padding-left:14px;border-left:0.5px solid var(--br);}
+.af.concept-f{flex:1;min-width:80px;}
+.af.phase-f,.af.status-f{flex:0 0 118px;}
+.af.cat-f{flex:0 0 118px;}
+.af.cuisine-f{flex:0 0 140px;}
+.af.subcat-f{flex:0 0 140px;}
+.af.pri-f{flex:0 0 88px;}
+.af.ing-f{flex:0 0 150px;}
+.af.protein-f,.af.fiber-f,.af.plants-f{flex:0 0 110px;}
+.af.source-f{flex:0 0 160px;}
+.af.date-f{flex:0 0 128px;}
+.af.by-f{flex:0 0 115px;}
+.af.spark-f{flex:0 0 130px;}
+.af.url-f{flex:0 0 148px;}
+.af.tags-f{flex:0 0 140px;}
+.af.act-f{flex:0 0 auto;padding-right:0;align-items:flex-end;padding-top:2px;gap:7px;}
+.af label{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.af input,.af select,.af textarea{font-family:var(--f);font-size:12px;color:var(--navy);background:transparent;border:none;outline:none;-webkit-appearance:none;appearance:none;padding:0;width:100%;}
+.af input[type="date"]{-webkit-appearance:auto;appearance:auto;}
+.af input::placeholder,.af textarea::placeholder{color:var(--muted);opacity:.45;}
+.af select option{background:var(--bg);color:var(--navy);}
+.af textarea{resize:none;min-height:30px;font-style:italic;}
+.add-st{font-size:10px;font-style:italic;color:var(--muted);min-height:16px;margin-top:7px;}
+.add-st.ok{color:var(--green);}.add-st.err{color:var(--red);}
+
+/* dietary checkboxes */
+.dietary-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+.dietary-cb{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--navy);}
+.dietary-cb input{width:14px;height:14px;cursor:pointer;}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--f);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--navy);background:transparent;border:0.5px solid var(--brs);border-radius:1px;padding:8px 16px;cursor:pointer;transition:background .13s,color .13s;white-space:nowrap;line-height:1;display:inline-flex;align-items:center;gap:4px;flex-shrink:0;}
+.btn:hover{background:var(--navy);color:var(--bg);}
+.btn:disabled{opacity:.3;cursor:not-allowed;}
+.btn.blue{color:var(--blue);border-color:var(--blue);}.btn.blue:hover{background:var(--blue);color:var(--bg);}
+.btn.ghost{color:var(--muted);border-color:rgba(54,54,117,.18);}.btn.ghost:hover{border-color:var(--muted);color:var(--navy);}
+.btn.danger{color:var(--red);border-color:rgba(136,8,8,.3);}.btn.danger:hover{background:var(--red);color:white;}
+.btn.sm{font-size:9px;padding:7px 13px;}
+
+/* ── CONTROLS ── */
+.ctrl-outer{border-top:0.5px solid var(--br);border-bottom:0.5px solid var(--br);background:var(--bg);position:sticky;top:58px;z-index:40;}
+.ctrl-tabs{display:flex;align-items:stretch;border-bottom:0.5px solid var(--br);min-height:42px;}
+.c-tab{font-family:var(--f);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:0 20px;border:none;border-bottom:2px solid transparent;background:transparent;cursor:pointer;transition:all .14s;white-space:nowrap;display:flex;align-items:center;gap:6px;margin-bottom:-0.5px;}
+.c-tab:first-child{padding-left:28px;}
+.c-tab.on{color:var(--navy);border-bottom-color:var(--navy);}
+.c-tab:hover:not(.on){color:var(--navy);opacity:.7;}
+.tab-n{font-size:9px;font-weight:normal;opacity:.55;}
+.ctrl-filters{display:flex;align-items:center;min-height:38px;overflow-x:auto;}
+.c-select{font-family:var(--f);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);background:transparent;border:none;border-right:0.5px solid var(--br);outline:none;padding:0 14px;cursor:pointer;-webkit-appearance:none;appearance:none;height:38px;flex-shrink:0;}
+.c-select:hover{color:var(--blue);}.c-select option{background:var(--bg);color:var(--navy);}
+.c-search{font-family:var(--f);font-size:12px;color:var(--navy);background:transparent;border:none;border-left:0.5px solid var(--br);outline:none;padding:0 18px;width:200px;height:38px;flex-shrink:0;}
+.c-search::placeholder{color:var(--navy);opacity:.28;}
+
+/* ── LIST ── */
+.list-wrap{padding:0 28px 80px;}
+.empty{padding:80px 0;text-align:center;}
+.empty-t{font-family:var(--fs);font-size:26px;font-style:italic;color:var(--muted);opacity:.35;margin-bottom:10px;}
+.empty-s{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);opacity:.3;}
+
+/* ── ITEM ROW ── */
+.item{display:grid;grid-template-columns:4px 1fr auto;gap:0 22px;align-items:start;padding:18px 0;border-bottom:0.5px solid var(--br);animation:up .15s ease both;}
+@keyframes up{from{opacity:0;transform:translateY(2px);}to{opacity:1;transform:none;}}
+.pip{width:4px;border-radius:0;margin-top:7px;flex-shrink:0;}
+.pip.urgent{background:#39ff14;height:46px;box-shadow:0 0 7px rgba(57,255,20,.75);}.pip.high{background:#7a3a00;height:32px;}
+.item:has(.pip.urgent){background:rgba(57,255,20,.025);}
+.pip.medium{background:var(--navy);height:20px;}.pip.low{background:var(--muted);height:12px;opacity:.5;}
+.pip.someday{background:var(--muted);height:6px;opacity:.25;}
+.pip-idea{opacity:.5;}.pip-developing{opacity:.9;}.pip-review{opacity:.8;}
+.pip-ready{opacity:1;}.pip-published{opacity:1;}.pip-hold{opacity:.35;}.pip-killed{opacity:.2;}
+.ibody{min-width:0;}
+.ititle{font-family:var(--fs);font-size:20px;font-style:italic;color:var(--navy);line-height:1.3;margin-bottom:6px;}
+.imeta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:5px;}
+.status-badge{font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:3px 8px;border:0.5px solid;}
+.st-idea{color:#5a4a00;border-color:rgba(90,74,0,.22);background:rgba(244,238,0,.05);}
+.st-developing{color:var(--blue);border-color:rgba(56,133,227,.22);background:rgba(56,133,227,.04);}
+.st-review{color:#5a2e00;border-color:rgba(90,46,0,.22);background:rgba(200,100,0,.04);}
+.st-ready{color:var(--green);border-color:rgba(42,94,62,.22);background:rgba(42,94,62,.04);}
+.st-published{color:var(--navy);border-color:rgba(54,54,117,.2);background:rgba(54,54,117,.04);}
+.st-hold{color:var(--muted);border-color:rgba(137,139,143,.22);background:transparent;}
+.st-in-work{color:#4a2a7a;border-color:rgba(74,42,122,.28);background:rgba(74,42,122,.05);}
+.st-needs-audit{color:#7a4a00;border-color:rgba(122,74,0,.28);background:rgba(255,165,0,.06);}
+.st-audited{color:var(--green);border-color:rgba(42,94,62,.28);background:rgba(42,94,62,.06);}
+.st-killed{color:var(--red);border-color:rgba(136,8,8,.18);background:transparent;opacity:.5;}
+.icat{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--brs);color:var(--navy);background:rgba(54,54,117,.04);}
+.icuisine{font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--brs);color:var(--navy);background:rgba(54,54,117,.04);}
+.isubcat{font-size:9px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:3px 6px;border:0.5px solid var(--br);}
+.imetrics{font-size:10px;color:var(--muted);opacity:.75;margin-top:4px;}
+.isec-dots{display:flex;gap:6px;margin-top:5px;font-size:11px;}
+.sec-dot{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:500;}
+.sec-dot.yes{background:var(--green);}
+.sec-dot.no{background:var(--muted);opacity:.3;}
+.idate{font-size:10px;color:var(--muted);}
+.idate.soon{color:var(--amber);font-weight:500;}.idate.overdue{color:var(--red);font-weight:500;}
+.iby{font-size:10px;color:var(--muted);font-style:italic;}
+.iconcept{font-size:13px;font-style:italic;color:var(--muted);margin-top:4px;line-height:1.45;}
+.ilinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center;}
+.ilink{display:inline-flex;align-items:center;gap:3px;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);text-decoration:none;opacity:.7;border:0.5px solid rgba(56,133,227,.22);padding:3px 8px;}
+.ilink:hover{opacity:1;background:rgba(56,133,227,.05);}
+.chat-list{display:flex;flex-direction:column;gap:7px;margin-bottom:8px;}
+.chat-row{display:flex;align-items:center;gap:8px;}
+.chat-row input{flex:1;font-family:var(--f);font-size:13px;padding:7px 10px;border:0.5px solid var(--brs);background:var(--card);color:var(--ink);outline:none;border-radius:1px;}
+.chat-row input:focus{border-color:var(--navy);}
+.chat-row-label{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);white-space:nowrap;min-width:44px;}
+.chat-rm{background:none;border:0.5px solid rgba(136,8,8,.3);color:var(--red);font-size:13px;width:24px;height:24px;cursor:pointer;border-radius:1px;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+.itags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.itag{font-size:9px;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--brs);color:var(--navy);background:rgba(54,54,117,.04);font-weight:500;}
+.iassets{font-size:10px;color:var(--muted);margin-top:4px;font-style:italic;opacity:.65;}
+.ithumb-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.ithumb{width:56px;height:56px;object-fit:cover;border:0.5px solid var(--br);cursor:pointer;}
+.iacts{display:flex;flex-direction:column;gap:5px;align-items:flex-end;padding-top:2px;flex-shrink:0;}
+
+#global-st{font-size:10px;font-style:italic;color:var(--green);padding:6px 28px;min-height:22px;background:var(--bg);}
+
+/* ── MODAL ── */
+.ov{position:fixed;inset:0;background:rgba(26,26,46,.45);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;}
+.modal{background:var(--bg);width:100%;max-width:600px;max-height:92vh;overflow-y:auto;border:0.5px solid var(--brs);}
+.mhd{padding:16px 24px 13px;border-bottom:0.5px solid var(--br);display:flex;align-items:baseline;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:10;}
+.mhd-label{font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--blue);}
+.mclose{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);padding:0;line-height:1;}
+.mbody{padding:18px 24px;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.fg input,.fg select,.fg textarea{width:100%;font-family:var(--f);font-size:14px;padding:8px 10px;border:0.5px solid var(--brs);background:var(--card);color:var(--ink);outline:none;border-radius:1px;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--navy);}
+.fg textarea{resize:vertical;min-height:56px;}
+.fg.title-fg input{font-family:var(--fs);font-size:18px;font-style:italic;}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.r4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+.msec{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding-bottom:9px;border-bottom:0.5px solid var(--br);margin:6px 0 14px;}
+.mft{padding:14px 24px;border-top:0.5px solid var(--br);display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:var(--bg);}
+.mft-r{display:flex;gap:9px;}
+
+/* ── IMAGE UPLOAD ── */
+.img-zone{border:0.5px dashed var(--brs);padding:16px;text-align:center;cursor:pointer;transition:background .13s;margin-bottom:8px;}
+.img-zone:hover{background:rgba(54,54,117,.03);}
+.img-zone input{display:none;}
+.img-zone-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.img-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.img-item{position:relative;width:72px;height:72px;}
+.img-item img{width:100%;height:100%;object-fit:cover;border:0.5px solid var(--br);}
+.img-rm{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:var(--red);color:white;border:none;border-radius:50%;font-size:11px;line-height:16px;text-align:center;cursor:pointer;padding:0;}
+.img-uploading{width:72px;height:72px;border:0.5px solid var(--br);display:flex;align-items:center;justify-content:center;background:rgba(54,54,117,.03);}
+
+/* ── SPINNER ── */
+.spin{display:inline-block;width:9px;height:9px;border:1.5px solid var(--br);border-top-color:var(--blue);border-radius:50%;animation:ro .7s linear infinite;vertical-align:middle;margin-right:4px;}
+@keyframes ro{to{transform:rotate(360deg);}}
+
+/* ── LIGHTBOX ── */
+.lbox{position:fixed;inset:0;background:rgba(0,0,0,.82);display:flex;align-items:center;justify-content:center;z-index:300;cursor:pointer;}
+.lbox img{max-width:90vw;max-height:90vh;object-fit:contain;}
+
+/* ── MOBILE ── */
+@media(max-width:768px){
+  .hdr{padding:0 16px;height:52px;}.hdr-logo{height:17px;}
+  .hdr-date{display:none;}
+  .summary{flex-wrap:wrap;}
+  .sc{flex:1 0 50%;border-bottom:0.5px solid var(--br);padding:12px 10px;}
+  .sc:nth-child(2){border-right:none;}
+  .sn{font-size:28px;}.sl{font-size:8px;}
+
+  .add-outer{padding:14px 16px 12px;}
+  textarea#a-title{font-size:18px;}
+  .add-fields{flex-direction:column;}
+  .add-row{flex-direction:column;padding-bottom:0;}
+  .add-row+.add-row{border-top:0.5px solid var(--br);}
+  .af{flex:none!important;width:100%!important;padding:11px 0!important;border-left:none!important;border-bottom:0.5px solid var(--br);}
+  .af label{font-size:10px;}
+  .af input,.af select,.af textarea{font-size:14px;}
+  .af:last-child{border-bottom:none;}
+  .af.act-f{flex-direction:row!important;justify-content:flex-end;gap:9px;padding-top:12px!important;}
+
+  .ctrl-outer{top:52px;}
+  .c-tab:first-child{padding-left:16px;}.c-tab{padding:0 14px;}
+  .ctrl-filters{display:grid;grid-template-columns:1fr 1fr;}
+  .c-select{border:none;border-bottom:0.5px solid var(--br);border-right:0.5px solid var(--br);padding:11px 13px;height:auto;width:100%;font-size:10px;}
+  .c-select:nth-child(even){border-right:none;}
+  .c-search{grid-column:1/-1;width:100%;border:none;border-top:0.5px solid var(--br);padding:11px 14px;height:auto;font-size:13px;}
+
+  .list-wrap{padding:0 16px 80px;}
+  .item{grid-template-columns:4px 1fr;padding:15px 0;}
+  .pip{grid-row:1/3;}
+  .iacts{grid-column:2;flex-direction:row;flex-wrap:wrap;justify-content:flex-start;padding-top:9px;gap:6px;}
+  .ititle{font-size:18px;}
+  .imeta{gap:8px;}
+  .iconcept{font-size:13px;}
+
+  .r2,.r3,.r4{grid-template-columns:1fr;}
+  .modal{max-width:100%;max-height:96vh;}
+  .mhd,.mbody,.mft{padding-left:16px;padding-right:16px;}
+  .fg input,.fg select,.fg textarea{font-size:15px;padding:10px;}
+}
+/* ── PROJECT VIEW ── */
+.pv-ov{position:fixed;inset:0;background:rgba(26,26,46,.45);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.pv{background:var(--bg);width:100%;max-width:720px;max-height:92vh;overflow-y:auto;border:0.5px solid var(--brs);}
+.pv-hd{padding:18px 28px 14px;border-bottom:0.5px solid var(--br);display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:sticky;top:0;background:var(--bg);z-index:10;}
+.pv-title{font-family:var(--fs);font-size:26px;font-style:italic;color:var(--navy);line-height:1.25;flex:1;}
+.pv-hd-r{display:flex;align-items:center;gap:8px;flex-shrink:0;padding-top:4px;}
+.pv-body{padding:20px 28px 24px;display:grid;grid-template-columns:1fr 1fr;gap:0 40px;}
+.pv-full{grid-column:1/-1;}
+.pv-sect{margin-bottom:20px;}
+.pv-sect-label{font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:0.5px solid var(--br);}
+.pv-field{margin-bottom:12px;}
+.pv-fl{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+.pv-fv{font-size:14px;color:var(--ink);line-height:1.5;}
+.pv-fv.italic{font-family:var(--fs);font-style:italic;font-size:15px;}
+.pv-fv a{color:var(--blue);text-decoration:none;}.pv-fv a:hover{text-decoration:underline;}
+.pv-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.pv-img-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.pv-img{width:90px;height:90px;object-fit:cover;border:0.5px solid var(--br);cursor:pointer;}
+@media(max-width:768px){
+  .pv-ov{padding:0;align-items:flex-end;}
+  .pv{max-width:100%;max-height:96vh;border-left:none;border-right:none;border-bottom:none;}
+  .pv-body{grid-template-columns:1fr;gap:0;}
+  .pv-hd,.pv-body{padding-left:16px;padding-right:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <img class="hdr-logo" src="CA_LOGO.png" alt="CANAVA"/>
+  <div class="hdr-date" id="hdr-date"></div>
+</div>
+
+<div class="summary">
+  <div class="sc" onclick="filterByStatus('idea')"><div class="sn" id="s-ideas">—</div><div class="sl">Ideas</div></div>
+  <div class="sc" onclick="filterByStatuses(['developing','review','in-work'])"><div class="sn" id="s-dev">—</div><div class="sl">In Progress</div></div>
+  <div class="sc" onclick="filterByStatuses(['ready','needs-audit','audited'])"><div class="sn" id="s-ready">—</div><div class="sl">Tested</div></div>
+  <div class="sc"><div class="sn" id="s-pub">—</div><div class="sl">Published</div></div>
+</div>
+
+<div class="add-outer">
+  <div class="add-label">New Recipe</div>
+  <textarea id="a-title" rows="1" placeholder="Recipe title..."></textarea>
+  <div class="add-fields">
+    <div class="add-row">
+      <div class="af concept-f"><label>Concept</label><textarea id="a-concept" rows="2" placeholder="Brief concept or description..."></textarea></div>
+      <div class="af phase-f"><label>Phase</label>
+        <select id="a-phase">
+          <option value="idea">Idea</option>
+          <option value="phase-1">Phase 1</option>
+          <option value="phase-2">Phase 2</option>
+          <option value="phase-3">Phase 3</option>
+        </select>
+      </div>
+      <div class="af status-f"><label>Status</label>
+        <select id="a-status">
+          <option value="idea">Idea</option>
+          <option value="developing">Developing</option>
+          <option value="review">In Review</option>
+          <option value="in-work">In Work</option>
+          <option value="ready">Ready</option>
+        </select>
+      </div>
+    </div>
+    <div class="add-row">
+      <div class="af cat-f"><label>Category</label>
+        <select id="a-cat">
+          <option value="">—</option>
+          <option value="Soup">Soup</option>
+          <option value="Salad/Appetizer">Salad/Appetizer</option>
+          <option value="Main Course">Main Course</option>
+          <option value="Side Dish">Side Dish</option>
+          <option value="Condiment/Sauce">Condiment/Sauce</option>
+          <option value="Baked Good/Cookie">Baked Good/Cookie</option>
+          <option value="Cookie/Dessert">Cookie/Dessert</option>
+          <option value="Breakfast">Breakfast</option>
+          <option value="Beverage">Beverage</option>
+          <option value="Preservation">Preservation</option>
+        </select>
+      </div>
+      <div class="af cuisine-f"><label>Cuisine</label>
+        <select id="a-cuisine">
+          <option value="">—</option>
+          <option value="Japanese">Japanese</option>
+          <option value="Mediterranean">Mediterranean</option>
+          <option value="Middle Eastern">Middle Eastern</option>
+          <option value="Nordic">Nordic</option>
+          <option value="Persian">Persian</option>
+          <option value="Peruvian">Peruvian</option>
+          <option value="Southern American">Southern American</option>
+          <option value="Thai">Thai</option>
+          <option value="Vietnamese">Vietnamese</option>
+          <option value="Mexican">Mexican</option>
+          <option value="Indian">Indian</option>
+          <option value="French">French</option>
+          <option value="Italian">Italian</option>
+          <option value="Korean">Korean</option>
+          <option value="American">American</option>
+        </select>
+      </div>
+      <div class="af subcat-f"><label>Sub-category</label><input id="a-subcat" type="text" placeholder="e.g. Type, Ingredient..."/></div>
+      <div class="af pri-f"><label>Priority</label>
+        <select id="a-pri">
+          <option value="medium">Medium</option>
+          <option value="urgent">Urgent</option>
+          <option value="high">High</option>
+          <option value="low">Low</option>
+          <option value="someday">Someday</option>
+        </select>
+      </div>
+    </div>
+    <div class="add-row">
+      <div class="af ing-f"><label>Hero Ingredients</label><input id="a-ing" type="text" placeholder="e.g. Tomato, Basil..."/></div>
+      <div class="af protein-f"><label>Protein (g)</label><input id="a-protein" type="text" placeholder="12g"/></div>
+      <div class="af fiber-f"><label>Fiber (g)</label><input id="a-fiber" type="text" placeholder="5g"/></div>
+      <div class="af plants-f"><label>Plants #</label><input id="a-plants" type="number" placeholder="8"/></div>
+    </div>
+    <div class="add-row">
+      <div class="af source-f"><label>Source Folder</label>
+        <select id="a-source">
+          <option value="">—</option>
+          <option value="CA_RECIPES">CA_RECIPES</option>
+          <option value="CA_FRUIT_RECIPES">CA_FRUIT_RECIPES</option>
+          <option value="CA_FOOD_SOURDOUGH_RECIPES">CA_FOOD_SOURDOUGH_RECIPES</option>
+          <option value="CA_COOKIES">CA_COOKIES</option>
+          <option value="CA_2025_RECIPES_TO_PUBLISH">CA_2025_RECIPES_TO_PUBLISH</option>
+        </select>
+      </div>
+      <div class="af date-f"><label>Target Date</label><input id="a-date" type="date"/></div>
+      <div class="af by-f"><label>Initiated By</label><input id="a-by" type="text" placeholder="Name..."/></div>
+      <div class="af spark-f"><label>Spark/Source</label><input id="a-spark" type="text" placeholder="What prompted..."/></div>
+    </div>
+    <div class="add-row">
+      <div class="af tags-f" style="flex:0 0 180px;"><label>Tags</label><input id="a-tags" type="text" placeholder="seasonal, fruit..."/></div>
+      <div class="af url-f"><label>Claude Chat URL</label><input id="a-url" type="url" placeholder="https://claude.ai/chat/..."/></div>
+      <div class="af act-f">
+        <button class="btn ghost sm" onclick="clearAdd()">Clear</button>
+        <button class="btn blue" id="add-btn" onclick="doAdd()">Add</button>
+      </div>
+    </div>
+    <div class="add-row" style="border-top:0.5px solid var(--br);padding-top:8px;">
+      <div style="width:100%;">
+        <div class="add-label" style="margin-bottom:6px;">Dietary Flags</div>
+        <div class="dietary-row">
+          <label class="dietary-cb"><input type="checkbox" id="a-veg"/><span>Vegetarian</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-vegan"/><span>Vegan</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-gf"/><span>Gluten-Free</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-nf"/><span>Nut-Free</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-sf"/><span>Soy-Free</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-df"/><span>Dairy-Free</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-fm"/><span>FODMAP</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-ko"/><span>Kosher</span></label>
+          <label class="dietary-cb"><input type="checkbox" id="a-ha"/><span>Halal</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="add-st" id="add-st"></div>
+
+<div class="ctrl-outer">
+  <div class="ctrl-tabs">
+    <button class="c-tab on" onclick="setTab('pipeline',this)">Pipeline <span class="tab-n" id="n-pipeline">0</span></button>
+    <button class="c-tab" onclick="setTab('tested',this)">Tested <span class="tab-n" id="n-tested">0</span></button>
+    <button class="c-tab" onclick="setTab('published',this)">Published <span class="tab-n" id="n-published">0</span></button>
+    <button class="c-tab" onclick="setTab('archive',this)">Archive <span class="tab-n" id="n-archive">0</span></button>
+  </div>
+  <div class="ctrl-filters">
+    <select class="c-select" id="c-sort" onchange="render()">
+      <option value="target">Sort: Target Date</option><option value="priority">Sort: Priority</option>
+      <option value="status">Sort: Status</option><option value="phase">Sort: Phase</option>
+      <option value="cat">Sort: Category</option><option value="protein">Sort: Protein</option>
+      <option value="fiber">Sort: Fiber</option><option value="plants">Sort: Plants</option>
+      <option value="new">Sort: Newest</option><option value="alpha">Sort: A–Z</option>
+    </select>
+    <select class="c-select" id="c-status" onchange="render()">
+      <option value="">All Status</option><option value="idea">Idea</option><option value="developing">Developing</option>
+      <option value="review">In Review</option><option value="in-work">In Work</option><option value="ready">Ready</option>
+      <option value="needs-audit">Needs Audit</option><option value="audited">Audited</option><option value="hold">On Hold</option>
+    </select>
+    <select class="c-select" id="c-phase" onchange="render()">
+      <option value="">All Phases</option><option value="idea">Idea</option><option value="phase-1">Phase 1</option>
+      <option value="phase-2">Phase 2</option><option value="phase-3">Phase 3</option>
+    </select>
+    <select class="c-select" id="c-cat" onchange="render()">
+      <option value="">All Categories</option><option value="Soup">Soup</option><option value="Salad/Appetizer">Salad/Appetizer</option>
+      <option value="Main Course">Main Course</option><option value="Side Dish">Side Dish</option>
+      <option value="Condiment/Sauce">Condiment/Sauce</option><option value="Baked Good/Cookie">Baked Good/Cookie</option>
+      <option value="Cookie/Dessert">Cookie/Dessert</option><option value="Breakfast">Breakfast</option>
+      <option value="Beverage">Beverage</option><option value="Preservation">Preservation</option>
+    </select>
+    <select class="c-select" id="c-cuisine" onchange="render()">
+      <option value="">All Cuisines</option><option value="Japanese">Japanese</option><option value="Mediterranean">Mediterranean</option>
+      <option value="Middle Eastern">Middle Eastern</option><option value="Nordic">Nordic</option>
+      <option value="Persian">Persian</option><option value="Peruvian">Peruvian</option>
+      <option value="Southern American">Southern American</option><option value="Thai">Thai</option>
+      <option value="Vietnamese">Vietnamese</option><option value="Mexican">Mexican</option>
+      <option value="Indian">Indian</option><option value="French">French</option>
+      <option value="Italian">Italian</option><option value="Korean">Korean</option><option value="American">American</option>
+    </select>
+    <select class="c-select" id="c-pri" onchange="render()">
+      <option value="">All Priority</option><option value="urgent">Urgent</option><option value="high">High</option>
+      <option value="medium">Medium</option><option value="low">Low</option><option value="someday">Someday</option>
+    </select>
+    <select class="c-select" id="c-source" onchange="render()">
+      <option value="">All Sources</option><option value="CA_RECIPES">CA_RECIPES</option>
+      <option value="CA_FRUIT_RECIPES">CA_FRUIT_RECIPES</option><option value="CA_FOOD_SOURDOUGH_RECIPES">CA_FOOD_SOURDOUGH_RECIPES</option>
+      <option value="CA_COOKIES">CA_COOKIES</option><option value="CA_2025_RECIPES_TO_PUBLISH">CA_2025_RECIPES_TO_PUBLISH</option>
+    </select>
+    <input class="c-search" id="c-srch" placeholder="Search..." oninput="render()"/>
+  </div>
+</div>
+
+<div id="global-st"></div>
+<div class="list-wrap" id="list"><div class="empty"><div class="empty-t">Loading...</div></div></div>
+
+<!-- EDIT MODAL -->
+<div class="ov" id="modal-ov" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="mhd"><span class="mhd-label">Edit Recipe</span><button class="mclose" onclick="closeModal()">×</button></div>
+    <div class="mbody">
+      <div class="fg title-fg"><label>Title</label><input id="e-title" type="text"/></div>
+      <div class="fg"><label>Concept</label><textarea id="e-concept" rows="2"></textarea></div>
+
+      <div class="msec">Classification</div>
+      <div class="r3">
+        <div class="fg"><label>Phase</label>
+          <select id="e-phase">
+            <option value="idea">Idea</option><option value="phase-1">Phase 1</option>
+            <option value="phase-2">Phase 2</option><option value="phase-3">Phase 3</option>
+          </select>
+        </div>
+        <div class="fg"><label>Status</label>
+          <select id="e-status">
+            <option value="idea">Idea</option><option value="developing">Developing</option>
+            <option value="review">In Review</option><option value="in-work">In Work</option>
+            <option value="ready">Ready</option><option value="needs-audit">Needs Audit</option>
+            <option value="audited">Audited</option><option value="published">Published</option>
+            <option value="hold">On Hold</option><option value="killed">Killed</option>
+          </select>
+        </div>
+        <div class="fg"><label>Priority</label>
+          <select id="e-pri">
+            <option value="urgent">Urgent</option><option value="high">High</option>
+            <option value="medium">Medium</option><option value="low">Low</option><option value="someday">Someday</option>
+          </select>
+        </div>
+      </div>
+      <div class="r2">
+        <div class="fg"><label>Category</label>
+          <select id="e-cat">
+            <option value="">—</option>
+            <option value="Soup">Soup</option>
+            <option value="Salad/Appetizer">Salad/Appetizer</option>
+            <option value="Main Course">Main Course</option>
+            <option value="Side Dish">Side Dish</option>
+            <option value="Condiment/Sauce">Condiment/Sauce</option>
+            <option value="Baked Good/Cookie">Baked Good/Cookie</option>
+            <option value="Cookie/Dessert">Cookie/Dessert</option>
+            <option value="Breakfast">Breakfast</option>
+            <option value="Beverage">Beverage</option>
+            <option value="Preservation">Preservation</option>
+          </select>
+        </div>
+        <div class="fg"><label>Cuisine</label>
+          <select id="e-cuisine">
+            <option value="">—</option>
+            <option value="Japanese">Japanese</option>
+            <option value="Mediterranean">Mediterranean</option>
+            <option value="Middle Eastern">Middle Eastern</option>
+            <option value="Nordic">Nordic</option>
+            <option value="Persian">Persian</option>
+            <option value="Peruvian">Peruvian</option>
+            <option value="Southern American">Southern American</option>
+            <option value="Thai">Thai</option>
+            <option value="Vietnamese">Vietnamese</option>
+            <option value="Mexican">Mexican</option>
+            <option value="Indian">Indian</option>
+            <option value="French">French</option>
+            <option value="Italian">Italian</option>
+            <option value="Korean">Korean</option>
+            <option value="American">American</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Sub-category</label><input id="e-subcat" type="text" placeholder="e.g. Type, Ingredient..."/></div>
+
+      <div class="msec">Nutrition & Ingredients</div>
+      <div class="r4">
+        <div class="fg"><label>Hero Ingredients</label><input id="e-ing" type="text" placeholder="e.g. Tomato, Basil..."/></div>
+        <div class="fg"><label>Protein (g)</label><input id="e-protein" type="text" placeholder="12g"/></div>
+        <div class="fg"><label>Fiber (g)</label><input id="e-fiber" type="text" placeholder="5g"/></div>
+        <div class="fg"><label>Plants #</label><input id="e-plants" type="number" placeholder="8"/></div>
+      </div>
+
+      <div class="msec">Dietary Attributes</div>
+      <div class="dietary-row">
+        <label class="dietary-cb"><input type="checkbox" id="e-veg"/><span>Vegetarian</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-vegan"/><span>Vegan</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-gf"/><span>Gluten-Free</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-nf"/><span>Nut-Free</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-sf"/><span>Soy-Free</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-df"/><span>Dairy-Free</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-fm"/><span>FODMAP</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-ko"/><span>Kosher</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-ha"/><span>Halal</span></label>
+      </div>
+
+      <div class="msec">Seasonality</div>
+      <div class="r2">
+        <div class="fg"><label>North Hemisphere</label><input id="e-season-n" type="text" placeholder="Spring, Summer..."/></div>
+        <div class="fg"><label>South Hemisphere</label><input id="e-season-s" type="text" placeholder="Spring, Summer..."/></div>
+      </div>
+
+      <div class="msec">Section Completeness</div>
+      <div class="dietary-row">
+        <label class="dietary-cb"><input type="checkbox" id="e-nutrition"/><span>Nutrition</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-waste"/><span>Waste Abatement</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-tips"/><span>Pro Tips</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-cost"/><span>Cost</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-seo"/><span>SEO</span></label>
+        <label class="dietary-cb"><input type="checkbox" id="e-social"/><span>Social Media</span></label>
+      </div>
+
+      <div class="msec">Dates & Source</div>
+      <div class="r3">
+        <div class="fg"><label>Target Date</label><input id="e-date" type="date"/></div>
+        <div class="fg"><label>Tested Date</label><input id="e-tested-date" type="date"/></div>
+        <div class="fg"><label>Published Date</label><input id="e-pub-date" type="date"/></div>
+      </div>
+      <div class="r2">
+        <div class="fg"><label>Initiated By</label><input id="e-by" type="text" placeholder="Name..."/></div>
+        <div class="fg"><label>Source Folder</label>
+          <select id="e-source">
+            <option value="">—</option>
+            <option value="CA_RECIPES">CA_RECIPES</option>
+            <option value="CA_FRUIT_RECIPES">CA_FRUIT_RECIPES</option>
+            <option value="CA_FOOD_SOURDOUGH_RECIPES">CA_FOOD_SOURDOUGH_RECIPES</option>
+            <option value="CA_COOKIES">CA_COOKIES</option>
+            <option value="CA_2025_RECIPES_TO_PUBLISH">CA_2025_RECIPES_TO_PUBLISH</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="msec">Source & Links</div>
+      <div class="fg"><label>Spark / Source</label><input id="e-spark" type="text" placeholder="What prompted this..."/></div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Reference URLs</div>
+        <div class="chat-list" id="ref-url-list"></div>
+        <button class="btn ghost sm" onclick="addRefUrlRow()" style="font-size:8px;">+ Add URL</button>
+      </div>
+      <div style="margin-bottom:14px;">
+        <div style="font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Claude Chat URLs</div>
+        <div class="chat-list" id="chat-list"></div>
+        <button class="btn ghost sm" onclick="addChatRow()" style="font-size:8px;">+ Add Chat</button>
+      </div>
+      <div class="fg"><label>Notes</label><textarea id="e-notes" rows="2" placeholder="Context, direction, next steps..."></textarea></div>
+
+      <div class="msec">Project Links & Assets</div>
+      <div class="r2">
+        <div class="fg"><label>Dropbox Folder</label><input id="e-dropbox" type="url" placeholder="https://www.dropbox.com/..."/></div>
+        <div class="fg"><label>Figma Link</label><input id="e-figma" type="url" placeholder="https://www.figma.com/..."/></div>
+      </div>
+      <div class="fg"><label>Assets Note</label><textarea id="e-assets" rows="2" placeholder="Asset status, what's been collected..."></textarea></div>
+
+      <div class="msec">Images</div>
+      <div class="img-zone" onclick="document.getElementById('img-upload').click()">
+        <input type="file" id="img-upload" accept="image/*" multiple onchange="handleImgUpload(this)"/>
+        <div class="img-zone-label">+ Add Images — tap to browse or drag here</div>
+      </div>
+      <div class="img-grid" id="img-grid"></div>
+      <div id="img-st" style="font-size:10px;font-style:italic;color:var(--muted);margin-top:5px;min-height:14px;"></div>
+
+    </div>
+    <div class="mft">
+      <button class="btn danger sm" onclick="triggerDelete()">Delete</button>
+      <div class="mft-r"><button class="btn ghost sm" onclick="closeModal()">Cancel</button><button class="btn blue sm" id="save-btn" onclick="doSave()">Save</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="ov" id="del-ov" style="display:none">
+  <div class="modal" style="max-width:380px">
+    <div class="mhd"><span class="mhd-label">Confirm Delete</span><button class="mclose" onclick="closeDelModal()">×</button></div>
+    <div class="mbody">
+      <p style="font-family:var(--fs);font-size:16px;font-style:italic;color:var(--navy);margin-bottom:9px;" id="del-title-preview"></p>
+      <p style="font-size:12px;color:var(--muted);">This will permanently remove this recipe and cannot be undone.</p>
+    </div>
+    <div class="mft"><button class="btn ghost sm" onclick="closeDelModal()">Cancel</button><button class="btn danger sm" id="del-confirm-btn" onclick="doDelete()">Delete</button></div>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lbox" id="lbox" style="display:none" onclick="document.getElementById('lbox').style.display='none'">
+  <img id="lbox-img" src="" alt=""/>
+</div>
+
+<!-- PROJECT VIEW -->
+<div class="pv-ov" id="pv-ov" style="display:none" onclick="if(event.target===this)closePV()">
+  <div class="pv">
+    <div class="pv-hd">
+      <div class="pv-title" id="pv-title"></div>
+      <div class="pv-hd-r">
+        <button class="btn ghost sm" id="pv-edit-btn" onclick="pvToEdit()">Edit</button>
+        <button class="mclose" onclick="closePV()" style="font-size:22px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0;line-height:1;">×</button>
+      </div>
+    </div>
+    <div class="pv-body" id="pv-body"></div>
+  </div>
+</div>
+
+<script>
+const SURL='https://miokgyffvhhylsfmsmmb.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pb2tneWZmdmhoeWxzZm1zbW1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNjUxOTMsImV4cCI6MjA4ODc0MTE5M30.D10ZE_U4sCoG3_G2XyvVUxa-2UNilLFMDkRrqw55C7s';
+const TABLE='recipe_items';
+const BUCKET='canava-images';
+
+let allItems=[],currentTab='pipeline',editingId=null,editingImages=[],editingChats=[],editingRefUrls=[];
+
+const PO={urgent:0,high:1,medium:2,low:3,someday:4};
+const SO={idea:0,developing:1,review:2,'in-work':3,ready:4,'needs-audit':5,audited:6,published:7,hold:8,killed:9};
+const SL={idea:'Idea',developing:'Developing',review:'In Review','in-work':'In Work',ready:'Ready','needs-audit':'Needs Audit',audited:'Audited',published:'Published',hold:'On Hold',killed:'Killed'};
+
+document.addEventListener('DOMContentLoaded',()=>{
+  setDate();
+  const ta=document.getElementById('a-title');
+  ta.addEventListener('input',()=>{ta.style.height='auto';ta.style.height=ta.scrollHeight+'px';});
+  loadItems();
+});
+
+function setDate(){
+  const d=new Date(),days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+  months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('hdr-date').textContent=days[d.getDay()]+' · '+months[d.getMonth()]+' '+d.getDate()+' · '+d.getFullYear();
+}
+
+function hd(ex={}){return{'apikey':SKEY,'Authorization':'Bearer '+SKEY,'Content-Type':'application/json',...ex};}
+async function api(path,method,body){
+  const opts={method:method||'GET',headers:hd(method==='POST'?{'Prefer':'return=representation'}:{})};
+  if(body)opts.body=JSON.stringify(body);
+  const r=await fetch(SURL+'/rest/v1/'+path,opts);
+  if(!r.ok){const e=await r.text();throw new Error(e);}
+  if(r.status===204)return null;return r.json();
+}
+
+async function loadItems(){
+  setGSt('<span class="spin"></span>Loading...');
+  try{
+    allItems=await api(TABLE+'?order=created_at.desc&select=*')||[];
+    updateSummary();render();setGSt('');
+  }catch(e){
+    setGSt('');
+    document.getElementById('list').innerHTML='<div class="empty"><div class="empty-t" style="color:var(--red);opacity:1;">Error: '+esc(e.message)+'</div></div>';
+  }
+}
+
+function getTab(tab){
+  if(tab==='pipeline')return allItems.filter(i=>['idea','developing','review','in-work','ready','needs-audit','audited','hold'].includes(i.status));
+  if(tab==='tested')return allItems.filter(i=>['ready','needs-audit','audited'].includes(i.status));
+  if(tab==='published')return allItems.filter(i=>i.status==='published');
+  if(tab==='archive')return allItems.filter(i=>i.status==='killed');
+  return allItems;
+}
+
+function render(){
+  const sort=v2('c-sort'),sf=v2('c-status'),pf=v2('c-phase'),cf=v2('c-cat'),cuf=v2('c-cuisine'),pri=v2('c-pri'),src=v2('c-source'),srch=v2('c-srch').toLowerCase();
+  if(sf&&window._statusGroup)window._statusGroup=null;
+  let items=getTab(currentTab);
+  if(window._statusGroup)items=items.filter(i=>window._statusGroup.includes(i.status));
+  else if(sf)items=items.filter(i=>i.status===sf);
+  if(pf)items=items.filter(i=>i.phase===pf);
+  if(cf)items=items.filter(i=>i.category===cf);
+  if(cuf)items=items.filter(i=>i.cuisine===cuf);
+  if(pri)items=items.filter(i=>i.priority===pri);
+  if(src)items=items.filter(i=>i.source_folder===src);
+  if(srch)items=items.filter(i=>(i.title||'').toLowerCase().includes(srch)||(i.concept||'').toLowerCase().includes(srch)||(i.tags||'').toLowerCase().includes(srch)||(i.category||'').toLowerCase().includes(srch)||(i.cuisine||'').toLowerCase().includes(srch)||(i.hero_ingredients||'').toLowerCase().includes(srch)||(i.sub_category||'').toLowerCase().includes(srch));
+  items.sort((a,b)=>{
+    if(sort==='target'){if(!a.target_date&&!b.target_date)return 0;if(!a.target_date)return 1;if(!b.target_date)return -1;return a.target_date.localeCompare(b.target_date);}
+    if(sort==='priority')return(PO[a.priority]??2)-(PO[b.priority]??2);
+    if(sort==='status')return(SO[a.status]??9)-(SO[b.status]??9);
+    if(sort==='phase')return(a.phase||'').localeCompare(b.phase||'');
+    if(sort==='cat')return(a.category||'').localeCompare(b.category||'');
+    if(sort==='protein'){const ap=parseFloat(a.protein_per_serving)||0,bp=parseFloat(b.protein_per_serving)||0;return bp-ap;}
+    if(sort==='fiber'){const af=parseFloat(a.fiber_per_serving)||0,bf=parseFloat(b.fiber_per_serving)||0;return bf-af;}
+    if(sort==='plants'){const ap=parseInt(a.plants_count)||0,bp=parseInt(b.plants_count)||0;return bp-ap;}
+    if(sort==='new')return new Date(b.created_at)-new Date(a.created_at);
+    if(sort==='alpha')return(a.title||'').localeCompare(b.title||'');
+    return 0;
+  });
+  updateTabCounts();
+  const list=document.getElementById('list');
+  if(!items.length){list.innerHTML='<div class="empty"><div class="empty-t">Nothing here yet.</div><div class="empty-s">Add a recipe above to get started.</div></div>';return;}
+  list.innerHTML=items.map(ri).join('');
+}
+
+function ri(i){
+  const stCls='st-'+(i.status||'idea');
+  const cl=CL[i.category]||i.category||'';
+  const cul=i.cuisine||'';
+  let dh='';
+  if(i.target_date){
+    const today=new Date();today.setHours(0,0,0,0);
+    const td=new Date(i.target_date+'T00:00:00'),diff=Math.round((td-today)/86400000);
+    let cls='idate';
+    if(diff<0&&i.status!=='published')cls='idate overdue';
+    else if(diff>=0&&diff<=7&&i.status!=='published')cls='idate soon';
+    dh=`<span class="${cls}">→ ${fmtDate(i.target_date)}</span>`;
+  }
+  const tags=(i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+  const hasL=parseChatUrls(i.chat_url).length||parseRefUrls(i.reference_urls).length||i.dropbox_url||i.figma_url;
+  const chatUrls=parseChatUrls(i.chat_url);
+  const refUrls=parseRefUrls(i.reference_urls);
+  const imgs=parseImgs(i.images);
+  const secs=[i.has_nutrition,i.has_waste_abatement,i.has_pro_tips,i.has_cost,i.has_seo,i.has_social_media];
+  const secLabels=['Nutrition','Waste','Tips','Cost','SEO','Social'];
+  let metricsStr='';
+  if(i.protein_per_serving||i.fiber_per_serving||i.plants_count){
+    const parts=[];
+    if(i.protein_per_serving)parts.push(i.protein_per_serving+'g protein');
+    if(i.fiber_per_serving)parts.push(i.fiber_per_serving+'g fiber');
+    if(i.plants_count)parts.push(i.plants_count+' plants');
+    metricsStr=parts.join(' · ');
+  }
+  return `<div class="item"><div class="pip ${i.priority||'medium'} pip-${i.status||'idea'}"></div><div class="ibody">
+    <div class="ititle" onclick="openPV('${i.id}')" style="cursor:pointer;" title="View recipe">${esc(i.title||'Untitled')}</div>
+    <div class="imeta">
+      <span class="status-badge ${stCls}">${SL[i.status]||i.status}</span>
+      ${cl?`<span class="icat">${cl}</span>`:''}
+      ${cul?`<span class="icuisine">${cul}</span>`:''}
+      ${i.sub_category?`<span class="isubcat">· ${esc(i.sub_category)}</span>`:''}
+      ${dh}
+      ${i.initiated_by?`<span class="iby">${esc(i.initiated_by)}</span>`:''}
+    </div>
+    ${i.concept?`<div class="iconcept">${esc(i.concept)}</div>`:''}
+    ${secs.some(s=>s)?`<div class="isec-dots">${secs.map((s,idx)=>`<div class="sec-dot ${s?'yes':'no'}" title="${secLabels[idx]}">✓</div>`).join('')}</div>`:''}
+    ${metricsStr?`<div class="imetrics">${metricsStr}</div>`:''}
+    ${hasL?`<div class="ilinks">${chatUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${refUrls.map((url,idx)=>`<a class="ilink" href="${esc(url)}" target="_blank" rel="noopener">⤷ Ref${refUrls.length>1?' '+(idx+1):''}</a>`).join('')} ${i.dropbox_url?`<a class="ilink" href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a>`:''} ${i.figma_url?`<a class="ilink" href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a>`:''}</div>`:''}
+    ${i.assets_note?`<div class="iassets">${esc(i.assets_note)}</div>`:''}
+    ${imgs.length?`<div class="ithumb-row">${imgs.map(url=>`<img class="ithumb" src="${esc(url)}" onclick="openLightbox('${esc(url)}')" alt=""/>`).join('')}</div>`:''}
+    ${tags.length?`<div class="itags">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div>`:''}
+  </div><div class="iacts"><button class="btn ghost sm" style="font-size:9px;padding:7px 12px" onclick="openPV('${i.id}')">View</button><button class="btn ghost sm" style="font-size:9px;padding:7px 12px" onclick="openEdit('${i.id}')">Edit</button></div></div>`;
+}
+
+function updateSummary(){
+  document.getElementById('s-ideas').textContent=allItems.filter(i=>i.status==='idea').length;
+  document.getElementById('s-dev').textContent=allItems.filter(i=>['developing','review','in-work'].includes(i.status)).length;
+  document.getElementById('s-ready').textContent=allItems.filter(i=>['ready','needs-audit','audited'].includes(i.status)).length;
+  document.getElementById('s-pub').textContent=allItems.filter(i=>i.status==='published').length;
+}
+
+function updateTabCounts(){
+  document.getElementById('n-pipeline').textContent=getTab('pipeline').length;
+  document.getElementById('n-tested').textContent=getTab('tested').length;
+  document.getElementById('n-published').textContent=getTab('published').length;
+  document.getElementById('n-archive').textContent=getTab('archive').length;
+}
+
+async function doAdd(){
+  const title=document.getElementById('a-title').value.trim();
+  if(!title){setAddSt('Title is required.','err');return;}
+  const btn=document.getElementById('add-btn');btn.disabled=true;setAddSt('<span class="spin"></span>Saving...','');
+  try{
+    const p={
+      title,concept:v('a-concept'),phase:v('a-phase'),status:v('a-status')||'idea',category:v('a-cat')||null,
+      cuisine:v('a-cuisine')||null,sub_category:v('a-subcat')||null,priority:v('a-pri'),
+      hero_ingredients:v('a-ing')||null,protein_per_serving:v('a-protein')||null,fiber_per_serving:v('a-fiber')||null,
+      plants_count:v('a-plants')?parseInt(v('a-plants')):null,source_folder:v('a-source')||null,
+      target_date:v('a-date')||null,initiated_by:v('a-by')||null,spark_source:v('a-spark')||null,
+      dietary_vegetarian:document.getElementById('a-veg').checked,dietary_vegan:document.getElementById('a-vegan').checked,
+      dietary_gluten_free:document.getElementById('a-gf').checked,dietary_nut_free:document.getElementById('a-nf').checked,
+      dietary_soy_free:document.getElementById('a-sf').checked,dietary_dairy_free:document.getElementById('a-df').checked,
+      dietary_fodmap:document.getElementById('a-fm').checked,dietary_kosher:document.getElementById('a-ko').checked,
+      dietary_halal:document.getElementById('a-ha').checked,
+      tags:v('a-tags')||null,chat_url:v('a-url')||null,updated_at:new Date().toISOString()
+    };
+    const res=await api(TABLE,'POST',p);
+    const cr=Array.isArray(res)?res[0]:res;
+    if(cr)allItems.unshift(cr);
+    clearAdd();updateSummary();render();setAddSt('Added — '+title,'ok');setTimeout(()=>setAddSt('',''),3000);
+  }catch(e){setAddSt('Error: '+e.message,'err');}
+  btn.disabled=false;
+}
+
+function clearAdd(){
+  ['a-title','a-concept','a-spark','a-url','a-by','a-subcat','a-ing','a-protein','a-fiber','a-tags'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('a-plants').value='';document.getElementById('a-phase').value='idea';
+  document.getElementById('a-status').value='idea';document.getElementById('a-pri').value='medium';
+  document.getElementById('a-cat').value='';document.getElementById('a-cuisine').value='';document.getElementById('a-source').value='';
+  document.getElementById('a-date').value='';
+  ['a-veg','a-vegan','a-gf','a-nf','a-sf','a-df','a-fm','a-ko','a-ha'].forEach(id=>document.getElementById(id).checked=false);
+  document.getElementById('a-title').style.height='auto';setAddSt('','');
+}
+
+/* ── IMAGE HANDLING ── */
+function parseImgs(raw){
+  if(!raw)return[];
+  try{return JSON.parse(raw);}catch(e){return[];}
+}
+function parseChatUrls(raw){
+  if(!raw)return[];
+  if(raw.trim().startsWith('['))try{return JSON.parse(raw).filter(Boolean);}catch(e){}
+  return raw.trim()?[raw.trim()]:[];
+}
+function parseRefUrls(raw){
+  if(!raw)return[];
+  if(raw.trim().startsWith('['))try{return JSON.parse(raw).filter(Boolean);}catch(e){}
+  return raw.trim()?[raw.trim()]:[];
+}
+function renderChatList(){
+  const list=document.getElementById('chat-list');
+  if(!list)return;
+  list.innerHTML=editingChats.map((url,idx)=>`
+    <div class="chat-row">
+      <span class="chat-row-label">Chat ${idx+1}</span>
+      <input type="url" value="${esc(url)}" placeholder="https://claude.ai/chat/..." oninput="editingChats[${idx}]=this.value"/>
+      <button class="chat-rm" onclick="removeChatRow(${idx})" title="Remove">×</button>
+    </div>`).join('');
+}
+function addChatRow(){editingChats.push('');renderChatList();}
+function removeChatRow(idx){editingChats.splice(idx,1);renderChatList();}
+function renderRefUrlList(){
+  const list=document.getElementById('ref-url-list');
+  if(!list)return;
+  list.innerHTML=editingRefUrls.map((url,idx)=>`
+    <div class="chat-row">
+      <span class="chat-row-label">URL ${idx+1}</span>
+      <input type="url" value="${esc(url)}" placeholder="https://..." oninput="editingRefUrls[${idx}]=this.value"/>
+      <button class="chat-rm" onclick="removeRefUrlRow(${idx})" title="Remove">×</button>
+    </div>`).join('');
+}
+function addRefUrlRow(){editingRefUrls.push('');renderRefUrlList();}
+function removeRefUrlRow(idx){editingRefUrls.splice(idx,1);renderRefUrlList();}
+
+function renderImgGrid(){
+  const grid=document.getElementById('img-grid');
+  if(!grid)return;
+  grid.innerHTML=editingImages.map((url,idx)=>`
+    <div class="img-item">
+      <img src="${esc(url)}" onclick="openLightbox('${esc(url)}')" alt=""/>
+      <button class="img-rm" onclick="removeImg(${idx})" title="Remove">×</button>
+    </div>`).join('');
+}
+
+function removeImg(idx){
+  editingImages.splice(idx,1);
+  renderImgGrid();
+}
+
+async function handleImgUpload(input){
+  const files=Array.from(input.files);
+  if(!files.length)return;
+  const st=document.getElementById('img-st');
+  st.innerHTML='<span class="spin"></span>Uploading...';
+  for(const file of files){
+    try{
+      const ext=file.name.split('.').pop();
+      const path=`recipes/${editingId||'draft'}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const r=await fetch(`${SURL}/storage/v1/object/${BUCKET}/${path}`,{
+        method:'POST',
+        headers:{'apikey':SKEY,'Authorization':'Bearer '+SKEY,'Content-Type':file.type,'x-upsert':'true'},
+        body:file
+      });
+      if(!r.ok)throw new Error(await r.text());
+      const url=`${SURL}/storage/v1/object/public/${BUCKET}/${path}`;
+      editingImages.push(url);
+      renderImgGrid();
+    }catch(e){st.innerHTML='Upload error: '+e.message;return;}
+  }
+  st.innerHTML='';
+  input.value='';
+}
+
+function openLightbox(url){
+  document.getElementById('lbox-img').src=url;
+  document.getElementById('lbox').style.display='flex';
+}
+
+/* ── EDIT / SAVE ── */
+function openEdit(id){
+  const i=allItems.find(x=>x.id===id);if(!i)return;
+  editingId=id;editingImages=parseImgs(i.images);
+  sv('e-title',i.title||'');sv('e-concept',i.concept||'');sv('e-phase',i.phase||'idea');sv('e-status',i.status||'idea');
+  sv('e-cat',i.category||'');sv('e-cuisine',i.cuisine||'');sv('e-subcat',i.sub_category||'');
+  sv('e-pri',i.priority||'medium');sv('e-ing',i.hero_ingredients||'');sv('e-protein',i.protein_per_serving||'');
+  sv('e-fiber',i.fiber_per_serving||'');sv('e-plants',i.plants_count||'');sv('e-source',i.source_folder||'');
+  sv('e-date',i.target_date||'');sv('e-tested-date',i.tested_date||'');sv('e-pub-date',i.published_date||'');
+  sv('e-by',i.initiated_by||'');sv('e-spark',i.spark_source||'');sv('e-season-n',i.seasonality_north||'');
+  sv('e-season-s',i.seasonality_south||'');sv('e-notes',i.notes||'');
+  document.getElementById('e-veg').checked=i.dietary_vegetarian||false;document.getElementById('e-vegan').checked=i.dietary_vegan||false;
+  document.getElementById('e-gf').checked=i.dietary_gluten_free||false;document.getElementById('e-nf').checked=i.dietary_nut_free||false;
+  document.getElementById('e-sf').checked=i.dietary_soy_free||false;document.getElementById('e-df').checked=i.dietary_dairy_free||false;
+  document.getElementById('e-fm').checked=i.dietary_fodmap||false;document.getElementById('e-ko').checked=i.dietary_kosher||false;
+  document.getElementById('e-ha').checked=i.dietary_halal||false;
+  document.getElementById('e-nutrition').checked=i.has_nutrition||false;document.getElementById('e-waste').checked=i.has_waste_abatement||false;
+  document.getElementById('e-tips').checked=i.has_pro_tips||false;document.getElementById('e-cost').checked=i.has_cost||false;
+  document.getElementById('e-seo').checked=i.has_seo||false;document.getElementById('e-social').checked=i.has_social_media||false;
+  editingChats=parseChatUrls(i.chat_url);if(editingChats.length===0)editingChats=[''];renderChatList();
+  editingRefUrls=parseRefUrls(i.reference_urls);if(editingRefUrls.length===0)editingRefUrls=[''];renderRefUrlList();
+  sv('e-dropbox',i.dropbox_url||'');sv('e-figma',i.figma_url||'');sv('e-assets',i.assets_note||'');
+  renderImgGrid();document.getElementById('modal-ov').style.display='flex';document.body.style.overflow='hidden';
+}
+
+function closeModal(){document.getElementById('modal-ov').style.display='none';document.body.style.overflow='';editingId=null;editingImages=[];editingChats=[];editingRefUrls=[];}
+
+async function doSave(){
+  if(!editingId)return;
+  const btn=document.getElementById('save-btn');btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const p={
+      title:v('e-title'),concept:v('e-concept')||null,phase:v('e-phase'),status:v('e-status'),category:v('e-cat')||null,
+      cuisine:v('e-cuisine')||null,sub_category:v('e-subcat')||null,priority:v('e-pri'),hero_ingredients:v('e-ing')||null,
+      protein_per_serving:v('e-protein')||null,fiber_per_serving:v('e-fiber')||null,plants_count:v('e-plants')?parseInt(v('e-plants')):null,
+      source_folder:v('e-source')||null,target_date:v('e-date')||null,tested_date:v('e-tested-date')||null,
+      published_date:v('e-pub-date')||null,initiated_by:v('e-by')||null,spark_source:v('e-spark')||null,
+      seasonality_north:v('e-season-n')||null,seasonality_south:v('e-season-s')||null,
+      dietary_vegetarian:document.getElementById('e-veg').checked,dietary_vegan:document.getElementById('e-vegan').checked,
+      dietary_gluten_free:document.getElementById('e-gf').checked,dietary_nut_free:document.getElementById('e-nf').checked,
+      dietary_soy_free:document.getElementById('e-sf').checked,dietary_dairy_free:document.getElementById('e-df').checked,
+      dietary_fodmap:document.getElementById('e-fm').checked,dietary_kosher:document.getElementById('e-ko').checked,
+      dietary_halal:document.getElementById('e-ha').checked,
+      has_nutrition:document.getElementById('e-nutrition').checked,has_waste_abatement:document.getElementById('e-waste').checked,
+      has_pro_tips:document.getElementById('e-tips').checked,has_cost:document.getElementById('e-cost').checked,
+      has_seo:document.getElementById('e-seo').checked,has_social_media:document.getElementById('e-social').checked,
+      chat_url:(()=>{const urls=editingChats.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),
+      reference_urls:(()=>{const urls=editingRefUrls.map(u=>u.trim()).filter(Boolean);return urls.length?JSON.stringify(urls):null;})(),
+      notes:v('e-notes')||null,dropbox_url:v('e-dropbox')||null,figma_url:v('e-figma')||null,assets_note:v('e-assets')||null,
+      images:editingImages.length?JSON.stringify(editingImages):null,updated_at:new Date().toISOString()
+    };
+    await api(TABLE+'?id=eq.'+editingId,'PATCH',p);
+    const idx=allItems.findIndex(x=>x.id===editingId);if(idx>-1)allItems[idx]={...allItems[idx],...p};
+    updateSummary();render();closeModal();setGSt('Saved.');setTimeout(()=>setGSt(''),2500);
+  }catch(e){setGSt('Error: '+e.message);}
+  btn.disabled=false;btn.textContent='Save';
+}
+
+function triggerDelete(){if(!editingId)return;const i=allItems.find(x=>x.id===editingId);document.getElementById('del-title-preview').textContent=i?i.title:'';document.getElementById('del-ov').style.display='flex';}
+function closeDelModal(){document.getElementById('del-ov').style.display='none';}
+async function doDelete(){
+  if(!editingId)return;const btn=document.getElementById('del-confirm-btn');btn.disabled=true;
+  try{
+    await api(TABLE+'?id=eq.'+editingId,'DELETE');
+    allItems=allItems.filter(x=>x.id!==editingId);updateSummary();render();closeDelModal();closeModal();setGSt('Deleted.');setTimeout(()=>setGSt(''),2500);
+  }catch(e){setGSt('Error: '+e.message);}
+  btn.disabled=false;
+}
+
+function setTab(tab,el){currentTab=tab;document.querySelectorAll('.c-tab').forEach(t=>t.classList.remove('on'));if(el)el.classList.add('on');document.getElementById('c-status').value='';window._statusGroup=null;render();}
+function filterByStatus(s){setTab('pipeline',document.querySelector('.c-tab'));document.getElementById('c-status').value=s;render();}
+function filterByStatuses(statuses){setTab('pipeline',document.querySelector('.c-tab'));document.getElementById('c-status').value='';window._statusGroup=statuses;render();}
+function v(id){return(document.getElementById(id)?.value||'').trim();}
+function v2(id){return document.getElementById(id)?.value||'';}
+function sv(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function setAddSt(msg,cls){const el=document.getElementById('add-st');el.innerHTML=msg;el.className='add-st'+(cls?' '+cls:'');}
+function setGSt(msg){document.getElementById('global-st').innerHTML=msg;}
+function fmtDate(d){if(!d)return'';const[y,m,day]=d.split('-'),months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return months[parseInt(m)-1]+' '+parseInt(day)+', '+y;}
+
+const CL={};
+
+let pvId=null;
+function openPV(id){
+  const i=allItems.find(x=>x.id===id);if(!i)return;
+  pvId=id;
+  document.getElementById('pv-title').textContent=i.title||'Untitled';
+  const stLabel=SL[i.status]||i.status;
+  const stCls='st-'+(i.status||'idea');
+  const chatUrls=parseChatUrls(i.chat_url);
+  const refUrls=parseRefUrls(i.reference_urls);
+  const imgs=parseImgs(i.images);
+  const tags=(i.tags||'').split(',').map(t=>t.trim()).filter(Boolean);
+  const dietary=[i.dietary_vegetarian,i.dietary_vegan,i.dietary_gluten_free,i.dietary_nut_free,i.dietary_soy_free,i.dietary_dairy_free,i.dietary_fodmap,i.dietary_kosher,i.dietary_halal];
+  const dietLabels=['Vegetarian','Vegan','Gluten-Free','Nut-Free','Soy-Free','Dairy-Free','FODMAP','Kosher','Halal'];
+  const secs=[i.has_nutrition,i.has_waste_abatement,i.has_pro_tips,i.has_cost,i.has_seo,i.has_social_media];
+  const secLabels=['Nutrition','Waste Abatement','Pro Tips','Cost','SEO','Social Media'];
+
+  let html='';
+
+  html+=`<div class="pv-sect pv-full" style="margin-bottom:14px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <span class="status-badge ${stCls}">${stLabel}</span>
+      ${i.phase?`<span style="font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">${i.phase}</span>`:''}
+      ${i.category?`<span class="icat">${i.category}</span>`:''}
+      ${i.cuisine?`<span class="icuisine">${i.cuisine}</span>`:''}
+      ${i.sub_category?`<span class="isubcat">· ${esc(i.sub_category)}</span>`:''}
+      ${i.initiated_by?`<span class="iby">— ${esc(i.initiated_by)}</span>`:''}
+    </div>
+  </div>`;
+
+  if(i.concept)html+=`<div class="pv-full pv-field"><div class="pv-fl">Concept</div><div class="pv-fv italic">${esc(i.concept)}</div></div>`;
+
+  let left='';
+  if(i.target_date||i.tested_date||i.published_date){
+    left+=`<div class="pv-field"><div class="pv-fl">Dates</div>`;
+    if(i.target_date)left+=`<div class="pv-fv">Target: ${fmtDate(i.target_date)}</div>`;
+    if(i.tested_date)left+=`<div class="pv-fv">Tested: ${fmtDate(i.tested_date)}</div>`;
+    if(i.published_date)left+=`<div class="pv-fv">Published: ${fmtDate(i.published_date)}</div>`;
+    left+=`</div>`;
+  }
+  if(i.hero_ingredients)left+=`<div class="pv-field"><div class="pv-fl">Hero Ingredients</div><div class="pv-fv">${esc(i.hero_ingredients)}</div></div>`;
+  if(i.protein_per_serving||i.fiber_per_serving||i.plants_count){
+    left+=`<div class="pv-field"><div class="pv-fl">Nutrition per Serving</div><div class="pv-fv">`;
+    if(i.protein_per_serving)left+=`Protein: ${i.protein_per_serving}g<br>`;
+    if(i.fiber_per_serving)left+=`Fiber: ${i.fiber_per_serving}g<br>`;
+    if(i.plants_count)left+=`Plants: ${i.plants_count}`;
+    left+=`</div></div>`;
+  }
+  if(i.seasonality_north||i.seasonality_south){
+    left+=`<div class="pv-field"><div class="pv-fl">Seasonality</div><div class="pv-fv">`;
+    if(i.seasonality_north)left+=`North: ${esc(i.seasonality_north)}<br>`;
+    if(i.seasonality_south)left+=`South: ${esc(i.seasonality_south)}`;
+    left+=`</div></div>`;
+  }
+  if(chatUrls.length)left+=`<div class="pv-field"><div class="pv-fl">Claude Chats</div><div class="pv-fv">${chatUrls.map((u,n)=>`<a href="${esc(u)}" target="_blank" rel="noopener">↗ Chat${chatUrls.length>1?' '+(n+1):''}</a>`).join('<br>')}</div></div>`;
+  if(refUrls.length)left+=`<div class="pv-field"><div class="pv-fl">Source URLs</div><div class="pv-fv">${refUrls.map((u,n)=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').slice(0,42)+(u.length>52?'…':''))}</a>`).join('<br>')}</div></div>`;
+
+  let right='';
+  const dietStr=dietLabels.filter((_,idx)=>dietary[idx]).join(', ');
+  if(dietStr)right+=`<div class="pv-field"><div class="pv-fl">Dietary</div><div class="pv-fv">${dietStr}</div></div>`;
+  if(secs.some(s=>s)){
+    right+=`<div class="pv-field"><div class="pv-fl">Sections Complete</div><div class="pv-fv">`;
+    right+=secs.map((s,idx)=>`<span style="display:inline-block;margin-right:8px;"><span style="color:${s?'var(--green)':'var(--muted)'};">●</span> ${secLabels[idx]}</span>`).join('<br>');
+    right+=`</div></div>`;
+  }
+  if(i.spark_source)right+=`<div class="pv-field"><div class="pv-fl">Spark / Source</div><div class="pv-fv">${esc(i.spark_source)}</div></div>`;
+  if(i.source_folder)right+=`<div class="pv-field"><div class="pv-fl">Source Folder</div><div class="pv-fv">${esc(i.source_folder)}</div></div>`;
+  if(i.notes)right+=`<div class="pv-field"><div class="pv-fl">Notes</div><div class="pv-fv italic">${esc(i.notes)}</div></div>`;
+  if(i.dropbox_url||i.figma_url||i.assets_note){
+    right+=`<div class="pv-field"><div class="pv-fl">Project Links</div><div class="pv-fv">`;
+    if(i.dropbox_url)right+=`<a href="${esc(i.dropbox_url)}" target="_blank" rel="noopener">⬡ Dropbox</a><br>`;
+    if(i.figma_url)right+=`<a href="${esc(i.figma_url)}" target="_blank" rel="noopener">◈ Figma</a><br>`;
+    if(i.assets_note)right+=`<span style="color:var(--muted);font-style:italic;">${esc(i.assets_note)}</span>`;
+    right+=`</div></div>`;
+  }
+
+  html+=`<div>${left}</div><div>${right}</div>`;
+
+  if(tags.length)html+=`<div class="pv-full pv-field"><div class="pv-fl">Tags</div><div class="pv-chips">${tags.map(t=>`<span class="itag">${esc(t)}</span>`).join('')}</div></div>`;
+  if(imgs.length)html+=`<div class="pv-full pv-field"><div class="pv-fl">Images</div><div class="pv-img-grid">${imgs.map(u=>`<img class="pv-img" src="${esc(u)}" onclick="openLightbox('${esc(u)}')" alt=""/>`).join('')}</div></div>`;
+
+  document.getElementById('pv-body').innerHTML=html;
+  document.getElementById('pv-ov').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function closePV(){document.getElementById('pv-ov').style.display='none';document.body.style.overflow='';pvId=null;}
+function pvToEdit(){if(!pvId)return;closePV();openEdit(pvId);}
+</script>
+</body>
+</html>
