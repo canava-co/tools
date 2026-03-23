@@ -64,10 +64,10 @@ input#photo-file,input#edit-photo-file{display:none;}
 .c-search::placeholder{color:var(--navy);opacity:.4;}
 .list{padding:0 40px 80px;}
 .empty{padding:60px 0;text-align:center;}.empty img{height:36px;opacity:.1;display:block;margin:0 auto 14px;}.empty p{font-size:8px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint);}
-.row{display:grid;grid-template-columns:3px 1fr auto;gap:0 22px;align-items:start;padding:16px 0;border-bottom:1px solid var(--line);animation:up .16s ease both;}
+.row{display:grid;grid-template-columns:4px 1fr auto;gap:0 18px;align-items:start;padding:14px 16px 14px 0;border-bottom:1px solid var(--line);animation:up .16s ease both;}.row.pri-high{background:rgba(138,32,32,0.05);}.row.pri-low{opacity:.82;}
 @keyframes up{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;}}
-.pip{width:3px;border-radius:0;margin-top:5px;}.pip.high{background:var(--high);height:30px;}.pip.medium{background:var(--plum);height:20px;}.pip.low{background:var(--low);height:12px;}
-.rtitle{font-size:14px;font-style:italic;color:var(--navy);line-height:1.3;margin-bottom:5px;}.row.done .rtitle{text-decoration:line-through;color:var(--muted);}
+.pip{width:4px;border-radius:0;margin-top:0;align-self:stretch;min-height:100%;}.pip.high{background:var(--high);}.pip.medium{background:var(--plum);}.pip.low{background:var(--low);}
+.rtitle{font-size:14px;font-style:italic;color:var(--navy);line-height:1.3;margin-bottom:5px;}.row.pri-high .rtitle{font-size:15px;font-weight:500;}.row.pri-low .rtitle{font-size:13px;color:var(--muted);}.row.done .rtitle{text-decoration:line-through;color:var(--muted);}
 .rmeta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:3px;}
 .rtype{font-size:7px;letter-spacing:.18em;text-transform:uppercase;color:var(--blue);}.rdue{font-size:8px;color:var(--muted);}.rdue.late{color:var(--high);font-weight:bold;}
 .rnext{font-size:8px;color:var(--blue);opacity:.8;}.rpri{font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);opacity:.65;}.radded{font-size:7px;color:var(--muted);opacity:.45;}
@@ -463,7 +463,7 @@ function render() {
           +'<button class="btn xs" data-id="'+t.id+'" data-action="edit">Edit</button>'
           +'<button class="btn danger xs" data-id="'+t.id+'" data-action="delete">Delete</button>';
     }
-    return '<div class="row'+(tab==='done'?' done':'')+'" id="row-'+t.id+'">'
+    return '<div class="row pri-'+p+(tab==='done'?' done':'')+'" id="row-'+t.id+'">'
       +'<div class="pip '+p+'"></div>'
       +'<div class="rbody">'
       +'<div class="rtitle">'+(t.title||t.raw_input||'')+'</div>'
